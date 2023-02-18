@@ -71,7 +71,6 @@ private:
 
 	void balanceTree(Node *node, int newKey) {
 		if (node == NULL) return;
-		node->height = 1 + max(getHeight(node->left), getHeight(node->right));
 
 		int balance = getBalance(node);
 		if (balance > 1) {
@@ -93,9 +92,46 @@ private:
 		balanceTree(node->parent, newKey);
 	}
 
+	void balanceTree(Node *node) {
+		if (node == NULL) return;
+
+		int balance = getBalance(node);
+		if (balance > 1) {
+			if (getBalance(node->left) >= 0)
+				node = rightRotate(node);
+			else {
+				leftRotate(node->left);
+				node = rightRotate(node);
+			}
+		} else if (balance < -1) {
+			if (getBalance(node->right) <= 0)
+				node = leftRotate(node);
+			else {
+				rightRotate(node->right);
+				node = leftRotate(node);
+			}
+		}
+
+		balanceTree(node->parent);
+	}
+
 public:
 	Node *root;
-	AVLTree() { root = NULL; }
+	AVLTree() {
+		root = NULL;
+	}
+	// Variadic constructor with std::initializer_list
+	AVLTree(std::initializer_list<int> list) {
+		root = NULL;
+		for (int key : list)
+			insertKey(key);
+	}
+	// Constructor with array
+	AVLTree(int *list, int size) {
+		root = NULL;
+		for (int i = 0; i < size; i++)
+			insertKey(list[i]);
+	}
 	~AVLTree() { delete root; }
 
 	int getHeight(Node *node) { return (node == NULL) ? 0 : node->height; }
@@ -132,6 +168,12 @@ public:
 		// Set the parent
 		node->parent = parent;
 
+		// Update the height of the nodes
+		while (parent != NULL) {
+			parent->height = 1 + max(getHeight(parent->left), getHeight(parent->right));
+			parent = parent->parent;
+		}
+
 		// Balance the tree
 		balanceTree(node->parent, node->key);
 	}
@@ -159,25 +201,41 @@ public:
 			Node *child = (node->right == NULL) ? node->left : node->right;
 			if (node->parent == NULL)
 				root = child;
-			else if (node->parent->left == node)
+			else if (node->parent->left == node) {
 				node->parent->left = child;
-			else
+				child->parent = node->parent;
+			} else {
 				node->parent->right = child;
+				child->parent = node->parent;
+			}
 			delete node;
 			return;
 		}
 		// if the node has both children
 		if (node->right != NULL && node->left != NULL) {
 			// Find the largest node in the left subtree
-			Node *current = node->left;
-			while (current->right != NULL)
-				current = current->right;
+			Node *removeNode = node->left;
+			while (removeNode->right != NULL)
+				removeNode = removeNode->right;
 
 			// Copy the largest node's key to the node
-			node->key = current->key;
+			node->key = removeNode->key;
+
+			// Update heights
+			Node *current, *tempLeafNode;
+			current = tempLeafNode = removeNode->parent;
 
 			// Delete the largest node
-			deleteNode(current);
+			deleteNode(removeNode);
+
+			while (current != NULL) {
+				current->height = 1 + max(getHeight(current->left), getHeight(current->right));
+				current = current->parent;
+			}
+
+			// Update heights
+			balanceTree(tempLeafNode);
+
 			return;
 		}
 
