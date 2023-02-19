@@ -15,12 +15,20 @@
 
 #include <iostream>
 #include <sstream>
-#include "tests/test.cpp"
-#include "modules/AVLTree.cpp"
-
+#include "gui.h"
+#include "tests/test.h"
+#include "modules/AVLTree.h"
 using namespace std;
 
-// Print tree with root at given level
+bool var = true;
+
+#define IG GUI::imgui
+
+void update() {
+	// Draw a circle
+	GUI::circle(100.0f, 100.0f, 50.0f, new int[3]{255, 0, 0});
+	GUI::line(100.0f, 100.0f, 200.0f, 200.0f, new int[3]{0, 255, 0});
+}
 
 // Add --test to the command line to run the tests
 int main(int argc, char** argv) {
@@ -64,5 +72,10 @@ int main(int argc, char** argv) {
 
 		return 0;
 	}
+
+	GUI::init();
+	while (!GUI::windowShouldClose()) GUI::render(update);
+	GUI::quit();
+
 	return 0;
 }
