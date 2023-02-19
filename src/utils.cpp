@@ -1,16 +1,9 @@
-#ifndef UTILS_H
-#define UTILS_H
-
+#include "utils.h"
 #include <iostream>
-#include "globals.cpp"
 
 int max(int a, int b) { return (a > b) ? a : b; }
 
 int min(int a, int b) { return (a < b) ? a : b; }
-
-int length(int* array) {
-	return sizeof(array) / sizeof(array[0]);
-}
 
 void printTree(Node* root, int level) {
 	if (root == NULL) return;
@@ -19,5 +12,3 @@ void printTree(Node* root, int level) {
 	std::cout << root->key << std::endl;
 	printTree(root->left, level + 1);
 }
-
-#endif
