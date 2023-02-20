@@ -59,6 +59,8 @@ void AVLTreeUI::draw() {
 			if (sqrt(pow(pos->x - x, 2) + pow(pos->y - y, 2)) < 20) {
 				// The mouse was clicked on a node
 				std::cout << "Clicked on node with key " << pos->node->key << std::endl;
+				tree.deleteNode(pos->node);
+				resetNodeGUIData();
 				break;
 			}
 		}
