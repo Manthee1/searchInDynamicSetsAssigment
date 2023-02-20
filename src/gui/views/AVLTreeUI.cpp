@@ -1,14 +1,15 @@
 #include "AVLTreeUI.h"
 #include <math.h>
 #include <sstream>
-#include "gui.h"
+#include <gui.h>
+#include <cstdlib>
 #define IG GUI::imgui
 
-int insertKey = 0;
-int removeKey = 0;
+static int insertKey = 0;
+static int removeKey = 0;
 nodePos** nodePositions = NULL;
-int nodePositionsSize = 0;
-bool reIndexNodes = true;
+static int nodePositionsSize = 0;
+static bool reIndexNodes = true;
 
 void resetNodeGUIData() {
 	// Reset the node positions
@@ -42,6 +43,18 @@ void AVLTreeUI::draw() {
 	if (IG::Button("Clear Tree")) {
 		delete tree.root;
 		tree.root = NULL;
+		resetNodeGUIData();
+	}
+	IG::End();
+
+	IG::Begin("Create Random Tree");
+	static int size = 10;
+	IG::InputInt("Amount", &size);
+	if (IG::Button("Create Table")) {
+		delete tree.root;
+		tree.root = NULL;
+		for (int i = 0; i < size; i++)
+			tree.insertKey(rand() % 100);
 		resetNodeGUIData();
 	}
 	IG::End();
