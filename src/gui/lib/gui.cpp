@@ -1,9 +1,9 @@
 #ifndef IMGUI_IMPL_OPENGL_LOADER_GLAD
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 
-#include "gui/imgui.h"
-#include "gui/backend/imgui_impl_glfw.h"
-#include "gui/backend/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "backend/imgui_impl_glfw.h"
+#include "backend/imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
@@ -20,21 +20,12 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
-// This example can also compile and run with Emscripten! See 'Makefile.emscripten' for details.
-#ifdef __EMSCRIPTEN__
-#include "../libs/emscripten/emscripten_mainloop_stub.h"
-#include "gui.h"
-#endif
-
 static void glfw_error_callback(int error, const char* description) {
 	fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
 ImGuiIO io;
-bool show_demo_window = true;
-bool show_another_window = false;
 ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
-int counter = 0;
 
 #include "gui.h"
 
