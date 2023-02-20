@@ -4,27 +4,30 @@
 #include <list>
 
 struct HashTableEntry {
-	int key;
-	int value;
+	int* keys;
+	int* values;
+	int size;
 };
 
 class ChainingHashTable {
 private:
-	int size;
-	int capacity;
-	std::list<HashTableEntry> *table;
-	void initTable(int, std::initializer_list<HashTableEntry>);
-	int hash(int);
+	void initTable(int, int*, int*);
 	void resize(int);
 
 public:
+	int size;
+	int capacity;
+	HashTableEntry* table;
 	ChainingHashTable();
 	ChainingHashTable(int);
-	ChainingHashTable(int, std::initializer_list<HashTableEntry>);
+	ChainingHashTable(int, int*, int*);
 	~ChainingHashTable();
+	int hash(int);
 	void insertKey(int, int);
 	int searchKey(int);
+	int getKeyIndex(int, int);
 	void deleteKey(int);
+	void clear();
 };
 
 #endif
