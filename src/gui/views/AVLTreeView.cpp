@@ -1,4 +1,4 @@
-#include "AVLTreeUI.h"
+#include "AVLTreeView.h"
 #include <math.h>
 #include <sstream>
 #include <gui.h>
@@ -23,7 +23,7 @@ void resetNodeGUIData() {
 }
 
 AVLTree tree;
-void AVLTreeUI::draw() {
+void AVLTreeView::draw() {
 	// Add a node to the tree
 	IG::Begin("Add Node");
 	IG::InputInt("Key", &insertKey);
@@ -84,7 +84,7 @@ void AVLTreeUI::draw() {
 	reIndexNodes = false;
 }
 
-void AVLTreeUI::drawTreeNode(Node* node, int x, int y) {
+void AVLTreeView::drawTreeNode(Node* node, int x, int y) {
 	if (node == NULL) return;
 	// Draw the tree
 

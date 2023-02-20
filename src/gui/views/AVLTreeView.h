@@ -6,7 +6,7 @@ struct nodePos {
 	Node* node;
 };
 
-namespace AVLTreeUI {
+namespace AVLTreeView {
 	void draw();
 	void drawTreeNode(Node* node, int x, int y);
 }

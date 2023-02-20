@@ -1,13 +1,13 @@
 #include "ViewController.h"
 
 #include "./lib/gui.h"
-#include "./views/AVLTreeUI.h"
+#include "./views/AVLTreeView.h"
 #include "./views/CHashTableView.h"
 
 #define IG GUI::imgui
 
 ViewData ViewController::views[] = {
-	{"AVL", AVLTreeUI::draw},
+	{"AVL", AVLTreeView::draw},
 	{"RedBlack", NULL},
 	{"HashTable (Chaining)", CHashTableView::draw},
 	{"Hash", NULL},
