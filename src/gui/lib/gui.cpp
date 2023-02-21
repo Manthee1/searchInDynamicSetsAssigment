@@ -134,9 +134,12 @@ namespace GUI {
 				if (scale < 0.1f) scale = 0.1f;
 				if (scale > 10.0f) scale = 10.0f;
 
-				// Change the offset so that it appears that the mouse is still hovering over the same point
-				offset_x += (ImGui::GetIO().MousePos.x - offset_x) * (old_scale - scale) / old_scale;
-				offset_y += (ImGui::GetIO().MousePos.y - offset_y) * (old_scale - scale) / old_scale;
+				// // Change the offset so that it appears that the mouse is still hovering over the same point
+				// offset_x += (ImGui::GetIO().MousePos.x - offset_x) * (old_scale - scale) / old_scale;
+				// offset_y += (ImGui::GetIO().MousePos.y - offset_y) * (old_scale - scale) / old_scale;
+				// Make sure to zoom towards the center of the screen
+				offset_x -= (window_width / old_scale - window_width / scale) / 2;
+				offset_y -= (window_height / old_scale - window_height / scale) / 2;
 			}
 			// Listen for mouse down only if a the Main window is hovered
 			// Get a list of all active windows
