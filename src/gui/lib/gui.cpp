@@ -154,6 +154,17 @@ namespace GUI {
 		ImGui::Begin("Info");
 		ImGui::Text("Scale: %f", scale);
 		ImGui::Text("Offset: (%d, %d)", offset_x, offset_y);
+		if (ImGui::Button("Reset")) {
+			scale = 1.0f;
+			offset_x = 0;
+			offset_y = 0;
+		}
+		ImGui::End();
+
+		// Draw a crosshair
+		beginMain();
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(window_width / 2 - 10, window_height / 2), ImVec2(window_width / 2 + 10, window_height / 2), IM_COL32(255, 255, 255, 255));
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(window_width / 2, window_height / 2 - 10), ImVec2(window_width / 2, window_height / 2 + 10), IM_COL32(255, 255, 255, 255));
 		ImGui::End();
 
 		// Rendering
