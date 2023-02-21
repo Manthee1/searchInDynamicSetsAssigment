@@ -54,7 +54,7 @@ void AVLTreeView::draw() {
 		delete tree.root;
 		tree.root = NULL;
 		for (int i = 0; i < size; i++)
-			tree.insertKey(rand() % 100);
+			tree.insertKey(rand() % 1000);
 		resetNodeGUIData();
 	}
 	IG::End();
@@ -81,12 +81,12 @@ void AVLTreeView::draw() {
 
 	// Draw the tree
 	GUI::beginMain();
-	drawTreeNode(tree.root, IG::GetIO().DisplaySize.x / 2, 50);
+	drawTreeNode(tree.root, IG::GetIO().DisplaySize.x / 2, 50, tree.root == NULL ? 0 : tree.root->height);
 	IG::End();
 	reIndexNodes = false;
 }
 
-void AVLTreeView::drawTreeNode(Node* node, int x, int y) {
+void AVLTreeView::drawTreeNode(Node* node, int x, int y, int level) {
 	if (node == NULL) return;
 	// Draw the tree
 	// Draw a circle at the current node
@@ -94,20 +94,18 @@ void AVLTreeView::drawTreeNode(Node* node, int x, int y) {
 	// Draw the key of the current node
 	GUI::text(x - 10, y - 10, std::to_string(node->key), new int[3]{255, 255, 255});
 
-	int xeq = (node->height * 0.5 * (node->height + 1)) * 10;
+	int xeq = 4 * pow(2, level);
 	if (node->left != NULL) {
 		// Draw a line from the current node to the left node factoring in the height of the tree
-		int xpos = x - xeq;
-		int ypos = y + 100;
-		GUI::line(x, y, xpos, ypos, new int[3]{0, 255, 0});
-		drawTreeNode(node->left, xpos, ypos);
+		GUI::line(x, y, x - xeq, y + 100, new int[3]{255, 255, 255});
+		// Draw the left node
+		drawTreeNode(node->left, x - xeq, y + 100, level - 1);
 	}
 	if (node->right != NULL) {
 		// Draw a line from the current node to the right node factoring in the height of the tree
-		int xpos = x + xeq;
-		int ypos = y + 100;
-		GUI::line(x, y, xpos, ypos, new int[3]{0, 255, 0});
-		drawTreeNode(node->right, xpos, ypos);
+		GUI::line(x, y, x + xeq, y + 100, new int[3]{255, 255, 255});
+		// Draw the right node
+		drawTreeNode(node->right, x + xeq, y + 100, level - 1);
 	}
 
 	// Add the node to the nodePositions array

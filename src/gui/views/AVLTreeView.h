@@ -8,5 +8,5 @@ struct nodePos {
 
 namespace AVLTreeView {
 	void draw();
-	void drawTreeNode(Node* node, int x, int y);
+	void drawTreeNode(Node* node, int x, int y, int level);
 }
