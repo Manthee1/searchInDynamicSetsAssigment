@@ -81,6 +81,7 @@ void drawTableWindow() {
 void drawTable() {
 	// Draw the table relations on the frame using rect
 	int x = 300;
+	GUI::beginMain();
 	for (int i = 0; i < table.capacity; i++) {
 		HashTableEntry* entry = &table.table[i];
 
@@ -109,4 +110,5 @@ void drawTable() {
 		if (i != table.capacity - 1)
 			GUI::line(x + 12, 50 * i + 22, x + 12, 50 * (i + 1) + 10, new int[3]{255, 0, 0});
 	}
+	IG::End();
 }

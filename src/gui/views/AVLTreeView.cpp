@@ -80,14 +80,15 @@ void AVLTreeView::draw() {
 	}
 
 	// Draw the tree
+	GUI::beginMain();
 	drawTreeNode(tree.root, IG::GetIO().DisplaySize.x / 2, 50);
+	IG::End();
 	reIndexNodes = false;
 }
 
 void AVLTreeView::drawTreeNode(Node* node, int x, int y) {
 	if (node == NULL) return;
 	// Draw the tree
-
 	// Draw a circle at the current node
 	GUI::circle(x, y, 20, new int[3]{255, 0, 0});
 	// Draw the key of the current node
