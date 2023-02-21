@@ -34,6 +34,10 @@ namespace GUI {
 	namespace imgui = ImGui;
 	int window_width = 1280;
 	int window_height = 720;
+	float scale = 1.0f;
+	int offset_x = 0;
+	int offset_y = 0;
+	bool mouse_down = false;
 
 	bool windowShouldClose() {
 		return glfwWindowShouldClose(window);
@@ -121,6 +125,34 @@ namespace GUI {
 
 		// Update
 		update();
+
+		// Listen for scroll
+		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
+			if (ImGui::GetIO().MouseWheel != 0) {
+				float old_scale = scale;
+				scale += ImGui::GetIO().MouseWheel * 0.1f;
+				if (scale < 0.1f) scale = 0.1f;
+				if (scale > 10.0f) scale = 10.0f;
+
+				// Change the offset so that it appears that the mouse is still hovering over the same point
+				offset_x += (ImGui::GetIO().MousePos.x - offset_x) * (old_scale - scale) / old_scale;
+				offset_y += (ImGui::GetIO().MousePos.y - offset_y) * (old_scale - scale) / old_scale;
+			}
+			// Listen for mouse down only if a the Main window is hovered
+			// Get a list of all active windows
+
+			mouse_down = ImGui::IsMouseDown(0);
+			if (mouse_down) {
+				offset_x += ImGui::GetIO().MouseDelta.x / scale;
+				offset_y += ImGui::GetIO().MouseDelta.y / scale;
+			}
+		}
+		// Scale and offset
+		ImGui::Begin("Info");
+		ImGui::Text("Scale: %f", scale);
+		ImGui::Text("Offset: (%d, %d)", offset_x, offset_y);
+		ImGui::End();
+
 		// Rendering
 		ImGui::Render();
 		int display_w, display_h;
@@ -157,31 +189,34 @@ namespace GUI {
 		return 0;
 	}
 
+	ImVec2 getVec2(float x, float y) {
+		return ImVec2((x + offset_x) * scale, (y + offset_y) * scale);
+	}
+
 	void beginMain() {
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::SetNextWindowSize(ImVec2(window_width, window_height));
 		ImGui::Begin("Main Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	}
 
-	void
-	circle(float x, float y, float radius, int* color) {
+	void circle(float x, float y, float radius, int* color) {
 		// Draw a circle on main window
-		ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(x, y), radius, ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)));
+		ImGui::GetWindowDrawList()->AddCircleFilled(getVec2(x, y), radius * scale, ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)));
 	}
 
 	void line(float x1, float y1, float x2, float y2, int* color) {
 		// Draw a line on main window
-		ImGui::GetWindowDrawList()->AddLine(ImVec2(x1, y1), ImVec2(x2, y2), ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)));
+		ImGui::GetWindowDrawList()->AddLine(getVec2(x1, y1), getVec2(x2, y2), ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)));
 	}
 
 	void text(float x, float y, std::string text, int* color) {
 		// Draw a text on main window
-		ImGui::GetWindowDrawList()->AddText(ImVec2(x, y), ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)), text.c_str());
+		ImGui::GetWindowDrawList()->AddText(getVec2(x, y), ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)), text.c_str());
 	}
 
 	void rect(float x, float y, float width, float height, int* color) {
 		// Draw a rectangle on main window
-		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(x, y), ImVec2(x + width, y + height), ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)));
+		ImGui::GetWindowDrawList()->AddRectFilled(getVec2(x, y), getVec2(x + width, y + height), ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)));
 	}
 
 };
