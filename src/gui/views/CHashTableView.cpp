@@ -5,7 +5,7 @@
 #define IG GUI::imgui
 
 // CHashTable table = CHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-static CHashTable table = CHashTable(10);
+static CHashTable* table = new CHashTable(10);
 static int insertKey = 0;
 static int insertValue = 0;
 static int highlightIndex = -1;
@@ -17,7 +17,7 @@ void CHashTableView::draw() {
 	IG::InputInt("Key", &insertKey);
 	IG::InputInt("Value", &insertValue);
 	if (IG::Button("Add Entry"))
-		table.insertKey(insertKey, insertValue);
+		table->insertKey(insertKey, insertValue);
 	IG::End();
 
 	IG::Begin("Create Random Table");
@@ -27,11 +27,11 @@ void CHashTableView::draw() {
 	IG::InputInt("Size", &tableSize);
 	if (IG::Button("Create Table")) {
 		// Destroy the old table
-		table.~CHashTable();
+		table->~CHashTable();
 		// Create a new table
-		table = CHashTable(tableSize);
+		table = new CHashTable(tableSize);
 		for (int i = 0; i < amount; i++)
-			table.insertKey(rand() % 100, rand() % 100);
+			table->insertKey(rand() % 100, rand() % 100);
 	}
 	IG::End();
 
@@ -39,8 +39,8 @@ void CHashTableView::draw() {
 	static int searchKey = 0;
 	IG::InputInt("Key", &searchKey);
 	if (IG::Button("Search Entry")) {
-		highlightIndex = table.hash(searchKey);
-		highlightKeyIndex = table.getKeyIndex(searchKey, highlightIndex);
+		highlightIndex = table->hash(searchKey);
+		highlightKeyIndex = table->getKeyIndex(searchKey, highlightIndex);
 		if (highlightKeyIndex == -1) {
 			highlightIndex = -1;
 			timer = 200;
@@ -59,7 +59,7 @@ void CHashTableView::draw() {
 	static int deleteKey = 0;
 	IG::InputInt("Key", &deleteKey);
 	if (IG::Button("Delete Entry"))
-		table.deleteKey(deleteKey);
+		table->deleteKey(deleteKey);
 	IG::End();
 
 	drawTable();
@@ -71,15 +71,15 @@ static void drawTableWindow() {
 	IG::Text("Key");
 	IG::SameLine();
 	IG::Text("Value");
-	for (int i = 0; i < table.capacity; i++) {
-		HashTableChain* entry = &table.table[i];
+	for (int i = 0; i < table->capacity; i++) {
+		HashTableChain* entry = &table->table[i];
 		for (int j = 0; j < entry->size; j++) {
 			IG::Text("%d", entry->keys[j]);
 			IG::SameLine();
 			IG::Text("%d", entry->values[j]);
 		}
 		// Add separator
-		if (i != table.capacity - 1 && entry->size != 0) IG::Separator();
+		if (i != table->capacity - 1 && entry->size != 0) IG::Separator();
 	}
 	IG::End();
 }
@@ -88,8 +88,8 @@ static void drawTable() {
 	// Draw the table relations on the frame using rect
 	int x = 300;
 	GUI::beginMain();
-	for (int i = 0; i < table.capacity; i++) {
-		HashTableChain* entry = &table.table[i];
+	for (int i = 0; i < table->capacity; i++) {
+		HashTableChain* entry = &table->table[i];
 
 		// Draw Rect
 		GUI::rect(x, 50 * i + 10, 25, 25, new int[3]{255, 255, 255});
@@ -113,7 +113,7 @@ static void drawTable() {
 			GUI::text(entry_x + 10, entry_y, std::to_string(entry->keys[j]).c_str(), new int[3]{0, 0, 0});
 			GUI::text(entry_x + 10, entry_y + 10, std::to_string(entry->values[j]).c_str(), new int[3]{0, 0, 0});
 		}
-		if (i != table.capacity - 1)
+		if (i != table->capacity - 1)
 			GUI::line(x + 12, 50 * i + 22, x + 12, 50 * (i + 1) + 10, new int[3]{255, 0, 0});
 	}
 	IG::End();

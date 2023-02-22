@@ -44,22 +44,23 @@ void CHashTable::resize(int newCapacity) {
 
 void CHashTable::insertKey(int key, int value) {
 	int index = hash(key);
+
+	HashTableChain* entry = &table[index];
+
 	// If the entry is empty, create a new one
-	if (table[index].keys == nullptr) {
-		table[index].keys = new int[1];
-		table[index].values = new int[1];
-		table[index].size = 1;
-		table[index].keys[0] = key;
-		table[index].values[0] = value;
+	if (entry->keys == nullptr) {
+		entry->keys = new int[1]{key};
+		entry->values = new int[1]{value};
+		entry->size = 1;
 		return;
 	}
 
 	// If the entry is not empty, resize the arrays
-	table[index].keys = (int*)realloc(table[index].keys, (table[index].size + 1) * sizeof(int));
-	table[index].values = (int*)realloc(table[index].values, (table[index].size + 1) * sizeof(int));
-	table[index].keys[table[index].size] = key;
-	table[index].values[table[index].size] = value;
-	table[index].size++;
+	entry->keys = (int*)realloc(entry->keys, (entry->size + 1) * sizeof(int));
+	entry->values = (int*)realloc(entry->values, (entry->size + 1) * sizeof(int));
+	entry->keys[entry->size] = key;
+	entry->values[entry->size] = value;
+	entry->size++;
 }
 
 int CHashTable::searchKey(int key) {
