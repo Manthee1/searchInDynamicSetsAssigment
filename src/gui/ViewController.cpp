@@ -3,6 +3,7 @@
 #include "./lib/gui.h"
 #include "./views/AVLTreeView.h"
 #include "./views/CHashTableView.h"
+#include "./views/OAHashTableView.h"
 
 #define IG GUI::imgui
 
@@ -10,10 +11,9 @@ ViewData ViewController::views[] = {
 	{"AVL", AVLTreeView::draw},
 	{"RedBlack", NULL},
 	{"HashTable (Chaining)", CHashTableView::draw},
-	{"Hash", NULL},
-};
+	{"HashTable (OpenAddressing)", OAHashTableView::draw}};
 
-int activeView = 2;
+int activeView = 3;
 
 void drawDashboard() {
 	// Draw a docked window to the left of the screen
