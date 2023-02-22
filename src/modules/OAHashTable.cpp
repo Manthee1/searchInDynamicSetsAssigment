@@ -1,8 +1,8 @@
-#include "OpenAdressingHashTable.h"
+#include "OAHashTable.h"
 
 #define DEFAULT_CAPACITY 10
 
-void OpenAdressingHashTable::initTable(int capacity, int* keys, int* values) {
+void OAHashTable::initTable(int capacity, int* keys, int* values) {
 	this->capacity = capacity;
 	this->size = 0;
 
@@ -24,7 +24,7 @@ void OpenAdressingHashTable::initTable(int capacity, int* keys, int* values) {
 	}
 }
 
-void OpenAdressingHashTable::resize(int newCapacity) {
+void OAHashTable::resize(int newCapacity) {
 	// Create a new table
 	HashTableEntry* newTable = new HashTableEntry[newCapacity];
 	// Nullify all entries
@@ -55,22 +55,22 @@ void OpenAdressingHashTable::resize(int newCapacity) {
 	capacity = newCapacity;
 }
 
-OpenAdressingHashTable::OpenAdressingHashTable(int capacity, int* keys, int* values) {
+OAHashTable::OAHashTable(int capacity, int* keys, int* values) {
 	initTable(capacity, keys, values);
 }
 
-OpenAdressingHashTable::OpenAdressingHashTable(int capacity) {
+OAHashTable::OAHashTable(int capacity) {
 	initTable(capacity, {}, {});
 }
 
-OpenAdressingHashTable::OpenAdressingHashTable() {
+OAHashTable::OAHashTable() {
 	initTable(DEFAULT_CAPACITY, {}, {});
 }
 
-OpenAdressingHashTable::~OpenAdressingHashTable() {
+OAHashTable::~OAHashTable() {
 }
 
-int OpenAdressingHashTable::hash(int key) {
+int OAHashTable::hash(int key) {
 	// DOoble hash
 	int hash1 = key % capacity;
 	int hash2 = 7 - (key % 7);
@@ -79,7 +79,7 @@ int OpenAdressingHashTable::hash(int key) {
 	return (hash1 * hash2) % capacity;
 }
 
-void OpenAdressingHashTable::insertKey(int key, int value) {
+void OAHashTable::insertKey(int key, int value) {
 	int index = hash(key);
 
 	// Check if the table needs to be resized
@@ -101,13 +101,13 @@ void OpenAdressingHashTable::insertKey(int key, int value) {
 	table[index].value = value;
 }
 
-int OpenAdressingHashTable::searchKey(int key) {
+int OAHashTable::searchKey(int key) {
 	int index = getIndex(key);
 	if (index == -1) return -1;
 	return table[index].value;
 }
 
-int OpenAdressingHashTable::getIndex(int key) {
+int OAHashTable::getIndex(int key) {
 	int index = hash(key);
 	// If the entry is empty, return -1
 	if (table[index].key == -1) return -1;
@@ -120,14 +120,14 @@ int OpenAdressingHashTable::getIndex(int key) {
 	return index;
 }
 
-void OpenAdressingHashTable::deleteKey(int key) {
+void OAHashTable::deleteKey(int key) {
 	int index = getIndex(key);
 	if (index == -1) return;
 	table[index].key = -1;
 	table[index].value = -1;
 }
 
-void OpenAdressingHashTable::clear() {
+void OAHashTable::clear() {
 	delete[] table;
 	initTable(10, nullptr, nullptr);
 }

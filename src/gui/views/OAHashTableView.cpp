@@ -4,8 +4,8 @@
 #include <cstdlib>
 #define IG GUI::imgui
 
-static OpenAdressingHashTable table = OpenAdressingHashTable(100, new int[11]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1}, new int[11]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1});
-// OpenAdressingHashTable table = OpenAdressingHashTable(10);
+static OAHashTable table = OAHashTable(100, new int[11]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1}, new int[11]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1});
+// OAHashTable table = OAHashTable(10);
 static int insertKey = 0;
 static int insertValue = 0;
 static int highlightIndex = -1;
@@ -26,9 +26,9 @@ void OAHashTableView::draw() {
 	IG::InputInt("Size", &tableSize);
 	if (IG::Button("Create Table")) {
 		// Destroy the old table
-		table.~OpenAdressingHashTable();
+		table.~OAHashTable();
 		// Create a new table
-		table = OpenAdressingHashTable(tableSize);
+		table = OAHashTable(tableSize);
 		for (int i = 0; i < amount; i++)
 			table.insertKey(rand() % 100, rand() % 100);
 	}

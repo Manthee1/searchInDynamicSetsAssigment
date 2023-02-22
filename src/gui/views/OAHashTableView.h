@@ -1,4 +1,4 @@
-#include "../../modules/OpenAdressingHashTable.h"
+#include "../../modules/OAHashTable.h"
 
 static void drawTableWindow();
 static void drawTable();

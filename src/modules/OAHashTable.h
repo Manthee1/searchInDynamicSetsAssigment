@@ -1,5 +1,5 @@
-#ifndef OpenAdressingHashTable_h
-#define OpenAdressingHashTable_h
+#ifndef OAHashTable_h
+#define OAHashTable_h
 #include "../utils.h"
 
 struct HashTableEntry {
@@ -7,7 +7,7 @@ struct HashTableEntry {
 	int value;
 };
 
-class OpenAdressingHashTable {
+class OAHashTable {
 private:
 	void initTable(int, int*, int*);
 	void resize(int);
@@ -16,10 +16,10 @@ public:
 	int size;
 	int capacity;
 	HashTableEntry* table;
-	OpenAdressingHashTable();
-	OpenAdressingHashTable(int);
-	OpenAdressingHashTable(int, int*, int*);
-	~OpenAdressingHashTable();
+	OAHashTable();
+	OAHashTable(int);
+	OAHashTable(int, int*, int*);
+	~OAHashTable();
 	int hash(int);
 	void insertKey(int, int);
 	int searchKey(int);
