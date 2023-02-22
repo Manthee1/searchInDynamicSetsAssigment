@@ -4,8 +4,8 @@
 #include <cstdlib>
 #define IG GUI::imgui
 
-// ChainingHashTable table = ChainingHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-static ChainingHashTable table = ChainingHashTable(10);
+// CHashTable table = CHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+static CHashTable table = CHashTable(10);
 static int insertKey = 0;
 static int insertValue = 0;
 static int highlightIndex = -1;
@@ -27,9 +27,9 @@ void CHashTableView::draw() {
 	IG::InputInt("Size", &tableSize);
 	if (IG::Button("Create Table")) {
 		// Destroy the old table
-		table.~ChainingHashTable();
+		table.~CHashTable();
 		// Create a new table
-		table = ChainingHashTable(tableSize);
+		table = CHashTable(tableSize);
 		for (int i = 0; i < amount; i++)
 			table.insertKey(rand() % 100, rand() % 100);
 	}

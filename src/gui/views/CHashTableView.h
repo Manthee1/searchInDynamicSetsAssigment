@@ -1,4 +1,4 @@
-#include "../../modules/ChainingHashTable.h"
+#include "../../modules/CHashTable.h"
 
 static void drawTableWindow();
 static void drawTable();
