@@ -35,8 +35,8 @@ namespace GUI {
 	int window_width = 1280;
 	int window_height = 720;
 	float scale = 1.0f;
-	int offset_x = 0;
-	int offset_y = 0;
+	float offset_x = 0;
+	float offset_y = 0;
 	bool mouse_down = false;
 
 	bool windowShouldClose() {
@@ -109,6 +109,10 @@ namespace GUI {
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
+		// Update screen size
+		window_width = ImGui::GetIO().DisplaySize.x;
+		window_height = ImGui::GetIO().DisplaySize.y;
+
 		return 0;
 	}
 
@@ -130,8 +134,9 @@ namespace GUI {
 		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
 			if (ImGui::GetIO().MouseWheel != 0) {
 				float old_scale = scale;
-				scale += ImGui::GetIO().MouseWheel * 0.1f;
-				if (scale < 0.1f) scale = 0.1f;
+				// Make the scaling factor slower then smaller it is
+				scale += ImGui::GetIO().MouseWheel * 0.1f * scale;
+				if (scale < 0.05f) scale = 0.05f;
 				if (scale > 10.0f) scale = 10.0f;
 
 				// // Change the offset so that it appears that the mouse is still hovering over the same point
@@ -141,19 +146,16 @@ namespace GUI {
 				offset_x -= (window_width / old_scale - window_width / scale) / 2;
 				offset_y -= (window_height / old_scale - window_height / scale) / 2;
 			}
-			// Listen for mouse down only if a the Main window is hovered
-			// Get a list of all active windows
-
-			mouse_down = ImGui::IsMouseDown(0);
-			if (mouse_down) {
-				offset_x += ImGui::GetIO().MouseDelta.x / scale;
-				offset_y += ImGui::GetIO().MouseDelta.y / scale;
-			}
+		}
+		mouse_down = ImGui::IsMouseDown(0);
+		if (mouse_down) {
+			offset_x += ImGui::GetIO().MouseDelta.x / scale;
+			offset_y += ImGui::GetIO().MouseDelta.y / scale;
 		}
 		// Scale and offset
 		ImGui::Begin("Info");
 		ImGui::Text("Scale: %f", scale);
-		ImGui::Text("Offset: (%d, %d)", offset_x, offset_y);
+		ImGui::Text("Offset: (%f, %f)", offset_x, offset_y);
 		if (ImGui::Button("Reset")) {
 			scale = 1.0f;
 			offset_x = 0;
@@ -171,7 +173,7 @@ namespace GUI {
 		ImGui::Render();
 		int display_w, display_h;
 
-		// glfwGetFramebufferSize(window, &width, &window_height);
+		// glfwGetFramebufferSize(window, &width, & window_height);
 		// glViewport(0, 0, width, window_height);
 		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -207,6 +209,20 @@ namespace GUI {
 		return ImVec2((x + offset_x) * scale, (y + offset_y) * scale);
 	}
 
+	int getHeight() {
+		return window_height;
+	}
+	int getWidth() {
+		return window_width;
+	}
+
+	int getMouseX() {
+		return (ImGui::GetIO().MousePos.x / scale) - offset_x;
+	}
+	int getMouseY() {
+		return (ImGui::GetIO().MousePos.y / scale) - offset_y;
+	}
+
 	void beginMain() {
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::SetNextWindowSize(ImVec2(window_width, window_height));
@@ -232,7 +248,6 @@ namespace GUI {
 		// Draw a rectangle on main window
 		ImGui::GetWindowDrawList()->AddRectFilled(getVec2(x, y), getVec2(x + width, y + height), ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)));
 	}
-
 };
 
 #endif
