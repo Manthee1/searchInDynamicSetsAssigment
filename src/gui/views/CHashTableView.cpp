@@ -4,7 +4,8 @@
 #include <cstdlib>
 #define IG GUI::imgui
 
-ChainingHashTable table = ChainingHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+// ChainingHashTable table = ChainingHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+static ChainingHashTable table = ChainingHashTable(10);
 static int insertKey = 0;
 static int insertValue = 0;
 static int highlightIndex = -1;
@@ -21,9 +22,14 @@ void CHashTableView::draw() {
 
 	IG::Begin("Create Random Table");
 	static int amount = 10;
+	static int tableSize = 10;
 	IG::InputInt("Amount", &amount);
+	IG::InputInt("Size", &tableSize);
 	if (IG::Button("Create Table")) {
-		table.clear();
+		// Destroy the old table
+		table.~ChainingHashTable();
+		// Create a new table
+		table = ChainingHashTable(tableSize);
 		for (int i = 0; i < amount; i++)
 			table.insertKey(rand() % 100, rand() % 100);
 	}
@@ -60,13 +66,13 @@ void CHashTableView::draw() {
 	drawTableWindow();
 }
 
-void drawTableWindow() {
+static void drawTableWindow() {
 	IG::Begin("Table");
 	IG::Text("Key");
 	IG::SameLine();
 	IG::Text("Value");
 	for (int i = 0; i < table.capacity; i++) {
-		HashTableEntry* entry = &table.table[i];
+		HashTableChain* entry = &table.table[i];
 		for (int j = 0; j < entry->size; j++) {
 			IG::Text("%d", entry->keys[j]);
 			IG::SameLine();
@@ -78,12 +84,12 @@ void drawTableWindow() {
 	IG::End();
 }
 
-void drawTable() {
+static void drawTable() {
 	// Draw the table relations on the frame using rect
 	int x = 300;
 	GUI::beginMain();
 	for (int i = 0; i < table.capacity; i++) {
-		HashTableEntry* entry = &table.table[i];
+		HashTableChain* entry = &table.table[i];
 
 		// Draw Rect
 		GUI::rect(x, 50 * i + 10, 25, 25, new int[3]{255, 255, 255});
