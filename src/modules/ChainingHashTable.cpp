@@ -7,11 +7,12 @@
 void ChainingHashTable::initTable(int capacity, int* keys, int* values) {
 	this->capacity = capacity;
 	this->size = 0;
-	this->table = new HashTableEntry[capacity];
+	this->table = new HashTableChain[capacity];
 	// Nullify all entries
 	for (int i = 0; i < capacity; i++) table[i] = {nullptr, nullptr, 0};
 	// Insert all keys
-	for (int i = 0; i < capacity; i++) insertKey(keys[i], values[i]);
+	if (keys != nullptr && values != nullptr)
+		for (int i = 0; i < capacity; i++) insertKey(keys[i], values[i]);
 }
 
 ChainingHashTable::ChainingHashTable() {
@@ -27,6 +28,10 @@ ChainingHashTable::ChainingHashTable(int capacity, int* keys, int* values) {
 }
 
 ChainingHashTable::~ChainingHashTable() {
+	for (int i = 0; i < capacity; i++) {
+		delete[] table[i].keys;
+		delete[] table[i].values;
+	}
 	delete[] table;
 }
 

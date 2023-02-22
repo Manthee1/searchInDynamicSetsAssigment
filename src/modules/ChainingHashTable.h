@@ -1,9 +1,8 @@
 #ifndef ChainingHashTable_h
 #define ChainingHashTable_h
 #include "../utils.h"
-#include <list>
 
-struct HashTableEntry {
+struct HashTableChain {
 	int* keys;
 	int* values;
 	int size;
@@ -13,11 +12,13 @@ class ChainingHashTable {
 private:
 	void initTable(int, int*, int*);
 	void resize(int);
+	int hash1(int);
+	int hash2(int);
 
 public:
 	int size;
 	int capacity;
-	HashTableEntry* table;
+	HashTableChain* table;
 	ChainingHashTable();
 	ChainingHashTable(int);
 	ChainingHashTable(int, int*, int*);
