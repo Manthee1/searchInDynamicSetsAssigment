@@ -61,8 +61,8 @@ void AVLTreeView::draw() {
 
 	// Check if a node was clicked
 	if (IG::IsMouseClicked(0)) {
-		int x = IG::GetMousePos().x;
-		int y = IG::GetMousePos().y;
+		int x = GUI::getMouseX();
+		int y = GUI::getMouseY();
 		std::cout << "Mouse clicked at (" << x << ", " << y << ")" << std::endl;
 
 		// Check if the mouse was clicked on a node
