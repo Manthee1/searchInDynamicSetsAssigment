@@ -69,14 +69,14 @@ void AVLTree::balanceTree(Node *node, int newKey) {
 
 	int balance = getBalance(node);
 	if (balance > 1) {
-		if (newKey <= node->left->key)
+		if (newKey < node->left->key)
 			node = rightRotate(node);
 		else {
 			node->left = leftRotate(node->left);
 			node = rightRotate(node);
 		}
 	} else if (balance < -1) {
-		if (newKey >= node->right->key)
+		if (newKey > node->right->key)
 			node = leftRotate(node);
 		else {
 			node->right = rightRotate(node->right);
@@ -84,7 +84,7 @@ void AVLTree::balanceTree(Node *node, int newKey) {
 		}
 	}
 
-	balanceTree(node->parent, newKey);
+	balanceTree(node->parent);
 }
 
 void AVLTree::balanceTree(Node *node) {
@@ -124,7 +124,7 @@ AVLTree::AVLTree(std::initializer_list<int> list) {
 }
 // Constructor with array
 AVLTree::AVLTree(int *list, int size) {
-	size = 0;
+	this->size = 0;
 	root = NULL;
 	for (int i = 0; i < size; i++)
 		insertKey(list[i]);

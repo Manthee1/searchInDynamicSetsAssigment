@@ -25,19 +25,17 @@ void resetNodeGUIData() {
 //  5 18
 static bool isAVLTreeBalanced(AVLTree* tree, Node* node) {
 	if (node == NULL) return true;
-	if (abs(tree->getBalance(node)) > 1) return false;
-	bool isBalanced = (node->left == NULL || isAVLTreeBalanced(tree, node->left)) &&
-					  (node->right == NULL || isAVLTreeBalanced(tree, node->right));
-	if (!isBalanced) {
+
+	if (abs(tree->getBalance(node)) > 1) {
 		std::cout << "Node " << node->key << " is not balanced" << std::endl;
+		return false;
 	}
-	return isBalanced;
+	return (node->left == NULL || isAVLTreeBalanced(tree, node->left)) &&
+		   (node->right == NULL || isAVLTreeBalanced(tree, node->right));
 }
 
-int newKeys[16] = {18, 18, 18, 17, 17, 17, 17, 17, 18, 18, 17, 17, 17, 17, 17, 17};
-int currentKeyIndex = 0;
 static Node* selectedNode = NULL;
-static AVLTree tree = AVLTree({18, 18, 18, 17, 17, 17, 17, 17, 18, 18, 17, 17, 17, 17, 17, 17});
+static AVLTree tree;
 void AVLTreeView::draw() {
 	// Add a node to the tree
 	IG::Begin("Add Node");
@@ -78,7 +76,7 @@ void AVLTreeView::draw() {
 		delete tree.root;
 		tree.root = NULL;
 		for (int i = 0; i < size; i++)
-			tree.insertKey(rand() % 100);
+			tree.insertKey(rand() % 1000);
 		resetNodeGUIData();
 	}
 	IG::End();
@@ -134,16 +132,6 @@ void AVLTreeView::draw() {
 			}
 		}
 	}
-
-	// Add a key on each click
-	// IG::Begin("Debug keys");
-	// IG::Text("Key: %d", newKeys[currentKeyIndex]);
-	// if (IG::Button("Add Key")) {
-	// 	tree.insertKey(newKeys[currentKeyIndex]);
-	// 	currentKeyIndex++;
-	// 	resetNodeGUIData();
-	// }
-	// IG::End();
 
 	// Draw the tree
 	GUI::beginMain();
