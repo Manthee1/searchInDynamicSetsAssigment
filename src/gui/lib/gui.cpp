@@ -229,6 +229,14 @@ namespace GUI {
 		ImGui::Begin("Main Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	}
 
+	bool isOnScreen(float x, float y) {
+		return x > -offset_x && x < -offset_x + window_width / scale && y > -offset_y && y < -offset_y + window_height / scale;
+	}
+
+	bool isRectOnScreen(float x, float y, float width, float height) {
+		return x + width > -offset_x && x < -offset_x + window_width / scale && y + height > -offset_y && y < -offset_y + window_height / scale;
+	}
+
 	void circle(float x, float y, float radius, int* color) {
 		// Draw a circle on main window
 		ImGui::GetWindowDrawList()->AddCircleFilled(getVec2(x, y), radius * scale, ImGui::GetColorU32(ImVec4(color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0f)));

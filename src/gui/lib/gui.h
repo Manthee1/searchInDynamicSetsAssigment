@@ -18,6 +18,9 @@ namespace GUI {
 	int getMouseX();
 	int getMouseY();
 
+	bool isOnScreen(float x, float y);
+	bool isRectOnScreen(float x, float y, float width, float height);
+
 	bool windowShouldClose();
 	int init();
 	void render(void (*update)());
