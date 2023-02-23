@@ -8,4 +8,7 @@ int min(int, int);
 
 void printTree(Node*, int);
 
+bool isPrime(int);
+
+int* generateRandomArray(int);
 #endif	// __UTILS_H__

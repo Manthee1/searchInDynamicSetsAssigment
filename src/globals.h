@@ -25,7 +25,6 @@ Node *createNode(int);
 struct InsertionTestEntry {
 	int *keys;
 	int length;
-	std::string code;
 	std::string name;
 };
 
@@ -35,7 +34,6 @@ struct DeletionTestEntry {
 	int length;
 	int *deleteKeys;
 	int deleteLength;
-	std::string code;
 	std::string name;
 };
 
