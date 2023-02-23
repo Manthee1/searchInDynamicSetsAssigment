@@ -7,7 +7,6 @@ using namespace std;
 
 Node* codeToTree(string code);
 bool compareTrees(Node* tree1, Node* tree2);
-bool isAVLTreeBalanced(AVLTree* tree, Node* node);
 Node** indexAvlTreeNodes(Node* node, Node** nodes, int* index);
 
 static InsertionTestEntry* AVLInsertionTests = new InsertionTestEntry[10]{
@@ -78,7 +77,7 @@ Node* codeToTree(string);
 bool compareTrees(Node*, Node*);
 
 // Go through each node and check if the balance is correct
-bool isAVLTreeBalanced(AVLTree*, Node*);
+static bool isAVLTreeBalanced(AVLTree*, Node*);
 
 // Add each node to an array and return it
 Node** indexAvlTreeNodes(Node*, Node**, int*);

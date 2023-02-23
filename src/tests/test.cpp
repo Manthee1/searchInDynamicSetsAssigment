@@ -191,7 +191,7 @@ bool compareTrees(Node* tree1, Node* tree2) {
 }
 
 // Go through each node and check if the balance is correct
-bool isAVLTreeBalanced(AVLTree* tree, Node* node) {
+static bool isAVLTreeBalanced(AVLTree* tree, Node* node) {
 	if (node == NULL) return true;
 	if (abs(tree->getBalance(node)) > 1) return false;
 	return (node->left == NULL || isAVLTreeBalanced(tree, node->left)) &&
