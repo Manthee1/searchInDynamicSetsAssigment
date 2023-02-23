@@ -4,7 +4,7 @@
 using namespace std;
 
 Node *AVLTree::leftRotate(Node *x) {
-	if (x->right == NULL) throw "No right child";
+	if (x->right == NULL) return x;
 	Node *y = x->right;
 
 	if (y->left != NULL) {
@@ -35,7 +35,7 @@ Node *AVLTree::leftRotate(Node *x) {
 }
 
 Node *AVLTree::rightRotate(Node *y) {
-	if (y->left == NULL) throw "No left child";
+	if (y->left == NULL) return y;
 	Node *x = y->left;
 
 	if (x->right != NULL) {
@@ -72,14 +72,14 @@ void AVLTree::balanceTree(Node *node, int newKey) {
 		if (newKey <= node->left->key)
 			node = rightRotate(node);
 		else {
-			leftRotate(node->left);
+			node->left = leftRotate(node->left);
 			node = rightRotate(node);
 		}
 	} else if (balance < -1) {
 		if (newKey >= node->right->key)
 			node = leftRotate(node);
 		else {
-			rightRotate(node->right);
+			node->right = rightRotate(node->right);
 			node = leftRotate(node);
 		}
 	}
@@ -95,14 +95,14 @@ void AVLTree::balanceTree(Node *node) {
 		if (getBalance(node->left) >= 0)
 			node = rightRotate(node);
 		else {
-			leftRotate(node->left);
+			node->left = leftRotate(node->left);
 			node = rightRotate(node);
 		}
 	} else if (balance < -1) {
 		if (getBalance(node->right) <= 0)
 			node = leftRotate(node);
 		else {
-			rightRotate(node->right);
+			node->right = rightRotate(node->right);
 			node = leftRotate(node);
 		}
 	}
@@ -112,21 +112,35 @@ void AVLTree::balanceTree(Node *node) {
 
 Node *root;
 AVLTree::AVLTree() {
+	size = 0;
 	root = NULL;
 }
 // Variadic constructor with std::initializer_list
 AVLTree::AVLTree(std::initializer_list<int> list) {
+	size = 0;
 	root = NULL;
 	for (int key : list)
 		insertKey(key);
 }
 // Constructor with array
 AVLTree::AVLTree(int *list, int size) {
+	size = 0;
 	root = NULL;
 	for (int i = 0; i < size; i++)
 		insertKey(list[i]);
 }
-AVLTree::~AVLTree() { delete root; }
+
+AVLTree::~AVLTree() {
+	// Delete all nodes
+	deleteTree(root);
+}
+
+void AVLTree::deleteTree(Node *node) {
+	if (node == NULL) return;
+	deleteTree(node->left);
+	deleteTree(node->right);
+	delete node;
+}
 
 int AVLTree::getHeight(Node *node) { return (node == NULL) ? 0 : node->height; }
 int AVLTree::getBalance(Node *node) { return (node == NULL) ? 0 : getHeight(node->left) - getHeight(node->right); }
@@ -139,6 +153,7 @@ void AVLTree::insertNode(Node *node) {
 	// If the tree is empty, make the node the root
 	if (root == NULL) {
 		root = node;
+		size++;
 		return;
 	}
 	// Find the appropriate parent for the node (make it a leaf)
@@ -146,10 +161,18 @@ void AVLTree::insertNode(Node *node) {
 	Node *parent = NULL;
 	while (current != NULL) {
 		parent = current;
-		if (node->key < current->key)
+		if (node->key < current->key) {
+			// If the key is less than the current node's key, go to the left
 			current = current->left;
-		else
-			current = current->right;
+			continue;
+		} else if (node->key == current->key) {
+			// If the key already exists, delete the node and return
+			current->count++;
+			delete node;
+			return;
+		}
+		// Else, go to the right
+		current = current->right;
 	}
 
 	// Insert the node depending on its key value
@@ -160,6 +183,10 @@ void AVLTree::insertNode(Node *node) {
 
 	// Set the parent
 	node->parent = parent;
+
+	// Update the size and count
+	size++;
+	node->count = 1;
 
 	// Update the height of the nodes on the path from the inserted node to the root
 	while (parent != NULL) {
@@ -203,6 +230,7 @@ void AVLTree::deleteNode(Node *node) {
 			node->parent->right = child;
 			child->parent = node->parent;
 		}
+		size--;
 		delete node;
 		return;
 	}
@@ -241,6 +269,7 @@ void AVLTree::deleteNode(Node *node) {
 	// if the node is the root just remove it
 	if (node->parent == NULL) {
 		root = NULL;
+		size--;
 		delete node;
 		return;
 	}
@@ -251,5 +280,6 @@ void AVLTree::deleteNode(Node *node) {
 	else
 		node->parent->right = NULL;
 
+	size--;
 	delete node;
 }

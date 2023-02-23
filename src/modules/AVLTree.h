@@ -6,6 +6,16 @@
 class AVLTree {
 private:
 	/**
+	 *@brief Delete the tree starting from the given node
+	 *
+	 * @param node - Starting node
+	 */
+	void deleteTree(Node *);
+
+public:
+	// Thhe amount of nodes in the tree
+	int size;
+	/**
 	 *@brief Rotate the tree to the left
 	 *
 	 * @param x - Subtree root
@@ -35,7 +45,6 @@ private:
 	 */
 	void balanceTree(Node *);
 
-public:
 	Node *root;
 	AVLTree();
 	// Variadic constructor with std::initializer_list

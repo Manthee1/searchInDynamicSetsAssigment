@@ -15,6 +15,7 @@ struct Node {
 	Node *parent;
 	Node *left;
 	Node *right;
+	int count;
 	int height;
 };
 
