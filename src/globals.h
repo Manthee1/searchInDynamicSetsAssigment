@@ -37,4 +37,12 @@ struct DeletionTestEntry {
 	std::string name;
 };
 
+class BenchmarkTemplate {
+public:
+	void insert(int key);
+	void search(int key);
+	void remove(int key);
+	void destroy();
+};
+
 #endif	// __GLOBALS_H__
