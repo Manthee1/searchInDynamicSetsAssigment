@@ -62,7 +62,7 @@ public:
 	 *
 	 * @param node - Node to be inserted
 	 */
-	void insertNode(Node *);
+	void insertNode(Node *, bool);
 
 	/**
 	 *@brief Search for a node with the given key

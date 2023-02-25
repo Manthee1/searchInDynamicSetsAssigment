@@ -67,6 +67,9 @@ Node *AVLTree::rightRotate(Node *y) {
 void AVLTree::balanceTree(Node *node, int newKey) {
 	if (node == NULL) return;
 
+	// Update height
+	node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+
 	int balance = getBalance(node);
 	if (balance > 1) {
 		if (newKey < node->left->key)
@@ -84,11 +87,14 @@ void AVLTree::balanceTree(Node *node, int newKey) {
 		}
 	}
 
-	balanceTree(node->parent);
+	balanceTree(node->parent, newKey);
 }
 
 void AVLTree::balanceTree(Node *node) {
 	if (node == NULL) return;
+
+	// Update height
+	node->height = 1 + max(getHeight(node->left), getHeight(node->right));
 
 	int balance = getBalance(node);
 	if (balance > 1) {
@@ -145,9 +151,9 @@ void AVLTree::deleteTree(Node *node) {
 int AVLTree::getHeight(Node *node) { return (node == NULL) ? 0 : node->height; }
 int AVLTree::getBalance(Node *node) { return (node == NULL) ? 0 : getHeight(node->left) - getHeight(node->right); }
 
-void AVLTree::insertKey(int key) { insertNode(createNode(key)); }
+void AVLTree::insertKey(int key) { insertNode(createNode(key), true); }
 
-void AVLTree::insertNode(Node *node) {
+void AVLTree::insertNode(Node *node, bool balance) {
 	if (node == NULL) return;
 
 	// If the tree is empty, make the node the root
@@ -188,14 +194,9 @@ void AVLTree::insertNode(Node *node) {
 	size++;
 	node->count = 1;
 
-	// Update the height of the nodes on the path from the inserted node to the root
-	while (parent != NULL) {
-		parent->height = 1 + max(getHeight(parent->left), getHeight(parent->right));
-		parent = parent->parent;
-	}
-
 	// Balance the tree
-	balanceTree(node->parent, node->key);
+	if (balance)
+		balanceTree(node->parent, node->key);
 }
 
 Node *AVLTree::searchKey(int key) {
@@ -231,6 +232,7 @@ void AVLTree::deleteNode(Node *node) {
 			child->parent = node->parent;
 		}
 		size--;
+		balanceTree(node->parent);
 		delete node;
 		return;
 	}
@@ -247,17 +249,11 @@ void AVLTree::deleteNode(Node *node) {
 		node->key = removeNode->key;
 
 		// Make a pointer to the node to be deleted's parent
-		Node *current, *tempLeafNode;
-		current = tempLeafNode = removeNode->parent;
+		Node *tempLeafNode;
+		tempLeafNode = removeNode->parent;
 
 		// Delete the largest node
 		deleteNode(removeNode);
-
-		// use the current pointer to update the heights of the nodes on the path from the deleted node to the root
-		while (current != NULL) {
-			current->height = 1 + max(getHeight(current->left), getHeight(current->right));
-			current = current->parent;
-		}
 
 		// Use the tempLeafNode pointer to balance the tree
 		balanceTree(tempLeafNode);
@@ -281,5 +277,6 @@ void AVLTree::deleteNode(Node *node) {
 		node->parent->right = NULL;
 
 	size--;
+	balanceTree(node->parent);
 	delete node;
 }
