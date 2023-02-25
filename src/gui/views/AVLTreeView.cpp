@@ -21,8 +21,6 @@ void resetNodeGUIData() {
 	nodePositions = NULL;
 	reIndexNodes = true;
 }
-// 11 17
-//  5 18
 static bool isAVLTreeBalanced(AVLTree* tree, Node* node) {
 	if (node == NULL) return true;
 
@@ -45,6 +43,10 @@ void AVLTreeView::draw() {
 		tree.insertKey(insertKey);
 		resetNodeGUIData();
 	}
+	if (IG::Button("Add Node(Not balanced)")) {
+		tree.insertNode(createNode(insertKey), false);
+		resetNodeGUIData();
+	}
 	IG::End();
 
 	// Remove a node from the tree
@@ -57,6 +59,7 @@ void AVLTreeView::draw() {
 	}
 	if (IG::Button("Clear Tree")) {
 		delete tree.root;
+		selectedNode = NULL;
 		tree.root = NULL;
 		resetNodeGUIData();
 	}
@@ -69,45 +72,54 @@ void AVLTreeView::draw() {
 	}
 	IG::End();
 
-	IG::Begin("Create Random Tree");
-	static int size = 100;
+	IG::Begin("Random Tree");
+	static int size = 1000;
 	IG::InputInt("Amount", &size);
-	if (IG::Button("Create Table")) {
+	if (IG::Button("Create")) {
 		delete tree.root;
 		tree.root = NULL;
 		for (int i = 0; i < size; i++)
 			tree.insertKey(rand() % 1000);
 		resetNodeGUIData();
 	}
+	static int deleteSize = 700;
+	IG::InputInt("DeleteAmount", &deleteSize);
+	if (IG::Button("Delete")) {
+		for (int i = 0; i < deleteSize; i++)
+			tree.deleteKey(rand() % 1000);
+		resetNodeGUIData();
+	}
 	IG::End();
 
 	IG::Begin("Selected Node Info");
-	IG::Text("Key: %d", selectedNode == NULL ? 0 : selectedNode->key);
-	IG::Text("Height: %d", selectedNode == NULL ? 0 : selectedNode->height);
-	IG::Text("Balance: %d", selectedNode == NULL ? 0 : tree.getBalance(selectedNode));
-	IG::Text("Count: %d", selectedNode == NULL ? 0 : selectedNode->count);
-	// Right rotation
-	if (IG::Button("Right Rotate")) {
-		tree.rightRotate(selectedNode);
-		resetNodeGUIData();
-	}
-	// Left rotation
-	if (IG::Button("Left Rotate")) {
-		tree.leftRotate(selectedNode);
-		resetNodeGUIData();
-	}
+	if (selectedNode != NULL) {
+		IG::Text("Key: %d", selectedNode->key);
+		IG::Text("Height: %d", selectedNode->height);
+		IG::Text("Balance: %d", tree.getBalance(selectedNode));
+		IG::Text("Count: %d", selectedNode->count);
+		// Right rotation
+		if (IG::Button("Right Rotate")) {
+			tree.rightRotate(selectedNode);
+			resetNodeGUIData();
+		}
+		// Left rotation
+		if (IG::Button("Left Rotate")) {
+			tree.leftRotate(selectedNode);
+			resetNodeGUIData();
+		}
 
-	// Delete the selected node
-	if (IG::Button("Delete Node")) {
-		tree.deleteNode(selectedNode);
-		selectedNode = NULL;
-		resetNodeGUIData();
-	}
+		// Delete the selected node
+		if (IG::Button("Delete Node")) {
+			tree.deleteNode(selectedNode);
+			selectedNode = NULL;
+			resetNodeGUIData();
+		}
 
-	// Run balance algorithm from selected node
-	if (IG::Button("Init Balance")) {
-		tree.balanceTree(selectedNode);
-		resetNodeGUIData();
+		// Run balance algorithm from selected node
+		if (IG::Button("Init Balance")) {
+			tree.balanceTree(selectedNode);
+			resetNodeGUIData();
+		}
 	}
 
 	IG::End();
