@@ -1,18 +1,28 @@
 #include "test.h"
 #include <array>
 #include <map>
+#include <list>
+#include <vector>
 #include <chrono>
 using namespace std;
+static bool benchmark = false;
 
-bool testAVLTreeInsertion(InsertionTestEntry* testEntries, int length) {
+bool testAVLTreeInsertion(InsertionTestEntry* testEntries, int length, chrono::duration<double, std::micro>* duration) {
 	int failedTests = 0;
-	cout << "Testing AVL tree insertion..." << endl;
+	std::cout << "Testing AVL tree insertion..." << endl;
 	for (int i = 0; i < length; i++) {
-		cout << "Test " << i + 1 << " [" << testEntries[i].name << "]: ";
+		std::cout << "Test " << i + 1 << " [" << testEntries[i].name << "]: ";
+
+		// Start a timer to measure the time it takes to insert the keys
+		auto start = std::chrono::high_resolution_clock::now();
 
 		// Initialize the tree and the expected tree
 		AVLTree tree = AVLTree(testEntries[i].keys, testEntries[i].length);
 		Node* treeRoot = tree.root;
+
+		// Stop the timer
+		auto stop = std::chrono::high_resolution_clock::now();
+		*duration += stop - start;
 
 		// Check if the tree is balanced
 		if (isAVLTreeBalanced(&tree, tree.root)) {
@@ -26,94 +36,120 @@ bool testAVLTreeInsertion(InsertionTestEntry* testEntries, int length) {
 		failedTests++;
 	}
 
-	cout << "AVL tree insertion test finished with " << failedTests << " failed tests" << endl;
+	std::cout << "AVL tree insertion test finished with " << failedTests << " failed tests" << endl;
 
 	return failedTests == 0;
 }
 
-bool testAVLTreeDeletion(DeletionTestEntry* testEntries, int length) {
+bool testAVLTreeDeletion(DeletionTestEntry* testEntries, int length, chrono::duration<double, std::micro>* duration) {
 	int failedTests = 0;
-	cout << "Testing AVL tree deletion..." << endl;
+	std::cout << "Testing AVL tree deletion..." << endl;
 	for (int i = 0; i < length; i++) {
-		cout << "Test " << i + 1 << " [" << testEntries[i].name << "]: ";
+		std::cout << "Test " << i + 1 << " [" << testEntries[i].name << "]: ";
 
-		// Initialize the tree and apply the deletions
+		// Initialize the tree
 		AVLTree tree = AVLTree(testEntries[i].keys, testEntries[i].length);
-		for (int j = 0; j < testEntries[i].deleteLength; j++)
-			tree.deleteKey(testEntries[i].deleteKeys[j]);
 
-		// Check if the tree is balanced
-		if (isAVLTreeBalanced(&tree, tree.root)) {
-			printf(GREEN "Passed\n" RESET);
-			continue;
+		// Start a timer to measure the time it takes to delete the keys
+		auto start = std::chrono::high_resolution_clock::now();
+
+		// Delete the keys
+		for (int j = 0; j < testEntries[i].deleteLength; j++) {
+			int key = testEntries[i].deleteKeys[j];
+			tree.deleteKey(key);
 		}
+
+		// Stop the timer
+		auto stop = std::chrono::high_resolution_clock::now();
+		*duration += stop - start;
 
 		// Otherwise, Check if the correct nodes we're deleted
 
-		// Allocate a nodes array
-		Node** nodes = new Node*[testEntries[i].deleteLength];
-		nodes = indexAvlTreeNodes(tree.root, nodes, new int[1]{0});
-		// nodeKeys hash map of occurrences from nodes array
-		map<int, int> nodeKeys;
-		for (int j = 0; j < testEntries[i].deleteLength; j++) {
-			if (nodeKeys.find(nodes[j]->key) == nodeKeys.end())
-				nodeKeys[nodes[j]->key] = 1;
-			else
-				nodeKeys[nodes[j]->key]++;
-		}
+		// add all node to a list with addNodesToList
 
-		// Remove nodes as they are not used anymore
-		delete[] nodes;
+		int keysLength = tree.size;
+		int* nodeKeysIntArray = new int[tree.size];
+		getKeys(tree.root, nodeKeysIntArray, new int(0));
 
-		// Expected occurrences hash map
-		map<int, int> expectedNodeKeys;
-		for (int j = 0; j < testEntries[i].length; j++) {
-			if (expectedNodeKeys.find(testEntries[i].keys[j]) == expectedNodeKeys.end())
-				expectedNodeKeys[testEntries[i].keys[j]] = 1;
-			else
-				expectedNodeKeys[testEntries[i].keys[j]]++;
-		}
+		// Convert the array to a list
+		list<int> nodeKeys;
+		for (int j = 0; j < keysLength; j++)
+			nodeKeys.push_back(nodeKeysIntArray[j]);
+		nodeKeys.sort();
 
-		// Find the difference between the two hash maps and append it to a new hash map
-		map<int, int> difference;
+		// Expected node keys when the deletions are applied
+		list<int> expectedNodeKeys;
+		list<int> deletedKeys;
+		for (int j = 0; j < testEntries[i].deleteLength; j++)
+			deletedKeys.push_back(testEntries[i].deleteKeys[j]);
+		deletedKeys.sort();
+		for (int j = 0; j < testEntries[i].length; j++)
+			expectedNodeKeys.push_back(testEntries[i].keys[j]);
+		expectedNodeKeys.sort();
+		for (auto it = deletedKeys.begin(); it != deletedKeys.end(); it++)
+			expectedNodeKeys.remove(*it);
+
+		list<int> wrongDeletedKeys;
+		list<int> notDeletedKeys;
+
+		// Find all wrong deleted keys and all not deleted keys without using find
 		for (auto it = nodeKeys.begin(); it != nodeKeys.end(); it++) {
-			if (expectedNodeKeys.find(it->first) == expectedNodeKeys.end())
-				difference[it->first] = it->second;
-			else if (expectedNodeKeys[it->first] != it->second)
-				difference[it->first] = it->second - expectedNodeKeys[it->first];
+			bool found = false;
+			for (auto it2 = expectedNodeKeys.begin(); it2 != expectedNodeKeys.end(); it2++) {
+				if (*it == *it2) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				wrongDeletedKeys.push_back(*it);
 		}
 
 		// Check if the difference is empty
-		if (difference.size() != 0) {
+		if (wrongDeletedKeys.size() != 0 && notDeletedKeys.size() != 0) {
 			// If not, print the error message and information about the difference
 			printf(RED "Key deletion failed\n" RESET);
-			printf("Deleted keys:\n");
-			for (auto it = nodeKeys.begin(); it != nodeKeys.end(); it++)
-				cout << it->first << " ";
-			cout << endl;
+			printf(RED "Failed to delete: " RESET);
+			for (auto it = notDeletedKeys.begin(); it != notDeletedKeys.end(); it++)
+				std::cout << *it << " ";
+			std::cout << endl;
+			printf(RED "Wrongly deleted: " RESET);
+			for (auto it = wrongDeletedKeys.begin(); it != wrongDeletedKeys.end(); it++)
+				std::cout << *it << " ";
+			std::cout << endl;
 
-			printf("Expected keys:\n");
-			for (auto it = expectedNodeKeys.begin(); it != expectedNodeKeys.end(); it++)
-				cout << it->first << " ";
-			cout << endl;
+			// printf("Deleted keys:\n");
+			// for (auto it = nodeKeys.begin(); it != nodeKeys.end(); it++)
+			// 	std::cout << it->first << " ";
+			// std::cout << endl;
 
-			printf("Difference:\n");
-			for (auto it = difference.begin(); it != difference.end(); it++)
-				cout << it->first << " ";
-			cout << endl;
+			// printf("Expected keys:\n");
+			// for (auto it = expectedNodeKeys.begin(); it != expectedNodeKeys.end(); it++)
+			// 	std::cout << it->first << " ";
+			// std::cout << endl;
+
+			// printf("Difference:\n");
+			// for (auto it = difference.begin(); it != difference.end(); it++)
+			// 	std::cout << it->first << " ";
+			// std::cout << endl;
 
 			failedTests++;
 			continue;
 		}
 
-		// If the difference is empty, print the error message
-		printf(RED "Failed\n" RESET);
-		printf(RED "The correct nodes were deleted, but the tree is still not balanced\n" RESET);
+		// Check if the tree is not balanced
+		if (!isAVLTreeBalanced(&tree, tree.root)) {
+			printf(RED "Failed\n" RESET);
+			printf(RED "The correct nodes were deleted, but the tree is still not balanced\n" RESET);
+			failedTests++;
+			continue;
+		}
 
-		failedTests++;
+		// Else, the test passed
+		printf(GREEN "Passed\n" RESET);
 	}
 
-	cout << "AVL tree deletion test finished with " << failedTests << " failed tests" << endl;
+	std::cout << "AVL tree deletion test finished with " << failedTests << " failed tests" << endl;
 
 	return failedTests == 0;
 }
@@ -128,18 +164,19 @@ bool testAVLTree(bool useRandom) {
 	int deleteTestsLength = 13;
 
 	int testsAmount = 10;
-	int testLength = 1000;
+	int testLength = 10;
 	if (useRandom) {
 		testsAmount = 100;
-		testLength = 100000;
+		testLength = 1000;
 		deleteTestsLength = insertTestsLength = testsAmount;
 		insertTests = new InsertionTestEntry[testsAmount];
 		deleteTests = new DeletionTestEntry[testsAmount];
+		std::cout << "Generating " << testsAmount << " random tests..." << endl;
 		for (int i = 0; i < testsAmount; i++) {
 			// Generate a random test
 			InsertionTestEntry* test = new InsertionTestEntry;
 			test->name = "Random test " + to_string(i);
-			test->keys = generateRandomArray(testLength);
+			test->keys = generateRandomArray(testLength, 0, 1000000);
 			test->length = testLength;
 
 			// Add the test to the array
@@ -150,36 +187,45 @@ bool testAVLTree(bool useRandom) {
 			deleteTest->name = "Random test " + to_string(i);
 			deleteTest->keys = test->keys;
 			deleteTest->length = test->length;
-			deleteTest->deleteKeys = generateRandomArray((int)(testLength * (rand() % 100) / 120.0 || 1));
-			deleteTest->deleteLength = testLength;
+
+			deleteTest->deleteLength = (int)(testLength * (rand() % 100) / 120.0) + 1;
+			deleteTest->deleteKeys = generateRandomArray(deleteTest->deleteLength, 0, 1000);
 
 			// Add the test to the array
 			deleteTests[i] = *deleteTest;
 		}
 	}
 
-	cout << "Testing AVL tree..." << endl;
-	// Start timer for insertion
-	auto start = chrono::high_resolution_clock::now();
-	if (!testAVLTreeInsertion(insertTests, insertTestsLength)) {
-		cout << "AVL Tree insertion failed!" << endl;
-		cout << "Will not test deletion" << endl;
+	std::cout << "Testing AVL tree..." << endl;
+
+	// Declare a duration variable
+	chrono::duration<double, std::micro> duration = chrono::duration<double, std::micro>::zero();
+
+	if (!testAVLTreeInsertion(insertTests, insertTestsLength, &duration)) {
+		std::cout << "AVL Tree insertion failed!" << endl;
+		std::cout << "Will not test deletion" << endl;
 		return false;
 	}
 	// Stop timer for insertion
-	auto stop = chrono::high_resolution_clock::now();
-	auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-	cout << "AVL Tree insertion took " << duration.count() << " microseconds" << endl;
-	cout << "Inserted " << testLength << " keys" << endl;
+	std::cout << "AVL Tree insertion took " << duration.count() << " microseconds" << endl;
+	std::cout << "Inserted " << testLength << " keys" << endl;
+	std::cout << "That's " << (double)duration.count() / testLength << " microseconds per key" << endl;
+	std::cout << "or " << (double)testLength / duration.count() << " keys per microsecond" << endl;
 
 	// Info about how many tests were passed
-	cout << "AVL Tree insertion passed!" << endl;
+	std::cout << "AVL Tree insertion passed!" << endl;
 
-	if (!testAVLTreeDeletion(deleteTests, deleteTestsLength)) {
-		cout << "AVL Tree deletion failed!" << endl;
+	// Restart timer for deletion
+	duration = chrono::duration<double, std::micro>::zero();
+	if (!testAVLTreeDeletion(deleteTests, deleteTestsLength, &duration)) {
+		std::cout << "AVL Tree deletion failed!" << endl;
 		return false;
 	}
-	cout << "AVL Tree deletion passed!" << endl;
+	std::cout << "AVL Tree deletion passed!" << endl;
+	std::cout << "AVL Tree deletion took " << duration.count() << " microseconds" << endl;
+	std::cout << "Deleted " << testLength << " keys" << endl;
+	std::cout << "That's " << (double)duration.count() / testLength << " microseconds per key" << endl;
+	std::cout << "or " << (double)testLength / duration.count() << " keys per microsecond" << endl;
 
 	return true;
 }
@@ -226,12 +272,11 @@ static bool isAVLTreeBalanced(AVLTree* tree, Node* node) {
 		   (node->right == NULL || isAVLTreeBalanced(tree, node->right));
 }
 
-// Add each node to an array and return it
-Node** indexAvlTreeNodes(Node* node, Node** nodes, int* index) {
-	if (node == NULL) return nodes;
-	nodes[*index] = node;
+// get all keys in the tree
+static void getKeys(Node* node, int* keys, int* index) {
+	if (node == NULL) return;
+	getKeys(node->left, keys, index);
+	keys[*index] = node->key;
 	(*index)++;
-	nodes = indexAvlTreeNodes(node->left, nodes, index);
-	nodes = indexAvlTreeNodes(node->right, nodes, index);
-	return nodes;
+	getKeys(node->right, keys, index);
 }

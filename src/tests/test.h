@@ -3,11 +3,12 @@
 
 #include "../utils.h"
 #include "../modules/AVLTree.h"
+#include <vector>
+#include <list>
 using namespace std;
 
 Node* codeToTree(string code);
 bool compareTrees(Node* tree1, Node* tree2);
-Node** indexAvlTreeNodes(Node* node, Node** nodes, int* index);
 
 static InsertionTestEntry* AVLInsertionTests = new InsertionTestEntry[10]{
 	{new int[3]{1, 2, 3}, 3, "Simple left rotate test"},
@@ -36,7 +37,7 @@ static DeletionTestEntry* AVLDeletionTests = new DeletionTestEntry[13]{
 
 	// More complex tests
 	{new int[7]{5, 8, 7, 4, 7, 1, 3}, 7, new int[2]{4, 7}, 2, "Complex test 1"},
-	{new int[7]{1, 9, 4, 7, 3, 2, 6}, 7, new int[3]{4, 3, 2}, 3, "Complex test 2"},	 // TODO: Fails on last delete, The key goes completely whacko
+	{new int[7]{1, 9, 4, 7, 3, 2, 6}, 7, new int[3]{4, 3, 2}, 3, "Complex test 2"},
 	{new int[8]{1, 5, 7, 3, 2, 4, 6, 8}, 8, new int[4]{3, 2, 1, 5}, 4, "Complex test 3"},
 	{new int[31]{7, 1, 2, 9, 5, 3, 5, 1, 2, 6, 3, 3, 1, 1, 7, 2, 4, 5, 6, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, 31, new int[11]{5, 5, 9, 1, 2, 3, 4, 6, 8, 1, 3}, 11, "Insane test"},
 };
@@ -80,5 +81,5 @@ bool compareTrees(Node*, Node*);
 static bool isAVLTreeBalanced(AVLTree*, Node*);
 
 // Add each node to an array and return it
-Node** indexAvlTreeNodes(Node*, Node**, int*);
-#endif	// __TEST_H__
+static void getKeys(Node* node, int* keys, int* index);
+#endif
