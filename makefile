@@ -77,4 +77,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 clean:
 	rm -r $(BUILD_DIR)
 
+valgrind:
+	valgrind --leak-check=full --show-leak-kinds=all ./$(BUILD_DIR)/$(TARGET_EXEC)
+
 -include $(DEPS)
