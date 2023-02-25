@@ -23,9 +23,9 @@ bool isPrime(int n) {
 	return true;
 }
 
-int* generateRandomArray(int length) {
+int* generateRandomArray(int length, int min, int max) {
 	int* array = new int[length];
 	for (int i = 0; i < length; i++)
-		array[i] = rand() % 10000;
+		array[i] = rand() % (max - min + 1) + min;
 	return array;
 }

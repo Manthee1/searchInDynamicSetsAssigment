@@ -10,5 +10,5 @@ void printTree(Node*, int);
 
 bool isPrime(int);
 
-int* generateRandomArray(int);
+int* generateRandomArray(int, int, int);
 #endif	// __UTILS_H__
