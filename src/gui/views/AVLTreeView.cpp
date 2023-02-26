@@ -99,12 +99,12 @@ void AVLTreeView::draw() {
 		IG::Text("Count: %d", selectedNode->count);
 		// Right rotation
 		if (IG::Button("Right Rotate")) {
-			tree.rightRotate(selectedNode);
+			tree.rotate(selectedNode, RIGHT);
 			resetNodeGUIData();
 		}
 		// Left rotation
 		if (IG::Button("Left Rotate")) {
-			tree.leftRotate(selectedNode);
+			tree.rotate(selectedNode, LEFT);
 			resetNodeGUIData();
 		}
 

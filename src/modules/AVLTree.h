@@ -3,6 +3,11 @@
 
 #include "../utils.h"
 
+enum RotateDirection {
+	LEFT,
+	RIGHT
+};
+
 class AVLTree {
 private:
 	/**
@@ -13,23 +18,20 @@ private:
 	void deleteTree(Node *);
 
 public:
-	// Thhe amount of nodes in the tree
+	int getHeight(Node *);
+	int getBalance(Node *);
+
+	// The amount of nodes in the tree
 	int size;
+
 	/**
-	 *@brief Rotate the tree to the left
+	 *@brief Rotate the subtree starting from the given node
 	 *
 	 * @param x - Subtree root
 	 * @return Node* - New root of the subtree
 	 */
-	Node *leftRotate(Node *);
+	Node *rotate(Node *, RotateDirection);
 
-	/**
-	 *@brief Rotate the tree to the right
-	 *
-	 * @param y - Subtree root
-	 * @return Node* - New root of the subtree
-	 */
-	Node *rightRotate(Node *);
 	/**
 	 *@brief Balance the tree starting from the given node (used after insertion)
 	 *
@@ -52,9 +54,6 @@ public:
 	// Constructor with array
 	AVLTree(int *, int);
 	~AVLTree();
-
-	int getHeight(Node *);
-	int getBalance(Node *);
 
 	void insertKey(int);
 	/**

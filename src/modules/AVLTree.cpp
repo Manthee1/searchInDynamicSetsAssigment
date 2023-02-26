@@ -3,28 +3,35 @@
 #include <iostream>
 using namespace std;
 
-Node *AVLTree::leftRotate(Node *x) {
-	if (x->right == NULL) return x;
-	Node *y = x->right;
+int AVLTree::getHeight(Node *node) { return (node == NULL) ? 0 : node->height; }
+int AVLTree::getBalance(Node *node) { return (node == NULL) ? 0 : getHeight(node->left) - getHeight(node->right); }
 
-	if (y->left != NULL) {
-		Node *tempNode = y->left;
-		x->right = tempNode;
-		tempNode->parent = x;
-	} else
-		x->right = NULL;
+Node *AVLTree::rotate(Node *x, RotateDirection direction) {
+	Node *y;
+	if (direction == LEFT) {  // left rotation
+		y = x->right;
+		x->right = y->left;
+		if (y->left != NULL) y->left->parent = x;
 
-	// If the parent of x is null, then x is the root. So set y as the root
-	if (x->parent == NULL) root = y;
-	// Otherwise, set y as the left or right child of x's parent
-	else if (x->parent->left == x)
-		x->parent->left = y;
-	else
-		x->parent->right = y;
+		y->left = x;
+	} else {  // right rotation
+		y = x->left;
+		x->left = y->right;
+		if (y->right != NULL) y->right->parent = x;
+
+		y->right = x;
+	}
 
 	y->parent = x->parent;
 	x->parent = y;
-	y->left = x;
+
+	// Parent clause
+	if (y->parent == NULL)
+		root = y;
+	else if (y->parent->left == x)
+		y->parent->left = y;
+	else
+		y->parent->right = y;
 
 	// Update heights
 	x->height = 1 + max(getHeight(x->left), getHeight(x->right));
@@ -34,86 +41,63 @@ Node *AVLTree::leftRotate(Node *x) {
 	return y;
 }
 
-Node *AVLTree::rightRotate(Node *y) {
-	if (y->left == NULL) return y;
-	Node *x = y->left;
-
-	if (x->right != NULL) {
-		Node *tempNode = x->right;
-		y->left = tempNode;
-		tempNode->parent = y;
-	} else
-		y->left = NULL;
-
-	// If the parent of y is null, then y is the root. So set x as the root
-	if (y->parent == NULL) root = x;
-	// Otherwise, set x as the left or right child of y's parent
-	else if (y->parent->right == y)
-		y->parent->right = x;
-	else
-		y->parent->left = x;
-
-	x->parent = y->parent;
-	y->parent = x;
-	x->right = y;
-
-	// Update heights
-	y->height = 1 + max(getHeight(y->left), getHeight(y->right));
-	x->height = 1 + max(getHeight(x->left), getHeight(x->right));
-
-	return x;
-}
-
 void AVLTree::balanceTree(Node *node, int newKey) {
-	if (node == NULL) return;
+	while (node != NULL) {
+		int leftHeight = getHeight(node->left);
+		int rightHeight = getHeight(node->right);
 
-	// Update height
-	node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+		// Update height
+		node->height = 1 + max(leftHeight, rightHeight);
 
-	int balance = getBalance(node);
-	if (balance > 1) {
-		if (newKey < node->left->key)
-			node = rightRotate(node);
-		else {
-			node->left = leftRotate(node->left);
-			node = rightRotate(node);
+		// Check balance
+		int balance = leftHeight - rightHeight;
+		if (balance > 1) {
+			if (newKey < node->left->key)
+				node = rotate(node, RIGHT);
+			else {
+				rotate(node->left, LEFT);
+				node = rotate(node, RIGHT);
+			}
+		} else if (balance < -1) {
+			if (newKey > node->right->key)
+				node = rotate(node, LEFT);
+			else {
+				rotate(node->right, RIGHT);
+				node = rotate(node, LEFT);
+			}
 		}
-	} else if (balance < -1) {
-		if (newKey > node->right->key)
-			node = leftRotate(node);
-		else {
-			node->right = rightRotate(node->right);
-			node = leftRotate(node);
-		}
+
+		node = node->parent;
 	}
-
-	balanceTree(node->parent, newKey);
 }
 
 void AVLTree::balanceTree(Node *node) {
-	if (node == NULL) return;
+	while (node != NULL) {
+		int leftHeight = getHeight(node->left);
+		int rightHeight = getHeight(node->right);
 
-	// Update height
-	node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+		// Update height
+		node->height = 1 + max(leftHeight, rightHeight);
 
-	int balance = getBalance(node);
-	if (balance > 1) {
-		if (getBalance(node->left) >= 0)
-			node = rightRotate(node);
-		else {
-			node->left = leftRotate(node->left);
-			node = rightRotate(node);
+		int balance = leftHeight - rightHeight;
+		if (balance > 1) {
+			if (getBalance(node->left) >= 0)
+				node = rotate(node, RIGHT);
+			else {
+				rotate(node->left, LEFT);
+				node = rotate(node, RIGHT);
+			}
+		} else if (balance < -1) {
+			if (getBalance(node->right) <= 0)
+				node = rotate(node, LEFT);
+			else {
+				rotate(node->right, RIGHT);
+				node = rotate(node, LEFT);
+			}
 		}
-	} else if (balance < -1) {
-		if (getBalance(node->right) <= 0)
-			node = leftRotate(node);
-		else {
-			node->right = rightRotate(node->right);
-			node = leftRotate(node);
-		}
+
+		node = node->parent;
 	}
-
-	balanceTree(node->parent);
 }
 
 Node *root;
@@ -148,9 +132,6 @@ void AVLTree::deleteTree(Node *node) {
 	delete node;
 }
 
-int AVLTree::getHeight(Node *node) { return (node == NULL) ? 0 : node->height; }
-int AVLTree::getBalance(Node *node) { return (node == NULL) ? 0 : getHeight(node->left) - getHeight(node->right); }
-
 void AVLTree::insertKey(int key) { insertNode(createNode(key), true); }
 
 void AVLTree::insertNode(Node *node, bool balance) {
@@ -162,17 +143,19 @@ void AVLTree::insertNode(Node *node, bool balance) {
 		size++;
 		return;
 	}
+
 	// Find the appropriate parent for the node (make it a leaf)
 	Node *current = root;
 	Node *parent = NULL;
 	while (current != NULL) {
 		parent = current;
+		// If the key is less than the current node's key, go to the left
 		if (node->key < current->key) {
-			// If the key is less than the current node's key, go to the left
 			current = current->left;
 			continue;
-		} else if (node->key == current->key) {
-			// If the key already exists, delete the node and return
+		}
+		// If the key already exists, increment the count and return
+		if (node->key == current->key) {
 			current->count++;
 			delete node;
 			return;
@@ -222,9 +205,10 @@ void AVLTree::deleteNode(Node *node) {
 		Node *child = (node->right == NULL) ? node->left : node->right;
 		// If the node is the root, set the child as the new root
 		// Otherwise, set the child as the node's parent's left or right child
-		if (node->parent == NULL)
+		if (node->parent == NULL) {
 			root = child;
-		else if (node->parent->left == node) {
+			child->parent = NULL;
+		} else if (node->parent->left == node) {
 			node->parent->left = child;
 			child->parent = node->parent;
 		} else {
