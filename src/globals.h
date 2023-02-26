@@ -7,6 +7,11 @@
 #define RED "\033[31m"
 #define GREEN "\033[32m"
 #define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN "\033[36m"
+#define WHITE "\033[37m"
+#define BOLD "\033[1m"
 #define RESET "\033[0m"
 
 // Tree node structure
@@ -37,12 +42,13 @@ struct DeletionTestEntry {
 	std::string name;
 };
 
-class BenchmarkTemplate {
-public:
-	void insert(int key);
-	void search(int key);
-	void remove(int key);
-	void destroy();
+struct BenchmarkData {
+	std::string name;
+	void (*init)();
+	void (*insert)(int);
+	void (*search)(int);
+	void (*remove)(int);
+	void (*destroy)();
 };
 
 #endif	// __GLOBALS_H__
