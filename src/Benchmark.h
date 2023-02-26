@@ -5,11 +5,6 @@
 #include <string>
 #include <list>
 
-struct BenchmarkData {
-	std::string name;
-	class BenchmarkTemplate *benchmark;
-};
-
 enum BenchmarkType {
 	AVL,
 	RedBlack,
@@ -18,13 +13,16 @@ enum BenchmarkType {
 };
 
 namespace Benchmark {
+	extern bool verbose;
+	extern int verboseLevel;
 	extern BenchmarkData benchmarks[];
 	extern int benchmarksSize;
-	void runInsertion(BenchmarkTemplate *benchmark, int insertKeys);
-	void runSearch(BenchmarkTemplate *benchmark, int searchKeys);
-	void runRemoval(BenchmarkTemplate *benchmark, int removeKeys);
+	void runInsertion(BenchmarkData benchmark, int insertKeys);
+	void runSearch(BenchmarkData benchmark, int searchKeys);
+	void runRemoval(BenchmarkData benchmark, int removeKeys);
+	// Return
 	void run(enum BenchmarkType benchmarkType, int insertKeys, int searchKeys, int removeKeys);
-	void run(enum BenchmarkType benchmarkType, int insertKeys, int searchKeys, int removeKeys, int amount);
+	int* run(enum BenchmarkType benchmarkType, int insertKeys, int searchKeys, int removeKeys, int amount);
 };
 
 #endif
