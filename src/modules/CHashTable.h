@@ -1,19 +1,17 @@
 #ifndef CHashTable_h
 #define CHashTable_h
 #include "../utils.h"
+#include <vector>
 
 struct HashTableChain {
-	int* keys;
-	int* values;
+	std::vector<int> keys;
+	std::vector<int> values;
 	int size;
 };
 
 class CHashTable {
 private:
 	void initTable(int, int*, int*);
-	void resize(int);
-	int hash1(int);
-	int hash2(int);
 
 public:
 	int size;

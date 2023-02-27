@@ -1,5 +1,6 @@
 
 #include <list>
+#include <vector>
 #include "CHashTable.h"
 
 #define DEFAULT_CAPACITY 10
@@ -9,10 +10,10 @@ void CHashTable::initTable(int capacity, int* keys, int* values) {
 	this->size = 0;
 	this->table = new HashTableChain[capacity];
 	// Nullify all entries
-	for (int i = 0; i < capacity; i++) table[i] = {NULL, NULL, 0};
+	// for (int i = 0; i < capacity; i++) table[i] = {{}, {}, 0};
 	// Insert all keys
-	if (keys != nullptr && values != nullptr)
-		for (int i = 0; i < capacity; i++) insertKey(keys[i], values[i]);
+	// if (keys != nullptr && values != nullptr)
+	// 	for (int i = 0; i < capacity; i++) insertKey(keys[i], values[i]);
 }
 
 CHashTable::CHashTable() {
@@ -28,10 +29,6 @@ CHashTable::CHashTable(int capacity, int* keys, int* values) {
 }
 
 CHashTable::~CHashTable() {
-	for (int i = 0; i < capacity; i++) {
-		delete[] table[i].keys;
-		delete[] table[i].values;
-	}
 	delete[] table;
 }
 
@@ -39,32 +36,14 @@ int CHashTable::hash(int key) {
 	return key % capacity;
 }
 
-void CHashTable::resize(int newCapacity) {
-}
-
 void CHashTable::insertKey(int key, int value) {
 	int index = hash(key);
 
-	// HashTableChain* entry = &table[index];
-
-	// // If the entry is empty, create a new one
-	// if (entry->keys == NULL) {
-	// 	entry->keys = (int*)malloc(sizeof(int));
-	// 	entry->values = (int*)malloc(sizeof(int));
-	// 	entry->keys[0] = key;
-	// 	entry->values[0] = value;
-	// 	entry->size = 1;
-	// 	return;
-	// }
-
-	// TODO: FIX memory leak
-
-	// If the entry is not empty, resize the arrays
-	table[index].keys = (int*)realloc(table[index].keys, (table[index].size + 1) * sizeof(int));
-	table[index].values = (int*)realloc(table[index].values, (table[index].size + 1) * sizeof(int));
-	table[index].keys[table[index].size] = key;
-	table[index].values[table[index].size] = value;
+	// If the entry is empty, create a new entry
+	table[index].keys.push_back(key);
+	table[index].values.push_back(value);
 	table[index].size++;
+	size++;
 }
 
 int CHashTable::searchKey(int key) {
@@ -87,30 +66,24 @@ void CHashTable::deleteKey(int key) {
 
 	// If the entry has only one key, delete the entry
 	if (table[index].size == 1) {
-		delete[] table[index].keys;
-		delete[] table[index].values;
-		table[index].keys = NULL;
-		table[index].values = NULL;
+		table[index].keys.clear();
+		table[index].values.clear();
 		table[index].size = 0;
+		size--;
 		return;
 	}
 
 	// If the entry has more than one key, resize the arrays
-	table[index].keys = (int*)realloc(table[index].keys, (table[index].size - 1) * sizeof(int));
-	table[index].values = (int*)realloc(table[index].values, (table[index].size - 1) * sizeof(int));
+	table[index].keys.erase(table[index].keys.begin() + keyIndex);
+	table[index].values.erase(table[index].values.begin() + keyIndex);
 	table[index].size--;
-	for (int i = keyIndex; i < table[index].size; i++) {
-		table[index].keys[i] = table[index].keys[i + 1];
-		table[index].values[i] = table[index].values[i + 1];
-	}
+	size--;
 }
 
 void CHashTable::clear() {
 	for (int i = 0; i < capacity; i++) {
-		delete[] table[i].keys;
-		delete[] table[i].values;
-		table[i].keys = NULL;
-		table[i].values = NULL;
+		table[i].keys.clear();
+		table[i].values.clear();
 		table[i].size = 0;
 	}
 }
