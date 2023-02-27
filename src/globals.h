@@ -14,7 +14,13 @@
 #define BOLD "\033[1m"
 #define RESET "\033[0m"
 
-// Tree node structure
+// Rotate directions used in AVLTree and RedBlackTree rotate functions
+enum RotateDirection {
+	LEFT,
+	RIGHT
+};
+
+// AVLNode structure
 struct AVLNode {
 	int key;
 	AVLNode *parent;
@@ -22,9 +28,28 @@ struct AVLNode {
 	AVLNode *right;
 	int count;
 	int height;
+	AVLNode();
+	AVLNode(int key);
 };
 
-AVLNode *createNode(int);
+// RedBlackNode colors
+enum RedBlackNodeColor {
+	black,
+	red
+};
+
+// RedBlackNode structure
+struct RedBlackNode {
+	int key;
+	RedBlackNode *parent;
+	RedBlackNode *left;
+	RedBlackNode *right;
+	int count;
+	RedBlackNodeColor color;
+	RedBlackNode();
+	RedBlackNode(int key);
+	RedBlackNode(int key, RedBlackNodeColor color);
+};
 
 // Used for test entries
 struct InsertionTestEntry {
@@ -42,6 +67,7 @@ struct DeletionTestEntry {
 	std::string name;
 };
 
+// Benchmark data used to specify which data structure's functions to use for benchmarking
 struct BenchmarkData {
 	std::string name;
 	void (*init)();

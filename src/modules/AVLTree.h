@@ -3,11 +3,6 @@
 
 #include "../utils.h"
 
-enum RotateDirection {
-	LEFT,
-	RIGHT
-};
-
 class AVLTree {
 private:
 	/**
