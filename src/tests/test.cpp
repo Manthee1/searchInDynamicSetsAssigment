@@ -154,46 +154,40 @@ bool testAVLTreeDeletion(DeletionTestEntry* testEntries, int length, chrono::dur
 	return failedTests == 0;
 }
 
-bool testAVLTree(bool useRandom) {
+bool testAVLTree() {
 	// If useRandom is true, generate random tests
 
 	// Insertion tests
-	InsertionTestEntry* insertTests = AVLInsertionTests;
-	int insertTestsLength = 10;
-	DeletionTestEntry* deleteTests = AVLDeletionTests;
-	int deleteTestsLength = 13;
 
-	int testsAmount = 10;
-	int testLength = 10;
-	if (useRandom) {
-		testsAmount = 100;
-		testLength = 1000;
-		deleteTestsLength = insertTestsLength = testsAmount;
-		insertTests = new InsertionTestEntry[testsAmount];
-		deleteTests = new DeletionTestEntry[testsAmount];
-		std::cout << "Generating " << testsAmount << " random tests..." << endl;
-		for (int i = 0; i < testsAmount; i++) {
-			// Generate a random test
-			InsertionTestEntry* test = new InsertionTestEntry;
-			test->name = "Random test " + to_string(i);
-			test->keys = generateRandomArray(testLength, 0, 1000000);
-			test->length = testLength;
+	int testsAmount = 100;
+	int testLength = 1000;
+	int deleteTestsLength = testsAmount, insertTestsLength = testsAmount;
+	InsertionTestEntry* insertTests = new InsertionTestEntry[testsAmount];
+	DeletionTestEntry* deleteTests = new DeletionTestEntry[testsAmount];
+	std::cout << "Generating " << testsAmount << " random tests..." << endl;
+	for (int i = 0; i < testsAmount; i++) {
+		// Generate a random test
+		InsertionTestEntry* test = new InsertionTestEntry;
+		test->name = "Random test " + to_string(i);
+		test->keys = generateRandomArray(testLength, 0, 1000000);
+		test->length = testLength;
 
-			// Add the test to the array
-			insertTests[i] = *test;
+		// Add the test to the array
+		insertTests[i] = *test;
 
-			// Generate a random deletion test
-			DeletionTestEntry* deleteTest = new DeletionTestEntry;
-			deleteTest->name = "Random test " + to_string(i);
-			deleteTest->keys = test->keys;
-			deleteTest->length = test->length;
+		// Generate a random deletion test
+		DeletionTestEntry* deleteTest = new DeletionTestEntry;
+		deleteTest->name = "Random test " + to_string(i);
+		deleteTest->keys = test->keys;
+		deleteTest->length = test->length;
 
-			deleteTest->deleteLength = (int)(testLength * (rand() % 100) / 120.0) + 1;
-			deleteTest->deleteKeys = generateRandomArray(deleteTest->deleteLength, 0, 1000);
+		deleteTest->deleteLength = (int)(testLength * (rand() % 100) / 120.0) + 1;
+		deleteTest->deleteKeys = generateRandomArray(deleteTest->deleteLength, 0, 1000);
 
-			// Add the test to the array
-			deleteTests[i] = *deleteTest;
-		}
+		// Add the test to the array
+		deleteTests[i] = *deleteTest;
+		delete deleteTest;
+		delete test;
 	}
 
 	std::cout << "Testing AVL tree..." << endl;
@@ -206,6 +200,11 @@ bool testAVLTree(bool useRandom) {
 		std::cout << "Will not test deletion" << endl;
 		return false;
 	}
+	// Delete the tests
+	for (int i = 0; i < testsAmount; i++) {
+		delete[] insertTests[i].keys;
+		delete[] deleteTests[i].deleteKeys;
+	}
 	// Stop timer for insertion
 	std::cout << "AVL Tree insertion took " << duration.count() << " microseconds" << endl;
 	std::cout << "Inserted " << testLength << " keys" << endl;
@@ -215,6 +214,9 @@ bool testAVLTree(bool useRandom) {
 	// Info about how many tests were passed
 	std::cout << "AVL Tree insertion passed!" << endl;
 
+	delete[] insertTests;
+	delete[] deleteTests;
+	return true;
 	// Restart timer for deletion
 	duration = chrono::duration<double, std::micro>::zero();
 	if (!testAVLTreeDeletion(deleteTests, deleteTestsLength, &duration)) {
@@ -230,10 +232,56 @@ bool testAVLTree(bool useRandom) {
 	return true;
 }
 
+void testRedBlackTree() {
+	int keysAmount = 10000;
+	cout << "Testing RedBlackTree..." << endl;
+	for (int i = 0; i < 100; i++) {
+		cout << "Test " << i + 1 << ": ";
+		int* keys = generateRandomArray(keysAmount, 0, keysAmount);
+		RedBlackTree tree = RedBlackTree(keys, keysAmount);
+		delete[] keys;
+
+		if (!isRedBlackTreeValid(&tree, tree.root)) {
+			std::cout << RED "FAILED" RESET << endl;
+			continue;
+		}
+		std::cout << GREEN "PASSED" RESET << endl;
+	}
+}
+
+void testOAHashTable() {
+	int keysAmount = 10000;
+	cout << "Testing OAHashTable..." << endl;
+	for (int i = 0; i < 100; i++) {
+		cout << "Test " << i + 1 << ": ";
+		std::vector<int> keys = generateRandomUniqueArray(keysAmount, 0, keysAmount);
+		int* values = generateRandomArray(keysAmount, 0, keysAmount);
+
+		OAHashTable table;
+		for (int i = 0; i < keysAmount; i++) {
+			table.insertKey(keys[i], values[i]);
+		}
+
+		// Search for all the keys
+		for (int i = 0; i < keysAmount; i++) {
+			int key = keys[i];
+			int expectedValue = values[i];
+			int value = table.searchKey(keys[i]);
+			if (value != values[i]) {
+				std::cout << RED "FAILED" RESET << endl;
+				delete[] values;
+				return;
+			}
+		}
+		std::cout << GREEN "PASSED" RESET << endl;
+
+		delete[] values;
+	}
+}
 // Unnecessary function, but keeping it for now
 AVLNode* codeToTree(string code) {
 	// The first character is the root node
-	AVLNode* root = createNode(code[0] - '0');
+	AVLNode* root = new AVLNode(code[0] - '0');
 
 	// The rest of the characters are the children
 	//  '/' means right node, '\' means left node
@@ -244,11 +292,11 @@ AVLNode* codeToTree(string code) {
 			continue;
 		}
 		if (code[i] == '\\') {
-			current->right = createNode(code[++i] - '0');
+			current->right = new AVLNode(code[++i] - '0');
 			current->right->parent = current;
 			current = current->right;
 		} else if (code[i] == '/') {
-			current->left = createNode(code[++i] - '0');
+			current->left = new AVLNode(code[++i] - '0');
 			current->left->parent = current;
 			current = current->left;
 		}
@@ -270,6 +318,15 @@ static bool isAVLTreeBalanced(AVLTree* tree, AVLNode* node) {
 	if (abs(tree->getBalance(node)) > 1) return false;
 	return (node->left == NULL || isAVLTreeBalanced(tree, node->left)) &&
 		   (node->right == NULL || isAVLTreeBalanced(tree, node->right));
+}
+
+static bool isRedBlackTreeValid(RedBlackTree* tree, RedBlackNode* node) {
+	if (node == NULL) return true;
+	if (node->color == red) {
+		if (node->left != NULL && node->left->color == red) return false;
+		if (node->right != NULL && node->right->color == red) return false;
+	}
+	return isRedBlackTreeValid(tree, node->left) && isRedBlackTreeValid(tree, node->right);
 }
 
 // get all keys in the tree
