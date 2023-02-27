@@ -1,5 +1,8 @@
 #include "utils.h"
 #include <iostream>
+#include <algorithm>
+#include <random>
+#include <vector>
 
 int max(int a, int b) { return (a > b) ? a : b; }
 
@@ -27,5 +30,25 @@ int* generateRandomArray(int length, int min, int max) {
 	int* array = new int[length];
 	for (int i = 0; i < length; i++)
 		array[i] = rand() % (max - min + 1) + min;
+	return array;
+	// remember to deallocate memory after use
+	delete[] array;
+}
+
+std::vector<int> generateRandomUniqueArray(int length, int min, int max) {
+	std::vector<int> keys(length);
+	std::iota(keys.begin(), keys.end(), min);
+	std::random_device rd;
+	std::mt19937 g(rd());
+	std::shuffle(keys.begin(), keys.end(), g);
+	keys.resize(length);
+	return keys;
+}
+
+std::vector<int> generateRandomVectorArray(int length, int min, int max) {
+	std::vector<int> array(length);
+	for (int i = 0; i < length; i++) {
+		array[i] = rand() % (max - min + 1) + min;
+	}
 	return array;
 }
