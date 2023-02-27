@@ -25,34 +25,37 @@ void OAHashTable::initTable(int capacity, int* keys, int* values) {
 }
 
 void OAHashTable::resize(int newCapacity) {
-	// Create a new table
-	HashTableEntry* newTable = new HashTableEntry[newCapacity];
-	// Nullify all entries
-	for (int i = 0; i < newCapacity; i++) newTable[i] = {-1, -1};
-	// Insert all keys
-	for (int i = 0; i < capacity; i++) {
-		if (table[i].key != -1) {
-			int index = hash(table[i].key);
-			// If the entry is empty, create a new one
-			if (newTable[index].key == -1) {
-				newTable[index].key = table[i].key;
-				newTable[index].value = table[i].value;
-				continue;
-			}
+	// Clone the keys and values
+	int* keys = new int[size];
+	int* values = new int[size];
 
-			// If the entry is not empty, probe for an empty slot
-			while (newTable[index].key != -1) {
-				index = (index + 1) % newCapacity;
-			}
-			newTable[index].key = table[i].key;
-			newTable[index].value = table[i].value;
+	// Go through the table and add all the keys and values to the arrays
+	int index = 0;
+	for (int i = 0; i < capacity; i++) {
+		if (table[i].key == -1) {
+			continue;
 		}
+		keys[index] = table[i].key;
+		values[index] = table[i].value;
+		index++;
 	}
-	// Delete the old table
 	delete[] table;
-	// Set the new table
-	table = newTable;
-	capacity = newCapacity;
+
+	// Reinitialize the table
+	this->table = new HashTableEntry[newCapacity];
+	this->capacity = newCapacity;
+	int oldSize = size;
+	this->size = 0;
+	// Nullify all entries
+	for (int i = 0; i < capacity; i++) table[i] = {-1, -1};
+
+	// Insert all the keys and values
+	for (int i = 0; i < oldSize; i++)
+		insertKey(keys[i], values[i]);
+
+	// Delete the arrays
+	delete[] keys;
+	delete[] values;
 }
 
 OAHashTable::OAHashTable(int capacity, int* keys, int* values) {
@@ -68,6 +71,7 @@ OAHashTable::OAHashTable() {
 }
 
 OAHashTable::~OAHashTable() {
+	delete[] table;
 }
 
 int OAHashTable::hash(int key) {
@@ -79,21 +83,28 @@ int OAHashTable::hash(int key) {
 	return (hash1 * hash2) % capacity;
 }
 
+int OAHashTable::probe(int key, int i) {
+	// Linear probing
+	return (hash(key) + i) % capacity;
+}
+
 void OAHashTable::insertKey(int key, int value) {
 	int index = hash(key);
 
 	// Check if the table needs to be resized
-	if (++size / capacity >= 0.75) resize(capacity * 2);
-
-	// If the entry is empty, create a new one
-	if (table[index].key == -1) {
-		table[index].key = key;
-		table[index].value = value;
-		return;
+	if ((double)size / capacity >= 0.75) {
+		resize(capacity * 2);
+		index = hash(key);
 	}
+	size++;
 
-	// If the entry is not empty, probe for an empty slot
+	// Probe for an empty slot
 	while (table[index].key != -1) {
+		// If the key already exists, update the value
+		if (table[index].key == key) {
+			table[index].value = value;
+			return;
+		}
 		index = (index + 1) % capacity;
 	}
 
@@ -103,21 +114,17 @@ void OAHashTable::insertKey(int key, int value) {
 
 int OAHashTable::searchKey(int key) {
 	int index = getIndex(key);
-	if (index == -1) return -1;
-	return table[index].value;
+	return (index == -1) ? -1 : table[index].value;
 }
 
 int OAHashTable::getIndex(int key) {
 	int index = hash(key);
-	// If the entry is empty, return -1
-	if (table[index].key == -1) return -1;
-
-	// If the entry is not empty, probe for the key
-	while (table[index].key != key) {
+	int i = 0;
+	while (table[index].key != -1 && table[index].key != key && i < capacity) {
 		index = (index + 1) % capacity;
-		if (table[index].key == -1) return -1;
+		i++;
 	}
-	return index;
+	return (table[index].key == key) ? index : -1;
 }
 
 void OAHashTable::deleteKey(int key) {

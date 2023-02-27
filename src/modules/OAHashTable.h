@@ -21,6 +21,7 @@ public:
 	OAHashTable(int, int*, int*);
 	~OAHashTable();
 	int hash(int);
+	int probe(int, int);
 	void insertKey(int, int);
 	int searchKey(int);
 	int getIndex(int);
