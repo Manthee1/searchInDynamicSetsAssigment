@@ -5,7 +5,7 @@
 #define IG GUI::imgui
 
 // CHashTable table = CHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-static CHashTable* table = new CHashTable(10);
+static CHashTable* table;
 static int insertKey = 0;
 static int insertValue = 0;
 static int highlightIndex = -1;
@@ -31,7 +31,7 @@ void CHashTableView::draw() {
 		// Create a new table
 		table = new CHashTable(tableSize);
 		for (int i = 0; i < amount; i++)
-			table->insertKey(rand() % 100, rand() % 100);
+			table->insertKey(rand() % amount, rand() % amount);
 	}
 	IG::End();
 

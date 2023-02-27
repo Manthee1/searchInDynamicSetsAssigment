@@ -4,7 +4,7 @@
 #include <cstdlib>
 #define IG GUI::imgui
 
-static OAHashTable* table = new OAHashTable(100, new int[11]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1}, new int[11]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1});
+static OAHashTable* table;
 // OAHashTable table = OAHashTable(10);
 static int insertKey = 0;
 static int insertValue = 0;
