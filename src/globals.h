@@ -15,16 +15,16 @@
 #define RESET "\033[0m"
 
 // Tree node structure
-struct Node {
+struct AVLNode {
 	int key;
-	Node *parent;
-	Node *left;
-	Node *right;
+	AVLNode *parent;
+	AVLNode *left;
+	AVLNode *right;
 	int count;
 	int height;
 };
 
-Node *createNode(int);
+AVLNode *createNode(int);
 
 // Used for test entries
 struct InsertionTestEntry {

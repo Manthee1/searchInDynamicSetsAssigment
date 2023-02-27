@@ -15,11 +15,11 @@ private:
 	 *
 	 * @param node - Starting node
 	 */
-	void deleteTree(Node *);
+	void deleteTree(AVLNode *);
 
 public:
-	int getHeight(Node *);
-	int getBalance(Node *);
+	int getHeight(AVLNode *);
+	int getBalance(AVLNode *);
 
 	// The amount of nodes in the tree
 	int size;
@@ -28,9 +28,9 @@ public:
 	 *@brief Rotate the subtree starting from the given node
 	 *
 	 * @param x - Subtree root
-	 * @return Node* - New root of the subtree
+	 * @return AVLNode* - New root of the subtree
 	 */
-	Node *rotate(Node *, RotateDirection);
+	AVLNode *rotate(AVLNode *, RotateDirection);
 
 	/**
 	 *@brief Balance the tree starting from the given node (used after insertion)
@@ -38,16 +38,16 @@ public:
 	 * @param node - Starting node
 	 * @param newKey - Key to be compared with
 	 */
-	void balanceTree(Node *, int);
+	void balanceTree(AVLNode *, int);
 
 	/**
 	 *@brief Balance the tree starting from the given node (used after deletion)
 	 *
 	 * @param node
 	 */
-	void balanceTree(Node *);
+	void balanceTree(AVLNode *);
 
-	Node *root;
+	AVLNode *root;
 	AVLTree();
 	// Variadic constructor with std::initializer_list
 	AVLTree(std::initializer_list<int>);
@@ -59,26 +59,26 @@ public:
 	/**
 	 * @brief Insert a node into the tree
 	 *
-	 * @param node - Node to be inserted
+	 * @param node - AVLNode to be inserted
 	 */
-	void insertNode(Node *, bool);
+	void insertNode(AVLNode *, bool);
 
 	/**
 	 *@brief Search for a node with the given key
 	 *
 	 * @param key - Key to be searched for
-	 * @return Node* - Pointer to the node with the given key
+	 * @return AVLNode* - Pointer to the node with the given key
 	 */
-	Node *searchKey(int);
+	AVLNode *searchKey(int);
 
 	void deleteKey(int);
 
 	/**
 	 *@brief Delete a node from the tree
 	 *
-	 * @param node - Node to be deleted
+	 * @param node - AVLNode to be deleted
 	 */
-	void deleteNode(Node *);
+	void deleteNode(AVLNode *);
 };
 
 #endif	// __AVLTREE_H__

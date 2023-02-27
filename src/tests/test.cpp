@@ -18,7 +18,7 @@ bool testAVLTreeInsertion(InsertionTestEntry* testEntries, int length, chrono::d
 
 		// Initialize the tree and the expected tree
 		AVLTree tree = AVLTree(testEntries[i].keys, testEntries[i].length);
-		Node* treeRoot = tree.root;
+		AVLNode* treeRoot = tree.root;
 
 		// Stop the timer
 		auto stop = std::chrono::high_resolution_clock::now();
@@ -231,13 +231,13 @@ bool testAVLTree(bool useRandom) {
 }
 
 // Unnecessary function, but keeping it for now
-Node* codeToTree(string code) {
+AVLNode* codeToTree(string code) {
 	// The first character is the root node
-	Node* root = createNode(code[0] - '0');
+	AVLNode* root = createNode(code[0] - '0');
 
 	// The rest of the characters are the children
 	//  '/' means right node, '\' means left node
-	Node* current = root;
+	AVLNode* current = root;
 	for (int i = 0; i < (int)code.length(); i++) {
 		if (code[i] == '-') {
 			current = current->parent;
@@ -257,7 +257,7 @@ Node* codeToTree(string code) {
 }
 
 // Compares two trees
-bool compareTrees(Node* tree1, Node* tree2) {
+bool compareTrees(AVLNode* tree1, AVLNode* tree2) {
 	if (tree1 == NULL && tree2 == NULL) return true;
 	if (tree1 == NULL || tree2 == NULL) return false;
 	if (tree1->key != tree2->key) return false;
@@ -265,7 +265,7 @@ bool compareTrees(Node* tree1, Node* tree2) {
 }
 
 // Go through each node and check if the balance is correct
-static bool isAVLTreeBalanced(AVLTree* tree, Node* node) {
+static bool isAVLTreeBalanced(AVLTree* tree, AVLNode* node) {
 	if (node == NULL) return true;
 	if (abs(tree->getBalance(node)) > 1) return false;
 	return (node->left == NULL || isAVLTreeBalanced(tree, node->left)) &&
@@ -273,7 +273,7 @@ static bool isAVLTreeBalanced(AVLTree* tree, Node* node) {
 }
 
 // get all keys in the tree
-static void getKeys(Node* node, int* keys, int* index) {
+static void getKeys(AVLNode* node, int* keys, int* index) {
 	if (node == NULL) return;
 	getKeys(node->left, keys, index);
 	keys[*index] = node->key;

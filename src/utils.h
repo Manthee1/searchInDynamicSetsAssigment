@@ -6,7 +6,7 @@ int max(int, int);
 
 int min(int, int);
 
-void printTree(Node*, int);
+void printTree(AVLNode*, int);
 
 bool isPrime(int);
 

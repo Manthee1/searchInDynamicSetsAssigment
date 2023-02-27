@@ -3,11 +3,11 @@
 #include <iostream>
 using namespace std;
 
-int AVLTree::getHeight(Node *node) { return (node == NULL) ? 0 : node->height; }
-int AVLTree::getBalance(Node *node) { return (node == NULL) ? 0 : getHeight(node->left) - getHeight(node->right); }
+int AVLTree::getHeight(AVLNode *node) { return (node == NULL) ? 0 : node->height; }
+int AVLTree::getBalance(AVLNode *node) { return (node == NULL) ? 0 : getHeight(node->left) - getHeight(node->right); }
 
-Node *AVLTree::rotate(Node *x, RotateDirection direction) {
-	Node *y;
+AVLNode *AVLTree::rotate(AVLNode *x, RotateDirection direction) {
+	AVLNode *y;
 	if (direction == LEFT) {  // left rotation
 		y = x->right;
 		x->right = y->left;
@@ -41,7 +41,7 @@ Node *AVLTree::rotate(Node *x, RotateDirection direction) {
 	return y;
 }
 
-void AVLTree::balanceTree(Node *node, int newKey) {
+void AVLTree::balanceTree(AVLNode *node, int newKey) {
 	while (node != NULL) {
 		int leftHeight = getHeight(node->left);
 		int rightHeight = getHeight(node->right);
@@ -71,7 +71,7 @@ void AVLTree::balanceTree(Node *node, int newKey) {
 	}
 }
 
-void AVLTree::balanceTree(Node *node) {
+void AVLTree::balanceTree(AVLNode *node) {
 	while (node != NULL) {
 		int leftHeight = getHeight(node->left);
 		int rightHeight = getHeight(node->right);
@@ -100,7 +100,7 @@ void AVLTree::balanceTree(Node *node) {
 	}
 }
 
-Node *root;
+AVLNode *root;
 AVLTree::AVLTree() {
 	size = 0;
 	root = NULL;
@@ -125,7 +125,7 @@ AVLTree::~AVLTree() {
 	deleteTree(root);
 }
 
-void AVLTree::deleteTree(Node *node) {
+void AVLTree::deleteTree(AVLNode *node) {
 	if (node == NULL) return;
 	deleteTree(node->left);
 	deleteTree(node->right);
@@ -134,7 +134,7 @@ void AVLTree::deleteTree(Node *node) {
 
 void AVLTree::insertKey(int key) { insertNode(createNode(key), true); }
 
-void AVLTree::insertNode(Node *node, bool balance) {
+void AVLTree::insertNode(AVLNode *node, bool balance) {
 	if (node == NULL) return;
 
 	// If the tree is empty, make the node the root
@@ -145,8 +145,8 @@ void AVLTree::insertNode(Node *node, bool balance) {
 	}
 
 	// Find the appropriate parent for the node (make it a leaf)
-	Node *current = root;
-	Node *parent = NULL;
+	AVLNode *current = root;
+	AVLNode *parent = NULL;
 	while (current != NULL) {
 		parent = current;
 		// If the key is less than the current node's key, go to the left
@@ -182,8 +182,8 @@ void AVLTree::insertNode(Node *node, bool balance) {
 		balanceTree(node->parent, node->key);
 }
 
-Node *AVLTree::searchKey(int key) {
-	Node *current = root;
+AVLNode *AVLTree::searchKey(int key) {
+	AVLNode *current = root;
 	while (current != NULL) {
 		if (current->key == key) return current;
 		current = (key < current->key) ? current->left : current->right;
@@ -192,17 +192,17 @@ Node *AVLTree::searchKey(int key) {
 }
 
 void AVLTree::deleteKey(int key) {
-	Node *node = searchKey(key);
+	AVLNode *node = searchKey(key);
 	deleteNode(node);
 }
 
-void AVLTree::deleteNode(Node *node) {
+void AVLTree::deleteNode(AVLNode *node) {
 	if (node == NULL) return;
 
 	// If the node only has one direct child
 	if ((node->right == NULL) ^ (node->left == NULL)) {
 		// Set the child as the node's parent's left or right child
-		Node *child = (node->right == NULL) ? node->left : node->right;
+		AVLNode *child = (node->right == NULL) ? node->left : node->right;
 		// If the node is the root, set the child as the new root
 		// Otherwise, set the child as the node's parent's left or right child
 		if (node->parent == NULL) {
@@ -225,7 +225,7 @@ void AVLTree::deleteNode(Node *node) {
 	// After that, we delete the very node we copied the key from, because it has at most one child (easy to delete)
 	if (node->right != NULL && node->left != NULL) {
 		// Find the largest node in the left subtree
-		Node *removeNode = node->left;
+		AVLNode *removeNode = node->left;
 		while (removeNode->right != NULL)
 			removeNode = removeNode->right;
 
@@ -233,7 +233,7 @@ void AVLTree::deleteNode(Node *node) {
 		node->key = removeNode->key;
 
 		// Make a pointer to the node to be deleted's parent
-		Node *tempLeafNode;
+		AVLNode *tempLeafNode;
 		tempLeafNode = removeNode->parent;
 
 		// Delete the largest node

@@ -7,8 +7,8 @@
 #include <list>
 using namespace std;
 
-Node* codeToTree(string code);
-bool compareTrees(Node* tree1, Node* tree2);
+AVLNode* codeToTree(string code);
+bool compareTrees(AVLNode* tree1, AVLNode* tree2);
 
 static InsertionTestEntry* AVLInsertionTests = new InsertionTestEntry[10]{
 	{new int[3]{1, 2, 3}, 3, "Simple left rotate test"},
@@ -70,16 +70,16 @@ bool testAVLTree(bool);
  * @brief Converts a string representation of a tree to a tree ( Unneeded but could be useful )
  *
  * @param code String representation of the tree
- * @return Node* The root of the tree
+ * @return AVLNode* The root of the tree
  */
-Node* codeToTree(string);
+AVLNode* codeToTree(string);
 
 // Compares two trees
-bool compareTrees(Node*, Node*);
+bool compareTrees(AVLNode*, AVLNode*);
 
 // Go through each node and check if the balance is correct
-static bool isAVLTreeBalanced(AVLTree*, Node*);
+static bool isAVLTreeBalanced(AVLTree*, AVLNode*);
 
 // Add each node to an array and return it
-static void getKeys(Node* node, int* keys, int* index);
+static void getKeys(AVLNode* node, int* keys, int* index);
 #endif

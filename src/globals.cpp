@@ -1,7 +1,7 @@
 #include "globals.h"
 
-Node *createNode(int key) {
-	Node *newNode = new Node;
+AVLNode *createNode(int key) {
+	AVLNode *newNode = new AVLNode;
 	newNode->key = key;
 	newNode->left = NULL;
 	newNode->right = NULL;

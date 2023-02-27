@@ -20,7 +20,18 @@ int main(int argc, char** argv) {
 			return 0;
 		}
 		if (arg == "--benchmark") {
-			Benchmark::run(AVL, 1000, 800, 500, 10);
+			// Check if verbose
+			if (argc > 2) {
+				string arg2 = string(argv[2]);
+				if (arg2 == "--verbose")
+					Benchmark::verboseLevel = 2;
+			}
+			Benchmark::run(AVL, 10000000, 10000000, 10000000, 10);
+			// for (int i = 1; i <= 1000; i++) {
+			// 	int* durations = Benchmark::run(AVL, i * 10, i * 10, i * 10, 1000);
+			// 	// cout << "AVL Tree: " << i * 10 << " keys Duration: " << durations[0] << " nanoseconds" << endl;
+			// 	cout << i << "\t" << durations[0] << "\t" << durations[1] << "\t" << durations[2] << "\t" << endl;
+			// }
 			return 0;
 		}
 		return 0;

@@ -21,38 +21,38 @@ void resetNodeGUIData() {
 	nodePositions = NULL;
 	reIndexNodes = true;
 }
-static bool isAVLTreeBalanced(AVLTree* tree, Node* node) {
+static bool isAVLTreeBalanced(AVLTree* tree, AVLNode* node) {
 	if (node == NULL) return true;
 
 	if (abs(tree->getBalance(node)) > 1) {
-		std::cout << "Node " << node->key << " is not balanced" << std::endl;
+		std::cout << "AVLNode " << node->key << " is not balanced" << std::endl;
 		return false;
 	}
 	return (node->left == NULL || isAVLTreeBalanced(tree, node->left)) &&
 		   (node->right == NULL || isAVLTreeBalanced(tree, node->right));
 }
 
-static Node* selectedNode = NULL;
+static AVLNode* selectedNode = NULL;
 static AVLTree tree;
 void AVLTreeView::draw() {
 	// Add a node to the tree
-	IG::Begin("Add Node");
+	IG::Begin("Add AVLNode");
 	IG::InputInt("Key", &insertKey);
 
-	if (IG::Button("Add Node")) {
+	if (IG::Button("Add AVLNode")) {
 		tree.insertKey(insertKey);
 		resetNodeGUIData();
 	}
-	if (IG::Button("Add Node(Not balanced)")) {
+	if (IG::Button("Add AVLNode(Not balanced)")) {
 		tree.insertNode(createNode(insertKey), false);
 		resetNodeGUIData();
 	}
 	IG::End();
 
 	// Remove a node from the tree
-	IG::Begin("Remove Node");
+	IG::Begin("Remove AVLNode");
 	IG::InputInt("Key", &removeKey);
-	if (IG::Button("Remove Node")) {
+	if (IG::Button("Remove AVLNode")) {
 		tree.deleteKey(removeKey);
 		selectedNode = NULL;
 		resetNodeGUIData();
@@ -91,7 +91,7 @@ void AVLTreeView::draw() {
 	}
 	IG::End();
 
-	IG::Begin("Selected Node Info");
+	IG::Begin("Selected AVLNode Info");
 	if (selectedNode != NULL) {
 		IG::Text("Key: %d", selectedNode->key);
 		IG::Text("Height: %d", selectedNode->height);
@@ -109,7 +109,7 @@ void AVLTreeView::draw() {
 		}
 
 		// Delete the selected node
-		if (IG::Button("Delete Node")) {
+		if (IG::Button("Delete AVLNode")) {
 			tree.deleteNode(selectedNode);
 			selectedNode = NULL;
 			resetNodeGUIData();
@@ -152,7 +152,7 @@ void AVLTreeView::draw() {
 	reIndexNodes = false;
 }
 
-void AVLTreeView::drawTreeNode(Node* node, int x, int y, int level) {
+void AVLTreeView::drawTreeNode(AVLNode* node, int x, int y, int level) {
 	if (node == NULL) return;
 	// Draw the tree
 	// Draw a circle at the current node
