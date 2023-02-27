@@ -16,12 +16,14 @@ std::chrono::nanoseconds removeTotal = std::chrono::nanoseconds(0);
 
 // Arguments: (function pointer, int keys amount)
 std::chrono::nanoseconds runTest(void (*benchmarkFunction)(int), int keysAmount) {
+	int* keys = generateRandomArray(keysAmount, 0, keysAmount);
+
 	// Start the timer
 	auto start = std::chrono::high_resolution_clock::now();
 
 	// Run the benchmark
 	for (int i = 0; i < keysAmount; i++)
-		benchmarkFunction(i);
+		benchmarkFunction(keys[i]);
 
 	// Stop the timer
 	auto stop = std::chrono::high_resolution_clock::now();
