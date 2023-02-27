@@ -44,7 +44,7 @@ void AVLTreeView::draw() {
 		resetNodeGUIData();
 	}
 	if (IG::Button("Add AVLNode(Not balanced)")) {
-		tree.insertNode(createNode(insertKey), false);
+		tree.insertNode(new AVLNode(insertKey), false);
 		resetNodeGUIData();
 	}
 	IG::End();
@@ -79,14 +79,14 @@ void AVLTreeView::draw() {
 		delete tree.root;
 		tree.root = NULL;
 		for (int i = 0; i < size; i++)
-			tree.insertKey(rand() % 1000);
+			tree.insertKey(rand() % 10000);
 		resetNodeGUIData();
 	}
 	static int deleteSize = 700;
 	IG::InputInt("DeleteAmount", &deleteSize);
 	if (IG::Button("Delete")) {
 		for (int i = 0; i < deleteSize; i++)
-			tree.deleteKey(rand() % 1000);
+			tree.deleteKey(rand() % 10000);
 		resetNodeGUIData();
 	}
 	IG::End();

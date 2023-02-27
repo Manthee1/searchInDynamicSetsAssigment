@@ -132,7 +132,7 @@ void AVLTree::deleteTree(AVLNode *node) {
 	delete node;
 }
 
-void AVLTree::insertKey(int key) { insertNode(createNode(key), true); }
+void AVLTree::insertKey(int key) { insertNode(new AVLNode(key), true); }
 
 void AVLTree::insertNode(AVLNode *node, bool balance) {
 	if (node == NULL) return;
