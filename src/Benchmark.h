@@ -1,6 +1,8 @@
 #ifndef BENCHMARK_BENCHMARK_H_
 #define BENCHMARK_BENCHMARK_H_
 #include "benchmarks/AVLTreeBenchmark.h"
+#include "benchmarks/RedBlackTreeBenchmark.h"
+#include "benchmarks/CHashTableBenchmark.h"
 #include <chrono>
 #include <string>
 #include <list>

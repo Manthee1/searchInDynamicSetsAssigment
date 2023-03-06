@@ -5,8 +5,8 @@ bool Benchmark::verbose = false;
 int Benchmark::verboseLevel = 0;
 BenchmarkData Benchmark::benchmarks[] = {
 	{"AVL Tree", &AVLTreeBenchmark::init, &AVLTreeBenchmark::insert, &AVLTreeBenchmark::search, &AVLTreeBenchmark::remove, &AVLTreeBenchmark::destroy},
-	{"RedBlack", NULL, NULL, NULL, NULL, NULL},
-	{"HashTable (Chaining)", NULL, NULL, NULL, NULL, NULL},
+	{"RedBlack", &RedBlackTreeBenchmark::init, &RedBlackTreeBenchmark::insert, &RedBlackTreeBenchmark::search, &RedBlackTreeBenchmark::remove, &RedBlackTreeBenchmark::destroy},
+	{"HashTable (Chaining)", &CHashTableBenchmark::init, &CHashTableBenchmark::insert, &CHashTableBenchmark::search, &CHashTableBenchmark::remove, &CHashTableBenchmark::destroy},
 	{"HashTable (OpenAddressing)", NULL, NULL, NULL, NULL, NULL}};
 
 // Duration totals
@@ -16,7 +16,7 @@ std::chrono::nanoseconds removeTotal = std::chrono::nanoseconds(0);
 
 // Arguments: (function pointer, int keys amount)
 std::chrono::nanoseconds runTest(void (*benchmarkFunction)(int), int keysAmount) {
-	int* keys = generateRandomArray(keysAmount, 0, keysAmount);
+	int* keys = generateRandomArray(keysAmount, 0, keysAmount * 10);
 
 	// Start the timer
 	auto start = std::chrono::high_resolution_clock::now();
@@ -58,6 +58,9 @@ void Benchmark::runRemoval(BenchmarkData benchmark, int removeKeys) {
 void Benchmark::run(enum BenchmarkType benchmarkType, int insertKeys, int searchKeys, int removeKeys) {
 	BenchmarkData benchmarkData = benchmarks[benchmarkType];
 	if (verboseLevel > 1) std::cout << "Running benchmark: " << benchmarkData.name << std::endl;
+	// Initialize the benchmark
+	benchmarkData.init(insertKeys);
+
 	// Run insertion
 	runInsertion(benchmarkData, insertKeys);
 

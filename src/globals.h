@@ -70,7 +70,7 @@ struct DeletionTestEntry {
 // Benchmark data used to specify which data structure's functions to use for benchmarking
 struct BenchmarkData {
 	std::string name;
-	void (*init)();
+	void (*init)(int);
 	void (*insert)(int);
 	void (*search)(int);
 	void (*remove)(int);
