@@ -1,32 +1,23 @@
 #include <iostream>
 #include "AVLTreeBenchmark.h"
 
-AVLTree tree;
+AVLTree* tree;
 
 void init() {
 }
 
-void AVLTreeBenchmark::init() {
-	tree = AVLTree();
+void AVLTreeBenchmark::init(int) {
+	tree = new AVLTree();
 };
 void AVLTreeBenchmark::insert(int key) {
-	tree.insertKey(key);
+	tree->insertKey(key);
 }
 void AVLTreeBenchmark::search(int key) {
-	tree.searchKey(key);
+	tree->searchKey(key);
 }
 void AVLTreeBenchmark::remove(int key) {
-	tree.deleteKey(key);
+	tree->deleteKey(key);
 }
 void AVLTreeBenchmark::destroy() {
-	tree.~AVLTree();
-	tree = AVLTree();
+	delete tree;
 }
-
-// AVLTreeBenchmark::AVLBenchmarkData = {
-// 	"AVL Tree",
-// 	&AVLTreeBenchmark::init,
-// 	&AVLTreeBenchmark::insert,
-// 	&AVLTreeBenchmark::search,
-// 	&AVLTreeBenchmark::remove,
-// 	&AVLTreeBenchmark::destroy};

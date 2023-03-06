@@ -3,10 +3,9 @@
 
 #include "../utils.h"
 #include "../modules/AVLTree.h"
-#include <list>
 
 namespace AVLTreeBenchmark {
-	void init();
+	void init(int);
 	void insert(int key);
 	void search(int key);
 	void remove(int key);
