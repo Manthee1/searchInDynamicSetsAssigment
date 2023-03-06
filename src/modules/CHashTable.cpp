@@ -10,10 +10,10 @@ void CHashTable::initTable(int capacity, int* keys, int* values) {
 	this->size = 0;
 	this->table = new HashTableChain[capacity];
 	// Nullify all entries
-	// for (int i = 0; i < capacity; i++) table[i] = {{}, {}, 0};
+	for (int i = 0; i < capacity; i++) table[i] = {{}, {}, 0};
 	// Insert all keys
-	// if (keys != nullptr && values != nullptr)
-	// 	for (int i = 0; i < capacity; i++) insertKey(keys[i], values[i]);
+	if (keys != nullptr && values != nullptr)
+		for (int i = 0; i < capacity; i++) insertKey(keys[i], values[i]);
 }
 
 CHashTable::CHashTable() {
@@ -29,6 +29,10 @@ CHashTable::CHashTable(int capacity, int* keys, int* values) {
 }
 
 CHashTable::~CHashTable() {
+	for (int i = 0; i < capacity; i++) {
+		table[i].keys.clear();
+		table[i].values.clear();
+	}
 	delete[] table;
 }
 
@@ -36,11 +40,25 @@ int CHashTable::hash(int key) {
 	return key % capacity;
 }
 
+int CHashTable::hash(std::string key) {
+	int hash = 0;
+	for (std::size_t i = 0; i < key.length(); i++)
+		hash += (int)key[i] * (i + 1);
+
+	return hash % capacity;
+}
+
+void CHashTable::insertKey(std::string key, int value) {
+	int index = hash(key);
+	table[index].keys.push_back(key);
+	table[index].values.push_back(value);
+	table[index].size++;
+	size++;
+}
+
 void CHashTable::insertKey(int key, int value) {
 	int index = hash(key);
-
-	// If the entry is empty, create a new entry
-	table[index].keys.push_back(key);
+	table[index].keys.push_back(std::to_string(key));
 	table[index].values.push_back(value);
 	table[index].size++;
 	size++;
@@ -55,7 +73,7 @@ int CHashTable::searchKey(int key) {
 
 int CHashTable::getKeyIndex(int key, int index) {
 	for (int i = 0; i < table[index].size; i++)
-		if (table[index].keys[i] == key) return i;
+		if (std::stoi(table[index].keys[i]) == key) return i;
 	return -1;
 }
 
@@ -86,4 +104,5 @@ void CHashTable::clear() {
 		table[i].values.clear();
 		table[i].size = 0;
 	}
+	size = 0;
 }

@@ -4,7 +4,7 @@
 #include <vector>
 
 struct HashTableChain {
-	std::vector<int> keys;
+	std::vector<std::string> keys;
 	std::vector<int> values;
 	int size;
 };
@@ -22,7 +22,9 @@ public:
 	CHashTable(int, int*, int*);
 	~CHashTable();
 	int hash(int);
+	int hash(std::string key);
 	void insertKey(int, int);
+	void insertKey(std::string key, int value);
 	int searchKey(int);
 	int getKeyIndex(int, int);
 	void deleteKey(int);

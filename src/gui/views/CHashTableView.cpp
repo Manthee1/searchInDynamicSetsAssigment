@@ -5,7 +5,7 @@
 #define IG GUI::imgui
 
 // CHashTable table = CHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-static CHashTable* table;
+static CHashTable* table = new CHashTable();
 static int insertKey = 0;
 static int insertValue = 0;
 static int highlightIndex = -1;
@@ -60,6 +60,8 @@ void CHashTableView::draw() {
 	IG::InputInt("Key", &deleteKey);
 	if (IG::Button("Delete Entry"))
 		table->deleteKey(deleteKey);
+	if (IG::Button("Clear Hash Table"))
+		table->clear();
 	IG::End();
 
 	drawTable();
@@ -74,7 +76,7 @@ static void drawTableWindow() {
 	for (int i = 0; i < table->capacity; i++) {
 		HashTableChain* entry = &table->table[i];
 		for (int j = 0; j < entry->size; j++) {
-			IG::Text("%d", entry->keys[j]);
+			IG::Text("%s", (entry->keys[j]).c_str());
 			IG::SameLine();
 			IG::Text("%d", entry->values[j]);
 		}
@@ -110,7 +112,7 @@ static void drawTable() {
 			}
 			GUI::line(x + 12, 50 * i + 22, entry_x + 12, entry_y + 12, new int[3]{255, 0, 0});
 			GUI::rect(entry_x, entry_y, 25, 25, color);
-			GUI::text(entry_x + 10, entry_y, std::to_string(entry->keys[j]).c_str(), new int[3]{0, 0, 0});
+			GUI::text(entry_x + 10, entry_y, entry->keys[j], new int[3]{0, 0, 0});
 			GUI::text(entry_x + 10, entry_y + 10, std::to_string(entry->values[j]).c_str(), new int[3]{0, 0, 0});
 		}
 		if (i != table->capacity - 1)
