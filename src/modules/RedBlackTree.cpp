@@ -61,16 +61,18 @@ RedBlackNode *RedBlackTree::rotate(RedBlackNode *x, RotateDirection direction) {
 }
 
 void RedBlackTree::transplant(RedBlackNode *node1, RedBlackNode *node2) {
-	if (node1->parent == NULL)
-		root = node2;
-	else if (node1 == node1->parent->left)
-		node1->parent->left = node2;
-	else
-		node1->parent->right = node2;
 	if (node2 != NULL)
 		node2->parent = node1->parent;
-}
 
+	// If the parent of node1 is null, set the root to node2
+	if (node1->parent == NULL) {
+		root = node2;
+		return;
+	}
+	// If node1 is the left child of its parent, set the left child of the parent to node2
+	// Otherwise, set the right child of the parent to node2
+	(node1 == node1->parent->left) ? node1->parent->left = node2 : node1->parent->right = node2;
+}
 void RedBlackTree::fixInsertFrom(RedBlackNode *node) {
 	RedBlackNode *parent;
 	while (node->parent != NULL && node->parent->color == red) {
@@ -188,12 +190,11 @@ void RedBlackTree::deleteNode(RedBlackNode *node) {
 			x = node->left;
 			transplant(node, node->left);
 		} else {
-			while (y->right != NULL) y = y->right;
+			y = node->right;
+			while (y->left != NULL) y = y->left;
 			originalColor = y->color;
 			x = y->right;
-			if (y->parent == node) {
-				if (x != NULL) x->parent = y;
-			} else {
+			if (y->parent != node) {
 				transplant(y, y->right);
 				y->right = node->right;
 				y->right->parent = y;
@@ -203,27 +204,31 @@ void RedBlackTree::deleteNode(RedBlackNode *node) {
 			y->left->parent = y;
 			y->color = node->color;
 		}
-		if (originalColor == black) fixDeleteFrom(x);
+		if (originalColor == black && x != NULL) fixDeleteFrom(x);
 		node = searchKey(key);
 	}
 }
 
 void RedBlackTree::fixDeleteFrom(RedBlackNode *node) {
 	RedBlackNode *sibling;
+	RedBlackNodeColor siblingLeftChildColor;
+	RedBlackNodeColor siblingRightChildColor;
 	while (node != root && node->color == black) {
 		if (node == node->parent->left) {
 			sibling = node->parent->right;
+			siblingLeftChildColor = sibling->left != NULL ? sibling->left->color : black;
+			siblingRightChildColor = sibling->right != NULL ? sibling->right->color : black;
 			if (sibling->color == red) {
 				sibling->color = black;
 				node->parent->color = red;
 				rotate(node->parent, LEFT);
 				sibling = node->parent->right;
 			}
-			if (sibling->left->color == black && sibling->right->color == black) {
+			if (siblingLeftChildColor == black && siblingRightChildColor == black) {
 				sibling->color = red;
 				node = node->parent;
 			} else {
-				if (sibling->right->color == black) {
+				if (siblingRightChildColor == black) {
 					sibling->left->color = black;
 					sibling->color = red;
 					rotate(sibling, RIGHT);
@@ -237,17 +242,19 @@ void RedBlackTree::fixDeleteFrom(RedBlackNode *node) {
 			}
 		} else {
 			sibling = node->parent->left;
+			siblingLeftChildColor = sibling->left != NULL ? sibling->left->color : black;
+			siblingRightChildColor = sibling->right != NULL ? sibling->right->color : black;
 			if (sibling->color == red) {
 				sibling->color = black;
 				node->parent->color = red;
 				rotate(node->parent, RIGHT);
 				sibling = node->parent->left;
 			}
-			if (sibling->right->color == black && sibling->left->color == black) {
+			if (siblingRightChildColor == black && siblingLeftChildColor == black) {
 				sibling->color = red;
 				node = node->parent;
 			} else {
-				if (sibling->left->color == black) {
+				if (siblingLeftChildColor == black) {
 					sibling->right->color = black;
 					sibling->color = red;
 					rotate(sibling, LEFT);
@@ -260,6 +267,7 @@ void RedBlackTree::fixDeleteFrom(RedBlackNode *node) {
 				node = root;
 			}
 		}
+		if (node == root) break;
 	}
 	node->color = black;
 }
