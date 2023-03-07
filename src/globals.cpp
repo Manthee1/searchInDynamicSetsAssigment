@@ -26,3 +26,20 @@ RedBlackNode::RedBlackNode(int key, RedBlackNodeColor color) {
 	this->parent = NULL;
 	this->color = color;
 }
+
+void DSStandardWrapper::init(int) {
+}
+void DSStandardWrapper::insert(int) {
+}
+bool verify() {
+	return true;
+}
+int* getAllKeys(int&) {
+	return NULL;
+}
+void DSStandardWrapper::search(int) {
+}
+void DSStandardWrapper::remove(int) {
+}
+void DSStandardWrapper::destroy() {
+}
