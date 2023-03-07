@@ -67,14 +67,24 @@ struct DeletionTestEntry {
 	std::string name;
 };
 
-// Benchmark data used to specify which data structure's functions to use for benchmarking
-struct BenchmarkData {
-	std::string name;
-	void (*init)(int);
-	void (*insert)(int);
-	void (*search)(int);
-	void (*remove)(int);
-	void (*destroy)();
+enum DataStructureType {
+	AVL,
+	RedBlack,
+	HashTableChaining,
+	HashTableOpenAddressing
+};
+
+// Standard wrapper class for data structures
+class DSStandardWrapper {
+public:
+	std::string name = "Example";
+	virtual void init(int);
+	virtual void insert(int);
+	bool verify();
+	int *getAllKeys(int &);
+	virtual void search(int);
+	virtual void remove(int);
+	virtual void destroy();
 };
 
 #endif	// __GLOBALS_H__

@@ -1,21 +1,18 @@
 #include "Benchmark.h"
+#include "WrappedDS.h"
 #include <iostream>
+#include <chrono>
+#include <string>
+#include <list>
 
 bool Benchmark::verbose = false;
 int Benchmark::verboseLevel = 0;
-BenchmarkData Benchmark::benchmarks[] = {
-	{"AVL Tree", &AVLTreeBenchmark::init, &AVLTreeBenchmark::insert, &AVLTreeBenchmark::search, &AVLTreeBenchmark::remove, &AVLTreeBenchmark::destroy},
-	{"RedBlack", &RedBlackTreeBenchmark::init, &RedBlackTreeBenchmark::insert, &RedBlackTreeBenchmark::search, &RedBlackTreeBenchmark::remove, &RedBlackTreeBenchmark::destroy},
-	{"HashTable (Chaining)", &CHashTableBenchmark::init, &CHashTableBenchmark::insert, &CHashTableBenchmark::search, &CHashTableBenchmark::remove, &CHashTableBenchmark::destroy},
-	{"HashTable (OpenAddressing)", NULL, NULL, NULL, NULL, NULL}};
 
-// Duration totals
 std::chrono::nanoseconds insertTotal = std::chrono::nanoseconds(0);
 std::chrono::nanoseconds searchTotal = std::chrono::nanoseconds(0);
 std::chrono::nanoseconds removeTotal = std::chrono::nanoseconds(0);
 
-// Arguments: (function pointer, int keys amount)
-std::chrono::nanoseconds runTest(void (*benchmarkFunction)(int), int keysAmount) {
+std::chrono::nanoseconds runTest(DSStandardWrapper* benchmark, void (DSStandardWrapper::*benchmarkFunction)(int), int keysAmount) {
 	int* keys = generateRandomArray(keysAmount, 0, keysAmount * 10);
 
 	// Start the timer
@@ -23,58 +20,46 @@ std::chrono::nanoseconds runTest(void (*benchmarkFunction)(int), int keysAmount)
 
 	// Run the benchmark
 	for (int i = 0; i < keysAmount; i++)
-		benchmarkFunction(keys[i]);
+		(benchmark->*benchmarkFunction)(keys[i]);
 
 	// Stop the timer
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = stop - start;
 
+	delete[] keys;
 	return duration;
 }
 
-void Benchmark::runInsertion(BenchmarkData benchmark, int insertKeys) {
-	auto duration = runTest(benchmark.insert, insertKeys);
-	insertTotal += duration;
+void Benchmark::run(enum DataStructureType benchmarkType, int insertKeys, int searchKeys, int removeKeys) {
+	DSStandardWrapper* benchmarkData = WrappedDS::DSentries[benchmarkType];
+	if (verboseLevel > 1) std::cout << "Running benchmark: " << benchmarkData->name << std::endl;
+	// Initialize the benchmark
+	benchmarkData->init(insertKeys);
 
+	// Run Insertion
+	auto duration = runTest(benchmarkData, &DSStandardWrapper::insert, insertKeys);
+	insertTotal += duration;
 	// Print the results
 	if (verboseLevel > 1) std::cout << "Inserted " GREEN << insertKeys << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / insertKeys << " nanoseconds per key)" << std::endl;
-}
 
-void Benchmark::runSearch(BenchmarkData benchmark, int searchKeys) {
-	auto duration = runTest(benchmark.search, searchKeys);
+	// Run Search
+	duration = runTest(benchmarkData, &DSStandardWrapper::search, searchKeys);
 	searchTotal += duration;
-
 	// Print the results
 	if (verboseLevel > 1) std::cout << "Searched " GREEN << searchKeys << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / searchKeys << " nanoseconds per key)" << std::endl;
-}
-void Benchmark::runRemoval(BenchmarkData benchmark, int removeKeys) {
-	auto duration = runTest(benchmark.remove, removeKeys);
+
+	// Run Removal
+	duration = runTest(benchmarkData, &DSStandardWrapper::remove, removeKeys);
 	removeTotal += duration;
 
 	// Print the results
 	if (verboseLevel > 1) std::cout << "Removed " GREEN << removeKeys << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / removeKeys << " nanoseconds per key)" << std::endl;
+
+	// Destrucor
+	benchmarkData->destroy();
 }
 
-void Benchmark::run(enum BenchmarkType benchmarkType, int insertKeys, int searchKeys, int removeKeys) {
-	BenchmarkData benchmarkData = benchmarks[benchmarkType];
-	if (verboseLevel > 1) std::cout << "Running benchmark: " << benchmarkData.name << std::endl;
-	// Initialize the benchmark
-	benchmarkData.init(insertKeys);
-
-	// Run insertion
-	runInsertion(benchmarkData, insertKeys);
-
-	// Run search
-	runSearch(benchmarkData, searchKeys);
-
-	// Run removal
-	runRemoval(benchmarkData, removeKeys);
-
-	// Destroy the benchmark
-	benchmarkData.destroy();
-}
-
-int* Benchmark::run(enum BenchmarkType benchmarkType, int insertKeys, int searchKeys, int removeKeys, int amount) {
+int* Benchmark::run(enum DataStructureType benchmarkType, int insertKeys, int searchKeys, int removeKeys, int amount) {
 	if (insertKeys <= 0 || searchKeys <= 0 || removeKeys <= 0 || amount <= 0) {
 		std::cout << "Error: Invalid argument" << std::endl;
 		return NULL;
