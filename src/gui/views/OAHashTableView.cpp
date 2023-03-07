@@ -4,8 +4,8 @@
 #include <cstdlib>
 #define IG GUI::imgui
 
-static OAHashTable* table;
-// OAHashTable table = OAHashTable(10);
+// static OAHashTable table;
+static OAHashTable *table = new OAHashTable(10);
 static int insertKey = 0;
 static int insertValue = 0;
 static int highlightIndex = -1;
@@ -26,7 +26,7 @@ void OAHashTableView::draw() {
 	IG::InputInt("Size", &tableSize);
 	if (IG::Button("Create Table")) {
 		// Destroy the old table
-		table->~OAHashTable();
+		// table->~OAHashTable();
 		// Create a new table
 		table = new OAHashTable(tableSize);
 		for (int i = 0; i < amount; i++)

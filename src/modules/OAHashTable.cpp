@@ -1,6 +1,6 @@
 #include "OAHashTable.h"
 
-#define DEFAULT_CAPACITY 10
+#define DEFAULT_CAPACITY 0
 
 void OAHashTable::initTable(int capacity, int* keys, int* values) {
 	this->capacity = capacity;
@@ -10,6 +10,8 @@ void OAHashTable::initTable(int capacity, int* keys, int* values) {
 	// if (capacity < (keys != nullptr ? sizeof(keys) / sizeof(keys[0]) : 0)) {
 	// 	resize(sizeof(keys) / sizeof(keys[0]));
 	// }
+	if (capacity == 0)
+		return;
 
 	this->table = new HashTableEntry[capacity];
 
@@ -32,9 +34,9 @@ void OAHashTable::resize(int newCapacity) {
 	// Go through the table and add all the keys and values to the arrays
 	int index = 0;
 	for (int i = 0; i < capacity; i++) {
-		if (table[i].key == -1) {
+		if (table[i].key == -1)
 			continue;
-		}
+
 		keys[index] = table[i].key;
 		values[index] = table[i].value;
 		index++;

@@ -3,11 +3,12 @@
 #include <vector>
 #include "CHashTable.h"
 
-#define DEFAULT_CAPACITY 10
+#define DEFAULT_CAPACITY 0
 
 void CHashTable::initTable(int capacity, int* keys, int* values) {
 	this->capacity = capacity;
 	this->size = 0;
+	if (capacity == 0) return;
 	this->table = new HashTableChain[capacity];
 	// Nullify all entries
 	for (int i = 0; i < capacity; i++) table[i] = {{}, {}, 0};
