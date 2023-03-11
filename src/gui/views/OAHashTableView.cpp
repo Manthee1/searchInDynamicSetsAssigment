@@ -5,18 +5,20 @@
 #define IG GUI::imgui
 
 // static OAHashTable table;
-static OAHashTable *table = new OAHashTable(10);
-static int insertKey = 0;
+static OAHashTable* table;
+static char* insertKeyCharArray = 0;
+static std::string insertKey;
 static int insertValue = 0;
 static int highlightIndex = -1;
 // timer
 static int timer = 0;
 void OAHashTableView::draw() {
 	IG::Begin("Add Entry");
-	IG::InputInt("Key", &insertKey);
+	IG::InputText("Key", insertKeyCharArray, 100);
 	IG::InputInt("Value", &insertValue);
-	if (IG::Button("Add Entry"))
-		table->insertKey(insertKey, insertValue);
+	if (IG::Button("Add Entry")) {
+		table->insertKey(insertKeyCharArray, insertValue);
+	}
 	IG::End();
 
 	IG::Begin("Create Random Table");
@@ -25,20 +27,18 @@ void OAHashTableView::draw() {
 	IG::InputInt("Amount", &amount);
 	IG::InputInt("Size", &tableSize);
 	if (IG::Button("Create Table")) {
-		// Destroy the old table
-		// table->~OAHashTable();
 		// Create a new table
 		table = new OAHashTable(tableSize);
 		for (int i = 0; i < amount; i++)
-			table->insertKey(rand() % 100, rand() % 100);
+			table->insertKey(generateRandomString(5), rand() % 100);
 	}
 	IG::End();
 
 	IG::Begin("Search Entry");
-	static int searchKey = 0;
-	IG::InputInt("Key", &searchKey);
+	static char* searchKey;
+	IG::InputText("Key", searchKey, 100);
 	if (IG::Button("Search Entry")) {
-		highlightIndex = table->getIndex(searchKey);
+		highlightIndex = table->getKeyIndex(searchKey);
 	}
 	// Draw text notifying the user that the key was not found
 	if (timer > 0 && highlightIndex == -1) {
@@ -50,8 +50,8 @@ void OAHashTableView::draw() {
 	// Delete
 
 	IG::Begin("Delete Entry");
-	static int deleteKey = 0;
-	IG::InputInt("Key", &deleteKey);
+	static char* deleteKey;
+	IG::InputText("Key", deleteKey, 100);
 	if (IG::Button("Delete Entry"))
 		table->deleteKey(deleteKey);
 	IG::End();
@@ -66,9 +66,9 @@ static void drawTableWindow() {
 	IG::SameLine();
 	IG::Text("Value");
 	for (int i = 0; i < table->capacity; i++) {
-		IG::Text("%d", table->table[i].key);
+		IG::Text("%s", (char*)table->table->keys[i]);
 		IG::SameLine();
-		IG::Text("%d", table->table[i].value);
+		IG::Text("%d", table->table->values[i]);
 		// Add separator
 		if (i != table->capacity - 1) IG::Separator();
 	}
@@ -91,14 +91,14 @@ static void drawTable() {
 	GUI::beginMain();
 	for (int i = 0; i < table->capacity; i++) {
 		// Draw the rect
-		if (table->table[i].value != -1) {
+		if (table->table->keys[i] != NULL) {
 			if (i == highlightIndex)
 				GUI::rect(x, y, rectSize, rectSize, new int[3]{255, 0, 0});
 			else
 				GUI::rect(x, y, rectSize, rectSize, new int[3]{255, 255, 255});
 
 			// Draw the text
-			GUI::text(x, y, std::to_string(table->table[i].key).c_str(), new int[3]{0, 0, 0});
+			GUI::text(x, y, *table->table->keys[i], new int[3]{0, 0, 0});
 		} else
 			GUI::rect(x, y, rectSize, rectSize, new int[3]{0, 0, 0});
 

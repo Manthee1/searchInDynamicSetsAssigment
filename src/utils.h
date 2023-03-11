@@ -17,4 +17,5 @@ std::vector<int> generateRandomUniqueArray(int length, int min, int max);
 
 std::vector<int> generateRandomVectorArray(int, int, int);
 
+std::string generateRandomString(int length);
 #endif	// __UTILS_H__

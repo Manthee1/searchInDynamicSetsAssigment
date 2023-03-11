@@ -52,3 +52,15 @@ std::vector<int> generateRandomVectorArray(int length, int min, int max) {
 	}
 	return array;
 }
+
+// Generate a random string of length n
+std::string generateRandomString(int length) {
+	std::string str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	std::string newstr;
+	int pos;
+	while (newstr.size() != length) {
+		pos = ((rand() % (str.size() - 1)));
+		newstr += str.substr(pos, 1);
+	}
+	return newstr;
+}

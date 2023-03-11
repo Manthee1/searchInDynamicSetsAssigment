@@ -11,15 +11,15 @@ void OAHashTableWrapper::init(int capacity) {
 }
 
 void OAHashTableWrapper::insert(int key) {
-	table->insertKey(key, 0);
+	table->insertKey(std::to_string(key), key);
 }
 
 void OAHashTableWrapper::search(int key) {
-	table->searchKey(key);
+	table->searchKey(std::to_string(key));
 }
 
 void OAHashTableWrapper::remove(int key) {
-	table->deleteKey(key);
+	table->deleteKey(std::to_string(key));
 }
 
 void OAHashTableWrapper::destroy() {
