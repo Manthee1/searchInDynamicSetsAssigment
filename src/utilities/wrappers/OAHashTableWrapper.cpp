@@ -11,7 +11,7 @@ void OAHashTableWrapper::init(int capacity) {
 }
 
 void OAHashTableWrapper::insert(int key) {
-	table->insertKey(std::to_string(key), key);
+	table->insertKey(std::to_string(key), 0);
 }
 
 void OAHashTableWrapper::search(int key) {

@@ -2,7 +2,7 @@
 
 #define DEFAULT_CAPACITY 0
 
-void OAHashTable::initTable(int capacity, std::string* keys, int* values) {
+void OAHashTable::initTable(int capacity, std::string* keys, int* values, int size) {
 	this->capacity = capacity;
 	this->size = 0;
 
@@ -15,10 +15,15 @@ void OAHashTable::initTable(int capacity, std::string* keys, int* values) {
 
 	this->table = new OAHashTableData;
 
+	// Nullify all entries
 	for (int i = 0; i < capacity; i++) {
 		table->keys.push_back(NULL);
 		table->values.push_back(0);
 	}
+
+	// Insert all the keys and values
+	for (int i = 0; i < size; i++)
+		insertKey(keys[i], values[i]);
 }
 
 void OAHashTable::resize(int newCapacity) {
@@ -36,47 +41,40 @@ void OAHashTable::resize(int newCapacity) {
 		values[index] = table->values[i];
 		index++;
 	}
-	table->keys.clear();
-	table->values.clear();
+	clear();
+	// Delete the table
+	delete table;
 
 	// Reinitialize the table
-	this->capacity = newCapacity;
-	int oldSize = size;
-	this->size = 0;
-	// Nullify all entries
-	for (int i = 0; i < capacity; i++) {
-		table->keys.push_back(nullptr);
-		table->values.push_back(0);
-	}
-
-	// Insert all the keys and values
-	for (int i = 0; i < oldSize; i++)
-		insertKey(keys[i], values[i]);
+	initTable(newCapacity, keys, values, size);
 
 	// Delete the arrays
 	delete[] keys;
 	delete[] values;
 }
 
-OAHashTable::OAHashTable(int capacity, std::string* keys, int* values) {
-	initTable(capacity, keys, values);
+OAHashTable::OAHashTable(int capacity, std::string* keys, int* values, int size) {
+	initTable(capacity, keys, values, size);
 }
 
 OAHashTable::OAHashTable(int capacity) {
-	initTable(capacity, {}, {});
+	initTable(capacity, {}, {}, 0);
 }
 
 OAHashTable::OAHashTable() {
-	initTable(DEFAULT_CAPACITY, {}, {});
+	initTable(DEFAULT_CAPACITY, {}, {}, 0);
 }
 
 OAHashTable::~OAHashTable() {
 	// Delete the keys and values
 	// Delete the keys
 	for (int i = 0; i < capacity; i++) {
-		if (table->keys[i] != NULL)
-			delete table->keys[i];
+		if (table->keys[i] == NULL) continue;
+		// Delete if not null
+		delete table->keys[i];
+		table->keys[i] = NULL;
 	}
+
 	table->keys.clear();
 	table->values.clear();
 	delete table;
@@ -97,12 +95,12 @@ int OAHashTable::hash2(std::string key) {
 void OAHashTable::insertKey(std::string key, int value) {
 	int index = hash1(key);
 
+	size++;
 	// Check if the table needs to be resized
 	if ((double)size / capacity >= 0.75) {
 		resize(capacity * 2);
 		index = hash1(key);
 	}
-	size++;
 
 	// If the index is empty, insert the key and value
 	if (table->keys[index] == NULL) {
@@ -110,11 +108,13 @@ void OAHashTable::insertKey(std::string key, int value) {
 		table->values[index] = value;
 		return;
 	}
+	// Otherwise, find an empty index
 	int i = 0;
 	while (table->keys[index] != NULL && i++ < capacity) {
 		// If the key already exists, update the value
 		if (*table->keys[index] == key) {
 			table->values[index] = value;
+
 			return;
 		}
 		index = (index + hash2(key)) % capacity;
@@ -158,6 +158,7 @@ void OAHashTable::deleteKey(std::string key) {
 	if (index == -1) return;
 	if (table->keys[index] != NULL) {
 		delete table->keys[index];
+		table->keys[index] = NULL;
 		size--;
 	}
 	table->values[index] = 0;
@@ -173,4 +174,3 @@ void OAHashTable::clear() {
 	}
 	size = 0;
 }
-	

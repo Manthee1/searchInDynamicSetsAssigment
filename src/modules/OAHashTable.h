@@ -11,7 +11,7 @@ struct OAHashTableData {
 
 class OAHashTable {
 private:
-	void initTable(int, std::string*, int*);
+	void initTable(int, std::string*, int*, int);
 	int hash1(std::string);
 	int hash2(std::string);
 	void resize(int);
@@ -22,7 +22,7 @@ public:
 	OAHashTableData* table;
 	OAHashTable();
 	OAHashTable(int);
-	OAHashTable(int, std::string*, int*);
+	OAHashTable(int, std::string*, int*, int);
 	~OAHashTable();
 
 	void insertKey(std::string, int);
