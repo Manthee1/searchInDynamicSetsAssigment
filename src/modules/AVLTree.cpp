@@ -22,6 +22,7 @@ AVLNode *AVLTree::rotate(AVLNode *x, RotateDirection direction) {
 		y->right = x;
 	}
 
+	// Update parent
 	y->parent = x->parent;
 	x->parent = y;
 
@@ -51,6 +52,12 @@ void AVLTree::balanceTree(AVLNode *node, int newKey) {
 
 		// Check balance
 		int balance = leftHeight - rightHeight;
+
+		// If the node is unbalanced, then there are 4 cases
+		//  1. if the new key is in the left subtree of the left child - right rotation
+		//  2. if the new key is in the right subtree of the left child - left rotation followed by right rotation
+		//  3. if the new key is in the right subtree of the right child - left rotation
+		//  4. if the new key is in the left subtree of the right child - right rotation followed by left rotation
 		if (balance > 1) {
 			if (newKey < node->left->key)
 				node = rotate(node, RIGHT);
@@ -80,6 +87,12 @@ void AVLTree::balanceTree(AVLNode *node) {
 		node->height = 1 + max(leftHeight, rightHeight);
 
 		int balance = leftHeight - rightHeight;
+
+		// If the node is unbalanced, then there are 4 cases
+		//  1. if the node is left heavy and the left child is left heavy - right rotation
+		//  2. if the node is left heavy and the left child is right heavy - left rotation followed by right rotation
+		//  3. if the node is right heavy and the right child is right heavy - left rotation
+		//  4. if the node is right heavy and the right child is left heavy - right rotation followed by left rotation
 		if (balance > 1) {
 			if (getBalance(node->left) >= 0)
 				node = rotate(node, RIGHT);
@@ -220,6 +233,7 @@ void AVLTree::deleteNode(AVLNode *node) {
 		delete node;
 		return;
 	}
+
 	// If the node has both children
 	// Here we don't delete the node, but we find the largest node in the left subtree and copy its key to the node to be "deleted"
 	// After that, we delete the very node we copied the key from, because it has at most one child (easy to delete)
@@ -246,6 +260,7 @@ void AVLTree::deleteNode(AVLNode *node) {
 	}
 
 	// === If the node is a leaf ===
+
 	// if the node is the root just remove it
 	if (node->parent == NULL) {
 		root = NULL;
