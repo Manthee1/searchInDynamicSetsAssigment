@@ -59,10 +59,10 @@ void Benchmark::run(enum DataStructureType benchmarkType, int insertKeys, int se
 	benchmarkData->destroy();
 }
 
-int* Benchmark::run(enum DataStructureType benchmarkType, int insertKeys, int searchKeys, int removeKeys, int amount) {
+void Benchmark::run(enum DataStructureType benchmarkType, int insertKeys, int searchKeys, int removeKeys, int amount) {
 	if (insertKeys <= 0 || searchKeys <= 0 || removeKeys <= 0 || amount <= 0) {
 		std::cout << "Error: Invalid argument" << std::endl;
-		return NULL;
+		return;
 	}
 	// Run the benchmark amount times
 	for (int i = 0; i < amount; i++) {
@@ -96,14 +96,8 @@ int* Benchmark::run(enum DataStructureType benchmarkType, int insertKeys, int se
 		std::cout << "Removal average per key: " BOLD MAGENTA << removeTotal.count() / (amount * removeKeys) << RESET " nanoseconds per key" << std::endl;
 	}
 
-	int* returnArray = new int[3];
-	returnArray[0] = insertTotal.count() / (amount * insertKeys);
-	returnArray[1] = searchTotal.count() / (amount * searchKeys);
-	returnArray[2] = removeTotal.count() / (amount * removeKeys);
 	// Reset the totals
 	insertTotal = std::chrono::nanoseconds(0);
 	searchTotal = std::chrono::nanoseconds(0);
 	removeTotal = std::chrono::nanoseconds(0);
-
-	return returnArray;
 }

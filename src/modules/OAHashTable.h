@@ -1,31 +1,35 @@
 #ifndef OAHashTable_h
 #define OAHashTable_h
 #include "../utils.h"
+#include <vector>
 
-struct HashTableEntry {
-	int key;
-	int value;
+struct OAHashTableData {
+	// vector of string pointers
+	std::vector<std::string*> keys;
+	std::vector<int> values;
 };
 
 class OAHashTable {
 private:
-	void initTable(int, int*, int*);
+	void initTable(int, std::string*, int*);
+	int hash1(std::string);
+	int hash2(std::string);
 	void resize(int);
 
 public:
 	int size;
 	int capacity;
-	HashTableEntry* table;
+	OAHashTableData* table;
 	OAHashTable();
 	OAHashTable(int);
-	OAHashTable(int, int*, int*);
+	OAHashTable(int, std::string*, int*);
 	~OAHashTable();
-	int hash(int);
-	int probe(int, int);
-	void insertKey(int, int);
-	int searchKey(int);
-	int getIndex(int);
-	void deleteKey(int);
+
+	void insertKey(std::string, int);
+	int searchKey(std::string);
+	int getKeyIndex(std::string);
+	int findEmptyIndex(int index);
+	void deleteKey(std::string);
 	void clear();
 };
 

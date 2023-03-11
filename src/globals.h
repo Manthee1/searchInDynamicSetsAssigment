@@ -78,6 +78,8 @@ enum DataStructureType {
 class DSStandardWrapper {
 public:
 	std::string name = "Example";
+	DSStandardWrapper();
+	~DSStandardWrapper();
 	virtual void init(int);
 	virtual void insert(int);
 	bool verify();

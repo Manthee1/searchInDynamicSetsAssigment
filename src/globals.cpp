@@ -27,6 +27,9 @@ RedBlackNode::RedBlackNode(int key, RedBlackNodeColor color) {
 	this->color = color;
 }
 
+DSStandardWrapper::DSStandardWrapper() {
+	this->name = "Standard Wrapper";
+}
 void DSStandardWrapper::init(int) {
 }
 void DSStandardWrapper::insert(int) {
@@ -42,4 +45,7 @@ void DSStandardWrapper::search(int) {
 void DSStandardWrapper::remove(int) {
 }
 void DSStandardWrapper::destroy() {
+}
+DSStandardWrapper::~DSStandardWrapper() {
+	destroy();
 }

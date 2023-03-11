@@ -15,7 +15,7 @@ namespace Benchmark {
 	void runSearch(DSStandardWrapper benchmark, int searchKeys);
 	void runRemoval(DSStandardWrapper benchmark, int removeKeys);
 	void run(enum DataStructureType benchmarkType, int insertKeys, int searchKeys, int removeKeys);
-	int* run(enum DataStructureType benchmarkType, int insertKeys, int searchKeys, int removeKeys, int amount);
+	void run(enum DataStructureType benchmarkType, int insertKeys, int searchKeys, int removeKeys, int amount);
 };
 
 #endif
