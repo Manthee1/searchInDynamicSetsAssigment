@@ -7,6 +7,7 @@ RedBlackTree::RedBlackTree() {
 RedBlackTree::RedBlackTree(std::initializer_list<int> list) {
 	size = 0;
 	root = NULL;
+	// Insert all keys
 	for (int key : list)
 		insertKey(key);
 }
@@ -14,6 +15,7 @@ RedBlackTree::RedBlackTree(std::initializer_list<int> list) {
 RedBlackTree::RedBlackTree(int *list, int size) {
 	this->size = 0;
 	root = NULL;
+	// Insert all keys
 	for (int i = 0; i < size; i++)
 		insertKey(list[i]);
 }
@@ -31,6 +33,7 @@ void RedBlackTree::deleteTree(RedBlackNode *node) {
 
 RedBlackNode *RedBlackTree::rotate(RedBlackNode *x, RotateDirection direction) {
 	RedBlackNode *y;
+	// Setup for left rotation
 	if (direction == LEFT) {  // left rotation
 		y = x->right;
 		x->right = y->left;
@@ -45,6 +48,7 @@ RedBlackNode *RedBlackTree::rotate(RedBlackNode *x, RotateDirection direction) {
 		y->right = x;
 	}
 
+	// Update parent
 	y->parent = x->parent;
 	x->parent = y;
 
@@ -75,43 +79,33 @@ void RedBlackTree::transplant(RedBlackNode *node1, RedBlackNode *node2) {
 }
 void RedBlackTree::fixInsertFrom(RedBlackNode *node) {
 	RedBlackNode *parent;
+	// Continue looping until parent node is black
 	while (node->parent != NULL && node->parent->color == red) {
 		parent = node->parent;
-		// If node has an uncle and the uncle is red
-		if (parent == parent->parent->left) {
-			RedBlackNode *uncle = parent->parent->right;
-			if (uncle != NULL && uncle->color == red) {
-				parent->color = black;
-				uncle->color = black;
-				parent->parent->color = red;
-				node = parent->parent;
-			} else {
-				if (node == parent->right) {
-					node = parent;
-					rotate(node, LEFT);
-					parent = node->parent;
-				}
-				parent->color = black;
-				parent->parent->color = red;
-				rotate(parent->parent, RIGHT);
+		// Determine which side of the grandparent node the parent is on
+		bool parentIsLeft = (parent == parent->parent->left);
+		RedBlackNode *uncle = parentIsLeft ? parent->parent->right : parent->parent->left;
+		// Case 1: Uncle node is red
+		if (uncle != NULL && uncle->color == red) {
+			parent->color = black;
+			uncle->color = black;
+			parent->parent->color = red;
+			node = parent->parent;
+		}
+		// Case 2: Uncle node is black
+		else {
+			// Determine whether node is on the same side as the parent or opposite side
+			bool nodeIsLeft = (node == (parentIsLeft ? parent->left : parent->right));
+			// If node is on the opposite side of the parent, rotate node up to be on the same side
+			if (!nodeIsLeft) {
+				node = parent;
+				rotate(node, parentIsLeft ? LEFT : RIGHT);
+				parent = node->parent;
 			}
-		} else {
-			RedBlackNode *uncle = parent->parent->left;
-			if (uncle != NULL && uncle->color == red) {
-				parent->color = black;
-				uncle->color = black;
-				parent->parent->color = red;
-				node = parent->parent;
-			} else {
-				if (node == parent->left) {
-					node = parent;
-					rotate(node, RIGHT);
-					parent = node->parent;
-				}
-				parent->color = black;
-				parent->parent->color = red;
-				rotate(parent->parent, LEFT);
-			}
+			// Recolor parent and grandparent, and rotate grandparent
+			parent->color = black;
+			parent->parent->color = red;
+			rotate(parent->parent, parentIsLeft ? RIGHT : LEFT);
 		}
 		if (node == root) break;
 	}
@@ -165,8 +159,10 @@ void RedBlackTree::insertNode(RedBlackNode *node) {
 
 RedBlackNode *RedBlackTree::searchKey(int key) {
 	RedBlackNode *current = root;
+	// Search for the node with the given key
 	while (current != NULL) {
 		if (key == current->key) return current;
+		// If the key is less than the current node's key, search the left subtree
 		current = (key < current->key) ? current->left : current->right;
 	}
 	return NULL;
@@ -177,97 +173,109 @@ void RedBlackTree::deleteKey(int key) {
 }
 
 void RedBlackTree::deleteNode(RedBlackNode *node) {
-	if (node == NULL) return;
-	RedBlackNode *x, *y;
-	int key = node->key;
-	while (node != NULL && node->key == key) {
-		y = node;
-		bool originalColor = y->color;
-		if (node->left == NULL) {
-			x = node->right;
-			transplant(node, node->right);
-		} else if (node->right == NULL) {
-			x = node->left;
-			transplant(node, node->left);
-		} else {
-			y = node->right;
-			while (y->left != NULL) y = y->left;
-			originalColor = y->color;
-			x = y->right;
-			if (y->parent != node) {
-				transplant(y, y->right);
-				y->right = node->right;
-				y->right->parent = y;
-			}
-			transplant(node, y);
-			y->left = node->left;
-			y->left->parent = y;
-			y->color = node->color;
-		}
-		if (originalColor == black && x != NULL) fixDeleteFrom(x);
-		node = searchKey(key);
+	if (node == NULL) {
+		// The key is not in the tree, so there's nothing to delete
+		return;
 	}
+	// Save the original color of the node to be deleted
+	bool originalColor = node->color;
+	// Declare two pointers to nodes
+	RedBlackNode *x, *y;
+	if (node->left == NULL) {
+		// If the node has no left child, replace it with its right child
+		x = node->right;
+		transplant(node, node->right);
+	} else if (node->right == NULL) {
+		// If the node has no right child, replace it with its left child
+		x = node->left;
+		transplant(node, node->left);
+	} else {
+		// If the node has both left and right children, replace it with its successor
+		y = node->right;
+		while (y->left != NULL) {
+			y = y->left;
+		}
+		originalColor = y->color;
+		// Replace the successor with its right child
+		x = y->right;
+		// If the successor is the right child of the node to be deleted, replace the successor with its right child
+		if (y->parent != node) {
+			transplant(y, y->right);
+			y->right = node->right;
+			y->right->parent = y;
+		}
+		// Replace the node to be deleted with the successor
+		transplant(node, y);
+		y->left = node->left;
+		y->left->parent = y;
+		y->color = node->color;
+	}
+	// If the original color of the deleted node was black, and the replacement node x is not null,
+	// rebalance the tree starting from x
+	if (originalColor == black && x != NULL) {
+		fixDeleteFrom(x);
+	}
+	// Delete the node
+	delete node;
 }
 
 void RedBlackTree::fixDeleteFrom(RedBlackNode *node) {
+	// Initialize variables
 	RedBlackNode *sibling;
 	RedBlackNodeColor siblingLeftChildColor;
 	RedBlackNodeColor siblingRightChildColor;
 	while (node != root && node->color == black) {
-		if (node == node->parent->left) {
-			sibling = node->parent->right;
-			siblingLeftChildColor = sibling->left != NULL ? sibling->left->color : black;
-			siblingRightChildColor = sibling->right != NULL ? sibling->right->color : black;
-			if (sibling->color == red) {
-				sibling->color = black;
-				node->parent->color = red;
-				rotate(node->parent, LEFT);
-				sibling = node->parent->right;
-			}
-			if (siblingLeftChildColor == black && siblingRightChildColor == black) {
+		// Determine if node is a left or right child of its parent
+		bool isLeftChild = (node == node->parent->left);
+
+		// Get sibling and its child colors based on whether node is a left or right child
+		sibling = (isLeftChild) ? node->parent->right : node->parent->left;
+		siblingLeftChildColor = (sibling->left != NULL) ? sibling->left->color : black;
+		siblingRightChildColor = (sibling->right != NULL) ? sibling->right->color : black;
+
+		// Case 1: Sibling is red
+		// Rotate the parent of node and make the sibling black
+		if (sibling->color == red) {
+			sibling->color = black;
+			node->parent->color = red;
+			rotate(node->parent, (isLeftChild) ? LEFT : RIGHT);
+			sibling = (isLeftChild) ? node->parent->right : node->parent->left;
+		}
+
+		// Case 2: Sibling and its children are black
+		// Make the sibling red and move up the tree
+		if (siblingLeftChildColor == black && siblingRightChildColor == black) {
+			sibling->color = red;
+			node = node->parent;
+		} else {
+			// Case 3: Sibling's outer child is black
+			// Rotate the sibling and make the sibling's inner child black
+			if ((isLeftChild && siblingRightChildColor == black) || (!isLeftChild && siblingLeftChildColor == black)) {
 				sibling->color = red;
-				node = node->parent;
-			} else {
-				if (siblingRightChildColor == black) {
+				if (isLeftChild) {
 					sibling->left->color = black;
-					sibling->color = red;
 					rotate(sibling, RIGHT);
 					sibling = node->parent->right;
-				}
-				sibling->color = node->parent->color;
-				node->parent->color = black;
-				sibling->right->color = black;
-				rotate(node->parent, LEFT);
-				node = root;
-			}
-		} else {
-			sibling = node->parent->left;
-			siblingLeftChildColor = sibling->left != NULL ? sibling->left->color : black;
-			siblingRightChildColor = sibling->right != NULL ? sibling->right->color : black;
-			if (sibling->color == red) {
-				sibling->color = black;
-				node->parent->color = red;
-				rotate(node->parent, RIGHT);
-				sibling = node->parent->left;
-			}
-			if (siblingRightChildColor == black && siblingLeftChildColor == black) {
-				sibling->color = red;
-				node = node->parent;
-			} else {
-				if (siblingLeftChildColor == black) {
+				} else {
 					sibling->right->color = black;
-					sibling->color = red;
 					rotate(sibling, LEFT);
 					sibling = node->parent->left;
 				}
-				sibling->color = node->parent->color;
-				node->parent->color = black;
+			}
+
+			// Case 4: Sibling's outer child is red
+			// Rotate the parent of node and make the sibling's outer child black
+			sibling->color = node->parent->color;
+			node->parent->color = black;
+			if (isLeftChild) {
+				sibling->right->color = black;
+				rotate(node->parent, LEFT);
+			} else {
 				sibling->left->color = black;
 				rotate(node->parent, RIGHT);
-				node = root;
 			}
+			node = root;
 		}
-		if (node == root) break;
 	}
 	node->color = black;
 }

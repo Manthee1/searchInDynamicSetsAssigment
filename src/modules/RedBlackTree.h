@@ -6,7 +6,7 @@
 class RedBlackTree {
 private:
 	/**
-	 *@brief Delete the tree starting from the given node
+	 * @brief Delete the tree starting from the given node
 	 *
 	 * @param node - Starting node
 	 */
@@ -25,7 +25,7 @@ public:
 	int size;
 
 	/**
-	 *@brief Rotate the subtree starting from the given node
+	 * @brief Rotate the subtree starting from the given node
 	 *
 	 * @param x - Subtree root
 	 * @return RedBlackNode* - New root of the subtree
@@ -33,14 +33,14 @@ public:
 	RedBlackNode *rotate(RedBlackNode *, RotateDirection);
 
 	/**
-	 *@brief Transplant the subtree starting from the given node
+	 * @brief Transplant the subtree starting from the given node
 	 *
 	 * @param node - Subtree root
 	 */
 	void transplant(RedBlackNode *, RedBlackNode *);
 
 	/**
-	 *@brief Balance the tree starting from the given node (used after insertion)
+	 * @brief Balance the tree starting from the given node (used after insertion)
 	 *
 	 * @param node - Starting node
 	 * @param newKey - Key to be compared with
@@ -48,7 +48,7 @@ public:
 	void fixInsertFrom(RedBlackNode *);
 
 	/**
-	 *@brief Balance the tree starting from the given node (used after insertion)
+	 * @brief Balance the tree starting from the given node (used after insertion)
 	 *
 	 * @param node - Starting node
 	 * @param newKey - Key to be compared with
@@ -56,14 +56,19 @@ public:
 	void balanceFrom(RedBlackNode *, int);
 
 	/**
-	 *@brief Balance the tree starting from the given node (used after deletion)
+	 * @brief Balance the tree starting from the given node (used after deletion)
 	 *
 	 * @param node
 	 */
 	void fixDeleteFrom(RedBlackNode *);
 
-	// Inserti
+	/**
+	 * @brief Insert a key into the tree
+	 *
+	 * @param key - Key to be inserted
+	 */
 	void insertKey(int);
+
 	/**
 	 * @brief Insert a node into the tree
 	 *
@@ -72,7 +77,7 @@ public:
 	void insertNode(RedBlackNode *);
 
 	/**
-	 *@brief Search for a node with the given key
+	 * @brief Search for a node with the given key
 	 *
 	 * @param key - Key to be searched for
 	 * @return RedBlackNode* - Pointer to the node with the given key
@@ -82,7 +87,7 @@ public:
 	void deleteKey(int);
 
 	/**
-	 *@brief Delete a node from the tree
+	 * @brief Delete a node from the tree
 	 *
 	 * @param node - RedBlackNode to be deleted
 	 */
