@@ -11,23 +11,21 @@ struct HashTableChain {
 
 class CHashTable {
 private:
-	void initTable(int, int*, int*);
+	void initTable(int, std::string*, int*);
 
 public:
 	int size;
-	int capacity;
+	int buckets;
 	HashTableChain* table;
 	CHashTable();
 	CHashTable(int);
-	CHashTable(int, int*, int*);
+	CHashTable(int, std::string*, int*);
 	~CHashTable();
-	int hash(int);
-	int hash(std::string key);
-	void insertKey(int, int);
-	void insertKey(std::string key, int value);
-	int searchKey(int);
-	int getKeyIndex(int, int);
-	void deleteKey(int);
+	unsigned int hash(const std::string& key);
+	void insertKey(std::string, int);
+	int searchKey(std::string);
+	int getKeyIndex(std::string, unsigned int);
+	void deleteKey(std::string);
 	void clear();
 };
 

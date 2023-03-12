@@ -41,12 +41,24 @@ void OAHashTable::resize(int newCapacity) {
 		values[index] = table->values[i];
 		index++;
 	}
+
+	// Delete the table and reinitialize it
 	clear();
-	// Delete the table
-	delete table;
+	capacity = newCapacity;
+
+	// Clear the keys and values beacuse clear() just sets them to null
+	table->keys.clear();
+	table->values.clear();
 
 	// Reinitialize the table
-	initTable(newCapacity, keys, values, size);
+	for (int i = 0; i < capacity; i++) {
+		table->keys.push_back(NULL);
+		table->values.push_back(0);
+	}
+
+	// Insert all the keys and values
+	for (int i = 0; i < index; i++)
+		insertKey(keys[i], values[i]);
 
 	// Delete the arrays
 	delete[] keys;
@@ -81,49 +93,54 @@ OAHashTable::~OAHashTable() {
 }
 
 int OAHashTable::hash1(std::string key) {
-	int keyValue = 0;
-	for (size_t i = 0; i < key.length(); i++) keyValue += key[i];
-	return keyValue % capacity;
+	// djb2-like hash function
+	unsigned long hash = 5381;
+	int c;
+	for (size_t i = 0; i < key.length(); i++) {
+		c = key[i];
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	}
+	return hash % capacity;
 }
 
-int OAHashTable::hash2(std::string key) {
-	int keyValue = 0;
-	for (size_t i = 0; i < key.length(); i++) keyValue += key[i];
-	return (hash1(key) + 1) * (keyValue % (capacity - 1));
+int OAHashTable::hash2(std::string key, int iteration) {
+	// sdbm-like hash function
+	unsigned int hash = 0;
+	int c;
+	for (size_t i = 0; i < key.length(); i++) {
+		c = key[i];
+		hash = c + (hash << 6) + (hash << 16) - hash;
+	}
+	return (hash + iteration) % (capacity - 1) + 1;
 }
 
 void OAHashTable::insertKey(std::string key, int value) {
 	int index = hash1(key);
-
+	int hash2_val = hash2(key, 0);
+	int i = 1;
 	size++;
+
 	// Check if the table needs to be resized
 	if ((double)size / capacity >= 0.75) {
 		resize(capacity * 2);
 		index = hash1(key);
+		hash2_val = hash2(key, 0);
 	}
 
-	// If the index is empty, insert the key and value
-	if (table->keys[index] == NULL) {
-		table->keys[index] = new std::string(key);
-		table->values[index] = value;
-		return;
-	}
-	// Otherwise, find an empty index
-	int i = 0;
-	while (table->keys[index] != NULL && i++ < capacity) {
-		// If the key already exists, update the value
+	// Probe the table using double hashing until an empty slot is found
+	while (table->keys[index] != NULL) {
+		// If the key already exists, update its value and return
 		if (*table->keys[index] == key) {
 			table->values[index] = value;
-
 			return;
 		}
-		index = (index + hash2(key)) % capacity;
+		index = getNextIndex(index, i, hash2_val);
+		i++;
 	}
-	// If no empty index was found, resize the table and insert the key
-	if (i >= capacity) {
-		resize(capacity * 2);
-		insertKey(key, value);
-	}
+
+	// Insert the key and value into the first available slot
+	table->keys[index] = new std::string(key);
+	table->values[index] = value;
 }
 
 int OAHashTable::searchKey(std::string key) {
@@ -131,24 +148,20 @@ int OAHashTable::searchKey(std::string key) {
 	return (index == -1) ? -1 : table->values[index];
 }
 
-int OAHashTable::getKeyIndex(std::string key) {
-	int index = hash1(key);
-	int i = 0;
-	while (table->keys[index] != NULL && i++ < capacity) {
-		// If the key is found, return the index
-		if (*table->keys[index] == key) return index;
-		index = (index + 1) % capacity;
-	}
-	return -1;
+int OAHashTable::getNextIndex(int index, int i, int hash2_val) {
+	// If i is greater than 10, use linear probing otherwise use double hashing
+	return (i > 10) ? (index + 1) % capacity : (index + i * hash2_val) % capacity;
 }
 
-int OAHashTable::findEmptyIndex(int index) {
-	if (table->keys[index] == NULL) return index;
+int OAHashTable::getKeyIndex(std::string key) {
+	int index = hash1(key);
+	int hash2_val = hash2(key, 0);
 	int i = 0;
-	while (table->keys[index] != NULL && i++ < capacity) {
-		index = (index + hash2(*table->keys[index])) % capacity;
-		if (table->keys[index] == NULL)
-			return index;
+	while (table->keys[index] != NULL && i < capacity) {
+		// If the key is found, return the index
+		if (*table->keys[index] == key) return index;
+		index = getNextIndex(index, i, hash2_val);
+		i++;
 	}
 	return -1;
 }

@@ -23,6 +23,8 @@ public:
 
 	// The amount of nodes in the tree
 	int size;
+	// The height of the tree (Used for drawing)
+	int height;
 
 	/**
 	 * @brief Rotate the subtree starting from the given node

@@ -2,10 +2,12 @@
 
 RedBlackTree::RedBlackTree() {
 	size = 0;
+	this->height = 0;
 	root = NULL;
 }
 RedBlackTree::RedBlackTree(std::initializer_list<int> list) {
 	size = 0;
+	this->height = 0;
 	root = NULL;
 	// Insert all keys
 	for (int key : list)
@@ -14,6 +16,7 @@ RedBlackTree::RedBlackTree(std::initializer_list<int> list) {
 
 RedBlackTree::RedBlackTree(int *list, int size) {
 	this->size = 0;
+	this->height = 0;
 	root = NULL;
 	// Insert all keys
 	for (int i = 0; i < size; i++)
@@ -224,58 +227,63 @@ void RedBlackTree::fixDeleteFrom(RedBlackNode *node) {
 	RedBlackNode *sibling;
 	RedBlackNodeColor siblingLeftChildColor;
 	RedBlackNodeColor siblingRightChildColor;
+
 	while (node != root && node->color == black) {
 		// Determine if node is a left or right child of its parent
 		bool isLeftChild = (node == node->parent->left);
 
 		// Get sibling and its child colors based on whether node is a left or right child
 		sibling = (isLeftChild) ? node->parent->right : node->parent->left;
-		siblingLeftChildColor = (sibling->left != NULL) ? sibling->left->color : black;
-		siblingRightChildColor = (sibling->right != NULL) ? sibling->right->color : black;
+		siblingLeftChildColor = (sibling && sibling->left) ? sibling->left->color : black;
+		siblingRightChildColor = (sibling && sibling->right) ? sibling->right->color : black;
 
 		// Case 1: Sibling is red
 		// Rotate the parent of node and make the sibling black
-		if (sibling->color == red) {
+		if (sibling && sibling->color == red) {
 			sibling->color = black;
 			node->parent->color = red;
 			rotate(node->parent, (isLeftChild) ? LEFT : RIGHT);
 			sibling = (isLeftChild) ? node->parent->right : node->parent->left;
+			siblingLeftChildColor = (sibling && sibling->left) ? sibling->left->color : black;
+			siblingRightChildColor = (sibling && sibling->right) ? sibling->right->color : black;
 		}
 
 		// Case 2: Sibling and its children are black
 		// Make the sibling red and move up the tree
-		if (siblingLeftChildColor == black && siblingRightChildColor == black) {
-			sibling->color = red;
+		if ((!sibling || siblingLeftChildColor == black) && (!sibling || siblingRightChildColor == black)) {
+			if (sibling) sibling->color = red;
 			node = node->parent;
 		} else {
 			// Case 3: Sibling's outer child is black
 			// Rotate the sibling and make the sibling's inner child black
 			if ((isLeftChild && siblingRightChildColor == black) || (!isLeftChild && siblingLeftChildColor == black)) {
-				sibling->color = red;
+				if (sibling) sibling->color = red;
 				if (isLeftChild) {
-					sibling->left->color = black;
+					if (sibling->right) sibling->right->color = black;
 					rotate(sibling, RIGHT);
 					sibling = node->parent->right;
 				} else {
-					sibling->right->color = black;
+					if (sibling->left) sibling->left->color = black;
 					rotate(sibling, LEFT);
 					sibling = node->parent->left;
 				}
+				siblingLeftChildColor = (sibling && sibling->left) ? sibling->left->color : black;
+				siblingRightChildColor = (sibling && sibling->right) ? sibling->right->color : black;
 			}
 
 			// Case 4: Sibling's outer child is red
 			// Rotate the parent of node and make the sibling's outer child black
-			sibling->color = node->parent->color;
+			if (sibling) sibling->color = node->parent->color;
 			node->parent->color = black;
 			if (isLeftChild) {
-				sibling->right->color = black;
+				if (sibling && sibling->right) sibling->right->color = black;
 				rotate(node->parent, LEFT);
 			} else {
-				sibling->left->color = black;
+				if (sibling && sibling->left) sibling->left->color = black;
 				rotate(node->parent, RIGHT);
 			}
 			node = root;
 		}
 	}
-	node->color = black;
+	if (node) node->color = black;
 }

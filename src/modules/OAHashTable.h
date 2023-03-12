@@ -13,7 +13,7 @@ class OAHashTable {
 private:
 	void initTable(int, std::string*, int*, int);
 	int hash1(std::string);
-	int hash2(std::string);
+	int hash2(std::string key, int iteration);
 	void resize(int);
 
 public:
@@ -28,7 +28,7 @@ public:
 	void insertKey(std::string, int);
 	int searchKey(std::string);
 	int getKeyIndex(std::string);
-	int findEmptyIndex(int index);
+	int getNextIndex(int index, int i, int hash2_val);
 	void deleteKey(std::string);
 	void clear();
 };
