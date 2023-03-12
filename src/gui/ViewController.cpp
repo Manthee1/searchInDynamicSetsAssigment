@@ -8,13 +8,13 @@
 
 #define IG GUI::imgui
 
+int ViewController::currentView = 0;
+
 ViewData ViewController::views[] = {
 	{"AVL", AVLTreeView::draw},
 	{"RedBlack", RedBlackTreeView::draw},
 	{"HashTable (Chaining)", CHashTableView::draw},
 	{"HashTable (OpenAddressing)", OAHashTableView::draw}};
-
-int activeView = 0;
 
 void drawDashboard() {
 	// Draw a docked window to the left of the screen
@@ -25,12 +25,12 @@ void drawDashboard() {
 	IG::Begin("Dashboard");
 	// Create a button for each view, substituting it with text if the view is active
 	for (int i = 0; i < 4; i++) {
-		if (i == activeView) {
+		if (i == ViewController::currentView) {
 			IG::Text(ViewController::views[i].name.c_str());
 			continue;
 		}
 		if (IG::Button(ViewController::views[i].name.c_str()))
-			activeView = i;
+			ViewController::currentView = i;
 	}
 
 	IG::End();
@@ -44,7 +44,7 @@ void ViewController::draw() {
 
 	drawDashboard();
 	// Draw the tree
-	void (*drawFunc)() = views[activeView].draw;
+	void (*drawFunc)() = views[ViewController::currentView].draw;
 	if (drawFunc != NULL)
 		drawFunc();
 }
@@ -53,4 +53,9 @@ void ViewController::run() {
 	GUI::init();
 	while (!GUI::windowShouldClose()) GUI::render(draw);
 	GUI::quit();
+}
+
+void ViewController::run(ViewType viewType) {
+	ViewController::currentView = viewType;
+	run();
 }
