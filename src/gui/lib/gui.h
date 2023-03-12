@@ -8,6 +8,10 @@ namespace GUI {
 	namespace imgui = ImGui;
 	int getHeight();
 	int getWidth();
+
+	float getOffsetX();
+	float getOffsetY();
+
 	// start main window and set size
 	void beginMain();
 	void circle(float x, float y, float radius, int[3]);
@@ -20,6 +24,11 @@ namespace GUI {
 
 	bool isOnScreen(float x, float y);
 	bool isRectOnScreen(float x, float y, float width, float height);
+
+	bool isLeftOfScreen(float x);
+	bool isRightOfScreen(float x);
+	bool isLowerThanScreen(float y);
+	bool isHigherThanScreen(float y);
 
 	bool windowShouldClose();
 	int init();

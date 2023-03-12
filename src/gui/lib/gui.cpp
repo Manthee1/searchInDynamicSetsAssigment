@@ -156,6 +156,7 @@ namespace GUI {
 		ImGui::Begin("Info");
 		ImGui::Text("Scale: %f", scale);
 		ImGui::Text("Offset: (%f, %f)", offset_x, offset_y);
+		ImGui::Text("Size: (%f, %f)", window_width / scale, window_height / scale);
 		if (ImGui::Button("Reset")) {
 			scale = 1.0f;
 			offset_x = 0;
@@ -216,6 +217,13 @@ namespace GUI {
 		return window_width;
 	}
 
+	float getOffsetX() {
+		return offset_x;
+	}
+	float getOffsetY() {
+		return offset_y;
+	}
+
 	int getMouseX() {
 		return (ImGui::GetIO().MousePos.x / scale) - offset_x;
 	}
@@ -235,6 +243,19 @@ namespace GUI {
 
 	bool isRectOnScreen(float x, float y, float width, float height) {
 		return x + width > -offset_x && x < -offset_x + window_width / scale && y + height > -offset_y && y < -offset_y + window_height / scale;
+	}
+
+	bool isLeftOfScreen(float x) {
+		return x < -offset_x;
+	}
+	bool isRightOfScreen(float x) {
+		return x > -offset_x + window_width / scale;
+	}
+	bool isLowerThanScreen(float y) {
+		return y < -offset_y;
+	}
+	bool isHigherThanScreen(float y) {
+		return y > -offset_y + window_height / scale;
 	}
 
 	void circle(float x, float y, float radius, int* color) {
