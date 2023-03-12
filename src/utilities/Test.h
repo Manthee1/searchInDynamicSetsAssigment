@@ -1,6 +1,6 @@
 #ifndef TEST_TEST_H_
 #define TEST_TEST_H_
-#include "utils.h"
+#include "../utils.h"
 #include <chrono>
 #include <string>
 #include <list>
@@ -12,9 +12,15 @@ struct TestEntry {
 	DSStandardWrapper* test;
 };
 
+enum TestType {
+	BASIC,
+	STRICT
+};
+
 namespace Test {
-	bool run(enum DataStructureType testType, int keysAmount);
-	bool run(enum DataStructureType testType, int keysAmount, int amount);
+	bool run(DataStructureType dsType, TestType testType);
+	bool run(DataStructureType dsType, TestType testType, std::string testFile);
+
 };
 
 #endif
