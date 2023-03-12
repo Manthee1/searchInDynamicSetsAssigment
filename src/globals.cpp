@@ -34,18 +34,23 @@ void DSStandardWrapper::init(int) {
 }
 void DSStandardWrapper::insert(int) {
 }
-bool verify() {
-	return true;
-}
-int* getAllKeys(int&) {
+int* DSStandardWrapper::getAllKeys(int& length) {
 	return NULL;
 }
-void DSStandardWrapper::search(int) {
+int DSStandardWrapper::search(int) {
+	return 0;
 }
+void DSStandardWrapper::returnlessSearch(int) {
+}
+
 void DSStandardWrapper::remove(int) {
+}
+bool DSStandardWrapper::isValid() {
+	return true;
 }
 void DSStandardWrapper::destroy() {
 }
+
 DSStandardWrapper::~DSStandardWrapper() {
 	destroy();
 }

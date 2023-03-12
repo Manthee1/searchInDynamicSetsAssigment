@@ -82,10 +82,11 @@ public:
 	~DSStandardWrapper();
 	virtual void init(int);
 	virtual void insert(int);
-	bool verify();
-	int *getAllKeys(int &);
-	virtual void search(int);
+	virtual int search(int);
+	virtual void returnlessSearch(int);
 	virtual void remove(int);
+	virtual bool isValid();
+	virtual int *getAllKeys(int &);
 	virtual void destroy();
 };
 

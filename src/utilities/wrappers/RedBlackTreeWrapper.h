@@ -4,14 +4,20 @@
 #include "../utils.h"
 #include "../../modules/RedBlackTree.h"
 
+static int* getAllRedBlackTreeKeys(RedBlackTree* tree, RedBlackNode* node, int& length);
+static bool isRedBlackTreeValid(RedBlackTree* tree);
+
 class RedBlackTreeWrapper : public DSStandardWrapper {
 public:
 	RedBlackTreeWrapper();
 	~RedBlackTreeWrapper();
 	void init(int) override;
 	void insert(int) override;
-	void search(int) override;
+	int search(int) override;
+	void returnlessSearch(int) override;
 	void remove(int) override;
+	bool isValid() override;
+	int* getAllKeys(int& length) override;
 	void destroy() override;
 };
 
