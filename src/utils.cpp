@@ -58,9 +58,18 @@ std::string generateRandomString(int length) {
 	std::string str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	std::string newstr;
 	int pos;
-	while (newstr.size() != length) {
+	while (newstr.size() != (size_t)length) {
 		pos = ((rand() % (str.size() - 1)));
 		newstr += str.substr(pos, 1);
 	}
 	return newstr;
+}
+
+void shuffleInts(int* array, int length) {
+	for (int i = 0; i < length; i++) {
+		int j = rand() % length;
+		int temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
 }
