@@ -1,9 +1,9 @@
 #include "../../modules/AVLTree.h"
 
-struct nodePos {
+struct AVLNodePos {
+	AVLNode* node;
 	int x;
 	int y;
-	AVLNode* node;
 };
 
 namespace AVLTreeView {

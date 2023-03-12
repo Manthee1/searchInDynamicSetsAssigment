@@ -5,22 +5,27 @@
 #include <cstdlib>
 #define IG GUI::imgui
 
+static AVLTree tree;
+static AVLNodePos** nodePositions = NULL;
 static int insertKey = 0;
 static int removeKey = 0;
-static nodePos** nodePositions = NULL;
 static int nodePositionsSize = 0;
 static bool reIndexNodes = true;
 
-void resetNodeGUIData() {
+static AVLNode* selectedNode = NULL;
+
+static void resetNodeGUIData() {
 	// Reset the node positions
 	for (int i = 0; i < nodePositionsSize; i++) {
 		delete nodePositions[i];
 	}
 	delete nodePositions;
 	nodePositionsSize = 0;
-	nodePositions = NULL;
+	// Allocate memory for the node positions
+	nodePositions = new AVLNodePos*[(tree.root == NULL) ? 0 : tree.size];
 	reIndexNodes = true;
 }
+
 static bool isAVLTreeBalanced(AVLTree* tree, AVLNode* node) {
 	if (node == NULL) return true;
 
@@ -32,8 +37,6 @@ static bool isAVLTreeBalanced(AVLTree* tree, AVLNode* node) {
 		   (node->right == NULL || isAVLTreeBalanced(tree, node->right));
 }
 
-static AVLNode* selectedNode = NULL;
-static AVLTree tree;
 void AVLTreeView::draw() {
 	// Add a node to the tree
 	IG::Begin("Add AVLNode");
@@ -79,7 +82,7 @@ void AVLTreeView::draw() {
 		delete tree.root;
 		tree.root = NULL;
 		for (int i = 0; i < size; i++)
-			tree.insertKey(rand() % 10000);
+			tree.insertKey(rand() % size);
 		resetNodeGUIData();
 	}
 	static int deleteSize = 700;
@@ -131,7 +134,7 @@ void AVLTreeView::draw() {
 
 		// Check if the mouse was clicked on a node
 		for (int i = 0; i < nodePositionsSize; i++) {
-			nodePos* pos = nodePositions[i];
+			AVLNodePos* pos = nodePositions[i];
 			// use sqrt to calculate the distance between the mouse and the node
 			if (sqrt(pow(pos->x - x, 2) + pow(pos->y - y, 2)) < 20) {
 				// The mouse was clicked on a node
@@ -153,39 +156,41 @@ void AVLTreeView::draw() {
 }
 
 void AVLTreeView::drawTreeNode(AVLNode* node, int x, int y, int level) {
+	int colorRed[3] = {255, 0, 0};
+	int colorGreen[3] = {0, 255, 0};
+	int colorBlue[3] = {0, 0, 255};
+	int colorWhite[3] = {255, 255, 255};
+	int colorBlack[3] = {0, 0, 0};
+
 	if (node == NULL) return;
 	// Draw the tree
 	// Draw a circle at the current node
 	int xeq = 4 * pow(2, level);
 	if (GUI::isRectOnScreen(x - 20, y - 20, 40, 40)) {
-		if (selectedNode == node) {
-			GUI::circle(x, y, 20, new int[3]{0, 255, 0});
-		} else
-			GUI::circle(x, y, 20, new int[3]{255, 0, 0});
+		GUI::circle(x, y, 20, (selectedNode == node) ? colorGreen : colorRed);
 		// Draw the key of the current node
-		GUI::text(x - 10, y - 10, std::to_string(node->key), new int[3]{255, 255, 255});
+		GUI::text(x - 10, y - 10, std::to_string(node->key), colorWhite);
 	}
-	if (node->left != NULL) {
+	if ((node->left != NULL && !GUI::isLeftOfScreen(x)) || reIndexNodes) {
 		//  Draw a line from the current node to the left node factoring in the height of the tree
 		// If the line is not on the screen, don't draw it
-		if (GUI::isOnScreen(x - xeq, y + 100) || GUI::isOnScreen(x, y))
-			GUI::line(x, y, x - xeq, y + 100, new int[3]{255, 255, 255});
+		if (!GUI::isRightOfScreen(x - xeq) && !GUI::isLeftOfScreen(x))
+			GUI::line(x, y, x - xeq, y + 100, colorWhite);
 		// Draw the left node
 		drawTreeNode(node->left, x - xeq, y + 100, level - 1);
 	}
-	if (node->right != NULL) {
+	if ((node->right != NULL && !GUI::isRightOfScreen(x)) || reIndexNodes) {
 		// Draw a line from the current node to the right node factoring in the height of the tree
 		// If the line is not on the screen, don't draw it
-		if (GUI::isOnScreen(x + xeq, y + 100) || GUI::isOnScreen(x, y))
-			GUI::line(x, y, x + xeq, y + 100, new int[3]{255, 255, 255});
+		if (!GUI::isLeftOfScreen(x + xeq) && !GUI::isRightOfScreen(x))
+			GUI::line(x, y, x + xeq, y + 100, colorWhite);
 		// Draw the right node
 		drawTreeNode(node->right, x + xeq, y + 100, level - 1);
 	}
 
 	// Add the node to the nodePositions array
 	if (reIndexNodes) {
+		nodePositions[nodePositionsSize] = new AVLNodePos{node, x, y};
 		nodePositionsSize++;
-		nodePositions = (nodePos**)realloc(nodePositions, nodePositionsSize * sizeof(nodePos*));
-		nodePositions[nodePositionsSize - 1] = new nodePos{x, y, node};
 	}
 }
