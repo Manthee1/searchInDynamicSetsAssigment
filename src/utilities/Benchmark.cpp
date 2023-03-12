@@ -12,7 +12,7 @@ std::chrono::nanoseconds insertTotal = std::chrono::nanoseconds(0);
 std::chrono::nanoseconds searchTotal = std::chrono::nanoseconds(0);
 std::chrono::nanoseconds removeTotal = std::chrono::nanoseconds(0);
 
-std::chrono::nanoseconds runTest(DSStandardWrapper* benchmark, void (DSStandardWrapper::*benchmarkFunction)(int), int keysAmount) {
+static std::chrono::nanoseconds runBenchmark(DSStandardWrapper* benchmark, void (DSStandardWrapper::*benchmarkFunction)(int), int keysAmount) {
 	int* keys = generateRandomArray(keysAmount, 0, keysAmount * 10);
 
 	// Start the timer
@@ -37,19 +37,19 @@ void Benchmark::run(enum DataStructureType benchmarkType, int insertKeys, int se
 	benchmarkData->init(insertKeys);
 
 	// Run Insertion
-	auto duration = runTest(benchmarkData, &DSStandardWrapper::insert, insertKeys);
+	auto duration = runBenchmark(benchmarkData, &DSStandardWrapper::insert, insertKeys);
 	insertTotal += duration;
 	// Print the results
 	if (verboseLevel > 1) std::cout << "Inserted " GREEN << insertKeys << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / insertKeys << " nanoseconds per key)" << std::endl;
 
 	// Run Search
-	duration = runTest(benchmarkData, &DSStandardWrapper::search, searchKeys);
+	duration = runBenchmark(benchmarkData, &DSStandardWrapper::returnlessSearch, searchKeys);
 	searchTotal += duration;
 	// Print the results
 	if (verboseLevel > 1) std::cout << "Searched " GREEN << searchKeys << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / searchKeys << " nanoseconds per key)" << std::endl;
 
 	// Run Removal
-	duration = runTest(benchmarkData, &DSStandardWrapper::remove, removeKeys);
+	duration = runBenchmark(benchmarkData, &DSStandardWrapper::remove, removeKeys);
 	removeTotal += duration;
 
 	// Print the results

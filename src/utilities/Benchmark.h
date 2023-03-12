@@ -2,12 +2,6 @@
 #define BENCHMARK_BENCHMARK_H_
 #include "../utils.h"
 
-enum TestType {
-	INSERT,
-	SEARCH,
-	REMOVE
-};
-
 namespace Benchmark {
 	extern bool verbose;
 	extern int verboseLevel;
