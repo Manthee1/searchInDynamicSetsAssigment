@@ -6,7 +6,6 @@
 
 // CHashTable table = CHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
 static CHashTable* table;
-static char* insertKey = new char[100]{"\0"};
 static int insertValue = 0;
 static int highlightIndex = -1;
 static int highlightKeyIndex = -1;
@@ -14,6 +13,7 @@ static int highlightKeyIndex = -1;
 static int timer = 0;
 void CHashTableView::draw() {
 	IG::Begin("Add Entry");
+	static char* insertKey = new char[100]{"\0"};
 	IG::InputText("Key", insertKey, 100);
 	IG::InputInt("Value", &insertValue);
 	if (IG::Button("Add Entry"))
