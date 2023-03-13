@@ -18,9 +18,9 @@ enum TestType {
 };
 
 namespace Test {
+	bool testFileExists(std::string filename);
 	bool run(DataStructureType dsType, TestType testType);
 	bool run(DataStructureType dsType, TestType testType, std::string testFile);
-
-};
-
+	void generateTestFile(std::string testFile, int* keysAmount, int keysAmountSize);
+}
 #endif
