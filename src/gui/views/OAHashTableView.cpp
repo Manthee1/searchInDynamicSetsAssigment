@@ -4,15 +4,32 @@
 #include <cstdlib>
 #define IG GUI::imgui
 
+#define RECT_SIZE 25
+#define SPACING 50
+#define START_X 200
+#define START_Y 200
+
 // static OAHashTable table;
 static OAHashTable* table;
-static char* insertKeyCharArray = new char[100]{"\0"};
 static std::string insertKey;
 static int insertValue = 0;
 static int highlightIndex = -1;
+static std::string selectedKey = "";
+static int selectedValue = 0;
+
+static int rows = 0;
+static int columns = 0;
+static int size = 0;
+static void updateTableDimensions() {
+	rows = 1;
+	columns = 1;
+	while (rows * columns < table->capacity) (rows > columns) ? columns++ : rows++;
+}
+
 // timer
 static int timer = 0;
 void OAHashTableView::draw() {
+	static char* insertKeyCharArray = new char[100]{"\0"};
 	IG::Begin("Add Entry");
 	IG::InputText("Key", insertKeyCharArray, 100);
 	IG::InputInt("Value", &insertValue);
@@ -36,7 +53,14 @@ void OAHashTableView::draw() {
 	static char* searchKey = new char[100]{"\0"};
 	IG::InputText("Key", searchKey, 100);
 	if (IG::Button("Search Entry")) {
-		highlightIndex = table->getKeyIndex(searchKey);
+		int newSelectedValue = table->searchKey(searchKey);
+		if (newSelectedValue == -1) {
+			selectedKey = "";
+			timer = 200;
+		} else {
+			selectedKey = searchKey;
+			selectedValue = newSelectedValue;
+		}
 	}
 	// Draw text notifying the user that the key was not found
 	if (timer > 0 && highlightIndex == -1) {
@@ -54,6 +78,43 @@ void OAHashTableView::draw() {
 		table->deleteKey(deleteKey);
 	IG::End();
 
+	// Check if mouse clicked on a table entry
+	if (IG::IsMouseClicked(0)) {
+		// Get mouse position
+		int mouseX = GUI::getMouseX();
+		int mouseY = GUI::getMouseY();
+		// Check if mouse is inside the table
+		if (mouseX > START_X && mouseX < START_X + columns * (RECT_SIZE + SPACING) &&
+			mouseY > START_Y && mouseY < START_Y + rows * (RECT_SIZE + SPACING)) {
+			int clickNode = (mouseX - START_X) / (RECT_SIZE) + (mouseY - START_Y) / (RECT_SIZE)*columns;
+
+			if (clickNode % 3 != 0 || table->table->keys[clickNode / 3] == NULL) return;
+			clickNode /= 3;
+			selectedKey = *(table->table->keys[clickNode]);
+			selectedValue = table->table->values[clickNode];
+		}
+	}
+
+	if (selectedKey != "") {
+		IG::Begin("Selected Entry");
+		IG::Text("Key: %s", selectedKey.c_str());
+		IG::Text("Value: %d", selectedValue);
+		if (IG::Button("Clear Selection")) {
+			selectedKey = "";
+			selectedValue = 0;
+		}
+		if (IG::Button("Clear Selection")) {
+			selectedKey = "";
+			selectedValue = 0;
+		}
+		if (IG::Button("Delete Entry")) {
+			table->deleteKey(selectedKey);
+			selectedKey = "";
+			selectedValue = 0;
+		}
+
+		IG::End();
+	}
 	drawTable();
 	drawTableWindow();
 }
@@ -78,22 +139,24 @@ static void drawTableWindow() {
 static void drawTable() {
 	if (table == NULL) return;
 	// Draw the table relations on the frame using rect
-	int rectSize = 25;
-	int spacing = 50;
+	int rectSize = RECT_SIZE;
+	int spacing = SPACING;
 
 	// Calculate amount of rows and columns (square)
-	int rows = 1;
-	int columns = 1;
-	while (rows * columns < table->capacity) (rows > columns) ? columns++ : rows++;
+	if (size != table->capacity) {
+		updateTableDimensions();
+		size = table->capacity;
+	}
 
-	int x = GUI::getWidth() / 2 - ((rectSize + spacing) * columns) / 2;
-	int y = 100;
+	int x = START_X - rectSize - spacing;
+	int y = START_Y - rectSize - spacing;
 	// push x to the left depending on the table size
 	GUI::beginMain();
 
 	// COlors
 	int colorWhite[3] = {255, 255, 255};
 	int colorBlack[3] = {0, 0, 0};
+	int colorGray[3] = {100, 100, 100};
 	int colorRed[3] = {255, 0, 0};
 	for (int i = 0; i < rows; i++) {
 		y += rectSize + spacing;
@@ -101,7 +164,7 @@ static void drawTable() {
 			continue;
 		if (GUI::isHigherThanScreen(y))
 			break;
-		x = GUI::getWidth() / 2 - ((rectSize + spacing) * columns) / 2;
+		x = START_X - spacing - rectSize;
 		for (int j = 0; j < columns; j++) {
 			x += rectSize + spacing;
 			if (GUI::isLeftOfScreen(x + rectSize + spacing))
@@ -111,17 +174,22 @@ static void drawTable() {
 			int index = i * columns + j;
 
 			// Draw the rect
-			if (table->table->keys[index] != NULL) {
-				GUI::rect(x, y, rectSize, rectSize, (index == highlightIndex) ? colorRed : colorWhite);
+			if (table->table->keys[index] == NULL) {
+				GUI::rect(x, y, rectSize, rectSize, colorBlack);
+				// Index
+				GUI::text(x, y, std::to_string(index), colorWhite);
+			} else if (*table->table->keys[index] == "") {
+				// The key is a tombstone
+				GUI::rect(x, y, rectSize, rectSize, colorGray);
+				// Tombstone
+				GUI::text(x, y, "RIP", colorWhite);
+			} else {
+				GUI::rect(x, y, rectSize, rectSize, (selectedKey == *table->table->keys[index]) ? colorRed : colorWhite);
 
 				// Draw the index, key and value
 				GUI::text(x, y, std::to_string(index), colorBlack);
 				GUI::text(x, y + 10, *table->table->keys[index], colorBlack);
 				GUI::text(x, y + 20, std::to_string(table->table->values[index]), colorBlack);
-			} else {
-				GUI::rect(x, y, rectSize, rectSize, colorBlack);
-				// Index
-				GUI::text(x, y, std::to_string(index), colorWhite);
 			}
 
 			// Draw the line
