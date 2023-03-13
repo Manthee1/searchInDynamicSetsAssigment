@@ -15,10 +15,12 @@ private:
 	int hash1(std::string);
 	int hash2(std::string key, int iteration);
 	void resize(int);
+	void rehash();
 
 public:
 	int size;
 	int capacity;
+	int tombstoneCount;
 	OAHashTableData* table;
 	OAHashTable();
 	OAHashTable(int);
