@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include "gui.h"
 #include "utilities/WrappedDS.h"
 #include "utilities/Test.h"
@@ -9,45 +10,144 @@
 using namespace std;
 
 DataStructureType getDataType(string dataTypeString) {
-	// Get the benchmark type
-	enum DataStructureType benchmarkType = AVL;
+	// Get the dataStrcture type
+	enum DataStructureType dataStrctureType = AVL;
 	switch (dataTypeString[0]) {
 	case 'a':
 	case 'A':
-		benchmarkType = AVL;
+		dataStrctureType = AVL;
 		break;
 	case 'r':
 	case 'R':
-		benchmarkType = RedBlack;
+		dataStrctureType = RedBlack;
 		break;
 	case 'o':
 	case 'O':
-		benchmarkType = HashTableOpenAddressing;
+		dataStrctureType = HashTableOpenAddressing;
 		break;
 	case 'c':
 	case 'C':
-		benchmarkType = HashTableChaining;
+		dataStrctureType = HashTableChaining;
 		break;
 	default:
-		cout << "Invalid benchmark type" << endl;
+		cout << "Invalid data strcture type provided (Expected: a, r, o, c)" << endl;
+		cout << "Using AVL tree" << endl;
 		return AVL;
 	}
-	return benchmarkType;
+	return dataStrctureType;
 }
 
 void test(int argc, char** argv) {
-	// If there is a second argument, use it as the test type
-	if (argc > 2) {
-		string testTypeString = string(argv[2]);
-		enum DataStructureType testType = getDataType(testTypeString);
-		Test::run(testType, 1000, 100);
+	// If there is a second argument, use it as the data structure type
+	if (argc < 3) {
+		cout << "Please specify a valid test type" << endl;
+		cout << "Usage:" << endl;
+		cout << " \ttest rand [a|r|o|c] [strict|basic]" << endl;
+		cout << " \ttest fixed {filename} [a|r|o|c] [strict|basic]" << endl;
+		cout << " \ttest gen {filename} {keysAmount1,keysAmount2,...} (keysAmount is the amount of keys for each test)" << endl;
+
 		return;
 	}
+
+	string testTypeString = string(argv[2]);
+	if (testTypeString == "rand") {
+		// If there is a third argument, use it as the data structure type
+		if (argc < 4) {
+			cout << "Please specify a data structure type (a, r, o, c)" << endl;
+			return;
+		}
+		string dsTypeString = string(argv[3]);
+		// If there is a third argument, use it as the test type
+		enum TestType testType = BASIC;
+		if (argc > 4) {
+			string testTypeString = string(argv[4]);
+			if (testTypeString == "strict")
+				testType = STRICT;
+			else if (testTypeString != "basic")
+				cout << YELLOW "INFO: Invalid test type, using basic" RESET << endl;
+		} else
+			cout << YELLOW "INFO: Test type not provided. Using basic test" RESET << endl;
+
+		enum DataStructureType dsType = getDataType(dsTypeString);
+		Test::run(dsType, testType);
+		return;
+	} else if (testTypeString == "fixed") {
+		// Make sure that the file name is provided
+		if (argc < 4) {
+			cout << "Please specify a file name" << endl;
+			return;
+		}
+		// Get the file name
+		string fileName = string(argv[3]);
+		// If there is a fourth argument, use it as the data structure type
+		if (argc < 5) {
+			cout << "Please specify a data structure type (a, r, o, c)" << endl;
+			return;
+		}
+		string dsTypeString = string(argv[4]);
+		// If there is a fifth argument, use it as the test type
+		enum TestType testType = BASIC;
+		if (argc > 5) {
+			string testTypeString = string(argv[5]);
+			if (testTypeString == "strict")
+				testType = STRICT;
+			else if (testTypeString != "basic")
+				cout << YELLOW "INFO: Invalid test type, using basic" RESET << endl;
+		} else
+			cout << YELLOW "INFO: Test type not provided. Using basic test" RESET << endl;
+
+		enum DataStructureType dsType = getDataType(dsTypeString);
+		Test::run(dsType, testType, fileName);
+		return;
+	} else if (testTypeString == "gen") {
+		// Make sure that the file name is provided
+		if (argc < 4) {
+			cout << "Please specify a file name" << endl;
+			return;
+		}
+		// Get the file name
+		string fileName = string(argv[3]);
+		// Make sure that the amount of keys is provided
+		if (argc < 5) {
+			cout << "Please specify the amount of keys for each test (comma separated)" << endl;
+			return;
+		}
+
+		// Check if the file already exists
+		if (Test::testFileExists(fileName)) {
+			cout << "File already exists. Do you want to overwrite it? (y/N): ";
+			std::string input;
+			std::getline(std::cin, input);
+
+			// Detecte if enter is pressed
+			if (input.empty() || (input[0] != 'y' && input[0] != 'Y')) {
+				cout << "Aborting..." << endl;
+				return;
+			}
+		}
+
+		// Get the amount of keys
+		string keysAmountString = string(argv[4]);
+		// Split the string by ','
+		stringstream ss(keysAmountString);
+		string item;
+		int keysAmount[100] = {0};
+		int keysAmountSize = 0;
+		while (getline(ss, item, ',')) {
+			keysAmount[keysAmountSize] = atoi(item.c_str());
+			keysAmountSize++;
+		}
+		// Generate the test file
+		Test::generateTestFile(fileName, keysAmount, keysAmountSize);
+		return;
+	}
+
+	cout << "Invalid test type provided" << endl;
 	return;
 }
 
 void benchmark(int argc, char** argv) {
-	// Make sure there is a second argument (the benchmark type)
+	// Make sure there is a second argument (the data structure type)
 	if (argc < 3) {
 		cout << "Please specify a benchmark type" << endl;
 		return;
@@ -60,7 +160,7 @@ void benchmark(int argc, char** argv) {
 	int elementsAmount = (argc > 3) ? atoi(argv[3]) : 1000;
 
 	Benchmark::verboseLevel = 2;
-	Benchmark::run(benchmarkType, elementsAmount, elementsAmount, elementsAmount, 5);
+	Benchmark::run(benchmarkType, elementsAmount, elementsAmount, elementsAmount, 10);
 
 	return;
 }
@@ -69,10 +169,26 @@ void benchmark(int argc, char** argv) {
 int main(int argc, char** argv) {
 	if (argc > 1) {
 		string arg = string(argv[1]);
-		if (arg == "--test")
+
+		// If arg is run, run the GUI
+		if (arg == "run") {
+			// If there is a second argument, use it as the data structure type
+			int viewType = AVL;
+			if (argc < 3) {
+				cout << "Please specify a data structure type (a, r, o, c)" << endl;
+				cout << "Defaulting to AVL tree" << endl;
+			} else
+				viewType = getDataType(string(argv[2]));
+
+			ViewController::run((ViewType)viewType);
+		} else if (arg == "test")
 			test(argc, argv);
-		else if (arg == "--benchmark")
+		else if (arg == "benchmark")
 			benchmark(argc, argv);
+		else {
+			cout << "Invalid argument provided" << endl;
+			cout << "Usage: " << argv[0] << " [run|test|benchmark]" << endl;
+		}
 	} else
 		ViewController::run();
 
