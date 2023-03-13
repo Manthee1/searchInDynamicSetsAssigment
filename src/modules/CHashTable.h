@@ -16,7 +16,7 @@ private:
 public:
 	int size;
 	int buckets;
-	HashTableChain* table;
+	HashTableChain* table = nullptr;
 	CHashTable();
 	CHashTable(int);
 	CHashTable(int, std::string*, int*);
