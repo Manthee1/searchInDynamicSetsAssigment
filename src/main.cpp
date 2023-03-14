@@ -4,7 +4,6 @@
 #include "gui.h"
 #include "utilities/WrappedDS.h"
 #include "utilities/Test.h"
-#include "utilities/Benchmark.h"
 #include "gui/ViewController.h"
 
 using namespace std;
@@ -47,12 +46,22 @@ enum RandomizationType getRandType(string randTypeString) {
 		cout << YELLOW "INFO: Invalid randomization type, using unique" RESET << endl;
 }
 
+enum TestType getBenchmarkType(string testTypeString) {
+	enum TestType testType = BASIC;
+	if (testTypeString == "strict")
+		testType = STRICT;
+	else if (testTypeString != "basic")
+		cout << YELLOW "INFO: Invalid test type, using basic" RESET << endl;
+}
+
 void printTestHelp() {
 	cout << "  test [rand|fixed|gen|benchmark] - Run a test on a data structure" << endl;
 	cout << " \ttest rand [a|r|o|c] [strict|basic] [unique|random]" << endl;
 	cout << " \ttest fixed {filename} [a|r|o|c] [strict|basic]" << endl;
 	cout << " \ttest gen {filename} {keysAmount1,keysAmount2,...} [unique|random] (keysAmount is the amount of keys for each test)" << endl;
-	cout << " \ttest [benchmark|bench|b] [a|r|o|c] [strict|basic] [unique|random] - Run a benchmark on a data structure" << endl;
+	cout << " \ttest [benchmark|bench|b] - Run a benchmark on a data structure" << endl;
+	cout << " \t\tbenchmark rand [a|r|o|c] [final|all] [unique|random] - Runs a benchmark with random keys" << endl;
+	cout << " \t\tbenchmark fixed {filename} [a|r|o|c] [final|all] - Runs a benchmark with keys from a file" << endl;
 }
 
 void test(int argc, char** argv) {
@@ -109,13 +118,9 @@ void test(int argc, char** argv) {
 		string dsTypeString = string(argv[4]);
 		// If there is a fifth argument, use it as the test type
 		enum TestType testType = BASIC;
-		if (argc > 5) {
-			string testTypeString = string(argv[5]);
-			if (testTypeString == "strict")
-				testType = STRICT;
-			else if (testTypeString != "basic")
-				cout << YELLOW "INFO: Invalid test type, using basic" RESET << endl;
-		} else
+		if (argc > 5)
+			testType = getBenchmarkType(string(argv[5]));
+		else
 			cout << YELLOW "INFO: Test type not provided. Using basic test" RESET << endl;
 
 		enum DataStructureType dsType = getDataType(dsTypeString);
@@ -183,20 +188,26 @@ void test(int argc, char** argv) {
 		string benchmarkTypeString = string(argv[3]);
 		enum DataStructureType benchmarkType = getDataType(benchmarkTypeString);
 
-		// Get the type of randomization
-		//  unique/u: all the keys are unique
-		//  random/r: the keys are random
-		string randomizationTypeString = string(argv[4]);
+		// If there is a fourth argument, use it as the test type
+		enum TestType testType = BASIC;
+		if (argc > 4)
+			testType = getBenchmarkType(string(argv[4]));
+		else
+			cout << YELLOW "INFO: Test type not provided. Using basic test" RESET << endl;
+
 		enum RandomizationType randomizationType = UNIQUE_RANDOM;
-		if ((argc > 4) && (randomizationTypeString == "random" || randomizationTypeString == "r"))
-			randomizationType = NON_UNIQUE_RANDOM;
+		if (argc > 5) {
+			string randTypeString = string(argv[5]);
+			randomizationType = getRandType(randTypeString);
+		} else
+			cout << YELLOW "INFO: Randomization type not provided. Using unique randomization" RESET << endl;
 
 		// Get the amount of elements
-		int elementsAmount = (argc > 5) ? atoi(argv[5]) : 1000;
-		if (argc <= 5) cout << YELLOW "INFO: Amount of elements not provided. Using" << elementsAmount << RESET << endl;
-
-		Benchmark::verboseLevel = 2;
-		Benchmark::run(benchmarkType, randomizationType, elementsAmount, elementsAmount, elementsAmount, 10);
+		int elementsAmount = (argc > 6) ? atoi(argv[6]) : 1000;
+		if (argc <= 6) cout << YELLOW "INFO: Amount of elements not provided. Using " << elementsAmount << RESET << endl;
+		// Print all the information
+		Test::Benchmark::verboseLevel = 2;
+		Test::Benchmark::run(benchmarkType, randomizationType, elementsAmount, elementsAmount, elementsAmount, 10);
 		return;
 	}
 	cout << "Invalid test type provided" << endl;
