@@ -14,6 +14,12 @@
 #define BOLD "\033[1m"
 #define RESET "\033[0m"
 
+// Define sizes of data types
+#define SIZE_INT sizeof(int)
+#define SIZE_STRING sizeof(std::string)
+#define SIZE_STRING_POINTER sizeof(std::string *)
+#define SIZE_VECTOR sizeof(std::vector<int>)
+
 // Rotate directions used in AVLTree and RedBlackTree rotate functions
 enum RotateDirection {
 	LEFT,
@@ -87,6 +93,7 @@ public:
 	virtual void remove(int);
 	virtual bool isValid();
 	virtual int *getAllKeys(int &);
+	virtual int calculateSpaceComplexity();
 	virtual void destroy();
 };
 

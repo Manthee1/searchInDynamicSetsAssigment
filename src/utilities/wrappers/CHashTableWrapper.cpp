@@ -26,11 +26,31 @@ void CHashTableWrapper::remove(int key) {
 }
 
 bool CHashTableWrapper::isValid() {
+	// make sure that every key has the same value as the key
+	for (int i = 0; i < table->buckets; i++)
+		for (int j = 0; j < table->table[i].size; j++)
+			if (table->table[i].values[j] != std::stoi(table->table[i].keys[j]))
+				return false;
+
 	return true;
 }
 
 int* CHashTableWrapper::getAllKeys(int& length) {
 	return getAllCHashTableKeys(table, length);
+}
+
+int CHashTableWrapper::calculateSpaceComplexity() {
+	int spaceUsed = 0;
+
+	for (int i = 0; i < table->buckets; i++) {
+		for (int j = 0; j < table->table[i].size; j++) {
+			spaceUsed += table->table[i].keys[j].size() + SIZE_STRING;	// 32 is the size of std::string object
+		}
+		spaceUsed += table->table[i].size * SIZE_INT;
+	}
+	// Get the size of the keys nad values vectors and the int size variable
+	spaceUsed += sizeof(table->buckets) + table->buckets * (SIZE_VECTOR + SIZE_VECTOR + SIZE_INT);
+	return spaceUsed;
 }
 
 void CHashTableWrapper::destroy() {

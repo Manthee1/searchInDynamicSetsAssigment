@@ -29,6 +29,10 @@ bool AVLTreeWrapper::isValid() {
 int* AVLTreeWrapper::getAllKeys(int& length) {
 	return getAllAVLTreeKeys(tree, tree->root, length);
 }
+int AVLTreeWrapper::calculateSpaceComplexity() {
+	// Simple
+	return sizeof(AVLNode) * tree->size;
+}
 void AVLTreeWrapper::destroy() {
 	delete tree;
 }

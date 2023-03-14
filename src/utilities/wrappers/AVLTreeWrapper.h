@@ -18,6 +18,7 @@ public:
 	void remove(int) override;
 	bool isValid() override;
 	int* getAllKeys(int& length) override;
+	int calculateSpaceComplexity() override;
 	void destroy() override;
 };
 
