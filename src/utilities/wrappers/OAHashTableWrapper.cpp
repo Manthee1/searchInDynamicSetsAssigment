@@ -40,13 +40,14 @@ int* OAHashTableWrapper::getAllKeys(int& length) {
 int OAHashTableWrapper::calculateSpaceComplexity() {
 	int spaceUsed = 0;
 
-	// Get te size of the vectors
+	// Get the size of the vectors
 	spaceUsed += SIZE_VECTOR;
 	spaceUsed += SIZE_VECTOR;
 	// Go through each string pointer and add exsiting strings sizes to spaceUsed
 	for (int i = 0; i < table->capacity; i++)
 		spaceUsed += table->table->keys[i] == NULL ? 0 : (*table->table->keys[i]).size() + SIZE_STRING;	 // the size of std::string object
 
+	// Get the size of the ints in the vector
 	spaceUsed += table->capacity * (SIZE_STRING_POINTER + SIZE_INT);  // 16 is the size of std::string pinter and 4 is the size of int
 	return spaceUsed;
 }

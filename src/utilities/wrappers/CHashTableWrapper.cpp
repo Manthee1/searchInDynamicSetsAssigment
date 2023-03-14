@@ -42,10 +42,11 @@ int* CHashTableWrapper::getAllKeys(int& length) {
 int CHashTableWrapper::calculateSpaceComplexity() {
 	int spaceUsed = 0;
 
+	// Get te size of each key in the vector and the size of the vector
 	for (int i = 0; i < table->buckets; i++) {
-		for (int j = 0; j < table->table[i].size; j++) {
+		for (int j = 0; j < table->table[i].size; j++)
 			spaceUsed += table->table[i].keys[j].size() + SIZE_STRING;	// 32 is the size of std::string object
-		}
+		// Get the size of the ints in the vector
 		spaceUsed += table->table[i].size * SIZE_INT;
 	}
 	// Get the size of the keys nad values vectors and the int size variable
