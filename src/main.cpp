@@ -40,7 +40,7 @@ DataStructureType getDataType(string dataTypeString) {
 void test(int argc, char** argv) {
 	// If there is a second argument, use it as the data structure type
 	if (argc < 3) {
-		cout << "Please specify a valid test type" << endl;
+		cout << "Please specify a valid test type (rand, fixed, gen)" << endl;
 		cout << "Usage:" << endl;
 		cout << " \ttest rand [a|r|o|c] [strict|basic]" << endl;
 		cout << " \ttest fixed {filename} [a|r|o|c] [strict|basic]" << endl;
@@ -149,7 +149,7 @@ void test(int argc, char** argv) {
 void benchmark(int argc, char** argv) {
 	// Make sure there is a second argument (the data structure type)
 	if (argc < 3) {
-		cout << "Please specify a benchmark type" << endl;
+		cout << "Please specify a benchmark type (a, r, o, c)" << endl;
 		return;
 	}
 
@@ -157,10 +157,19 @@ void benchmark(int argc, char** argv) {
 	string benchmarkTypeString = string(argv[2]);
 	enum DataStructureType benchmarkType = getDataType(benchmarkTypeString);
 
-	int elementsAmount = (argc > 3) ? atoi(argv[3]) : 1000;
+	// Get the type of randomization
+	//  unique/u: all the keys are unique
+	//  random/r: the keys are random
+	string randomizationTypeString = string(argv[3]);
+	enum RandomizationType randomizationType = UNIQUE_RANDOM;
+	if ((argc > 3) && (randomizationTypeString == "random" || randomizationTypeString == "r"))
+		randomizationType = NON_UNIQUE_RANDOM;
+
+	// Get the amount of elements
+	int elementsAmount = (argc > 4) ? atoi(argv[3]) : 1000;
 
 	Benchmark::verboseLevel = 2;
-	Benchmark::run(benchmarkType, elementsAmount, elementsAmount, elementsAmount, 10);
+	Benchmark::run(benchmarkType, randomizationType, elementsAmount, elementsAmount, elementsAmount, 10);
 
 	return;
 }

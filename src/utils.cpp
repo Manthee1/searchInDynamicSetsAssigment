@@ -35,7 +35,16 @@ int* generateRandomArray(int length, int min, int max) {
 	delete[] array;
 }
 
-std::vector<int> generateRandomUniqueArray(int length, int min, int max) {
+int* generateRandomUniqueArray(int length, int min) {
+	int* array = new int[length];
+	for (int i = 0; i < length; i++) array[i] = i + min;
+	shuffleInts(array, length);
+	return array;
+	// remember to deallocate memory after use
+	delete[] array;
+}
+
+std::vector<int> generateRandomUniqueVectorArray(int length, int min, int max) {
 	std::vector<int> keys(length);
 	std::iota(keys.begin(), keys.end(), min);
 	std::random_device rd;

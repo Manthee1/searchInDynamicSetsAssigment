@@ -13,7 +13,9 @@ bool isPrime(int);
 
 int* generateRandomArray(int, int, int);
 
-std::vector<int> generateRandomUniqueArray(int length, int min, int max);
+int* generateRandomUniqueArray(int, int);
+
+std::vector<int> generateRandomUniqueVectorArray(int length, int min, int max);
 
 std::vector<int> generateRandomVectorArray(int, int, int);
 
