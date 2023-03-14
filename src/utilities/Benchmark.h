@@ -2,11 +2,6 @@
 #define BENCHMARK_BENCHMARK_H_
 #include "../utils.h"
 
-enum RandomizationType {
-	UNIQUE_RANDOM,
-	NON_UNIQUE_RANDOM,
-};
-
 namespace Benchmark {
 	extern bool verbose;
 	extern int verboseLevel;

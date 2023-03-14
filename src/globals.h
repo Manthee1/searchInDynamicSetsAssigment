@@ -26,6 +26,11 @@ enum RotateDirection {
 	RIGHT
 };
 
+enum RandomizationType {
+	UNIQUE_RANDOM,
+	NON_UNIQUE_RANDOM,
+};
+
 // AVLNode structure
 struct AVLNode {
 	int key;

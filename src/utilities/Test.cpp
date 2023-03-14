@@ -155,7 +155,7 @@ static bool run(DataStructureType dsType, TestType testType, int* keys, int keys
 	return passed;
 }
 
-bool Test::run(DataStructureType dsType, TestType testType) {
+bool Test::run(DataStructureType dsType, TestType testType, RandomizationType randType) {
 	DSStandardWrapper* benchmarkData = WrappedDS::DSentries[dsType];
 	bool ret = true;
 	// Running a testType test on a dsType data structure with keysAmount keys
@@ -163,7 +163,7 @@ bool Test::run(DataStructureType dsType, TestType testType) {
 	std::cout << "Running a radnomly generated " << testTypeString << " test on " << benchmarkData->name << std::endl;
 	for (int i = 0; i < TESTS_AMOUNT; i++) {
 		std::cout << "Generating " YELLOW << keysAmounts[i] << RESET " keys" << std::endl;
-		int* keys = generateRandomArray(keysAmounts[i], 0, keysAmounts[i] * 10);
+		int* keys = randType == NON_UNIQUE_RANDOM ? generateRandomArray(keysAmounts[i], 0, keysAmounts[i] * 10) : generateRandomUniqueArray(keysAmounts[i], 0);
 		// Run the test
 		ret = run(dsType, testType, keys, keysAmounts[i], i) ? ret : false;
 		delete[] keys;
@@ -205,7 +205,7 @@ bool Test::run(DataStructureType dsType, TestType testType, std::string testFile
 	return ret;
 }
 
-void Test::generateTestFile(std::string testFile, int* keysAmount, int keysAmountSize) {
+void Test::generateTestFile(std::string testFile, RandomizationType randType, int* keysAmount, int keysAmountSize) {
 	// Running a testType test on a dsType data structure with keysAmount keys
 	std::cout << "Generating a test file with " << keysAmountSize << " tests with the following keys amounts: " << std::endl;
 	for (int i = 0; i < keysAmountSize; i++) {
@@ -226,7 +226,7 @@ void Test::generateTestFile(std::string testFile, int* keysAmount, int keysAmoun
 	// Generate the keys
 	for (int i = 0; i < keysAmountSize; i++) {
 		std::cout << "Generating " YELLOW << keysAmount[i] << RESET " keys for test " MAGENTA << i + 1 << RESET << std::endl;
-		int* keys = generateRandomArray(keysAmount[i], 0, keysAmount[i] * 10);
+		int* keys = randType == NON_UNIQUE_RANDOM ? generateRandomArray(keysAmount[i], 0, keysAmount[i] * 10) : generateRandomUniqueArray(keysAmount[i], 0);
 
 		// Write the keys to the file
 		file << i + 1 << "-" << keysAmount[i] << ":";
