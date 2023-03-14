@@ -224,6 +224,10 @@ namespace GUI {
 		return offset_y;
 	}
 
+	float getScale() {
+		return scale;
+	}
+
 	int getMouseX() {
 		return (ImGui::GetIO().MousePos.x / scale) - offset_x;
 	}
@@ -243,6 +247,12 @@ namespace GUI {
 
 	bool isRectOnScreen(float x, float y, float width, float height) {
 		return x + width > -offset_x && x < -offset_x + window_width / scale && y + height > -offset_y && y < -offset_y + window_height / scale;
+	}
+
+	void focusOn(float x, float y, float newScale) {
+		scale = newScale;
+		offset_x = -x + window_width / (2 * scale);
+		offset_y = -y + window_height / (2 * scale);
 	}
 
 	bool isLeftOfScreen(float x) {

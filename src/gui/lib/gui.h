@@ -11,6 +11,7 @@ namespace GUI {
 
 	float getOffsetX();
 	float getOffsetY();
+	float getScale();
 
 	// start main window and set size
 	void beginMain();
@@ -24,6 +25,8 @@ namespace GUI {
 
 	bool isOnScreen(float x, float y);
 	bool isRectOnScreen(float x, float y, float width, float height);
+
+	void focusOn(float x, float y, float newScale);
 
 	bool isLeftOfScreen(float x);
 	bool isRightOfScreen(float x);
