@@ -7,53 +7,76 @@
 
 static AVLTree tree;
 static AVLNodePos** nodePositions = NULL;
+static AVLNodePos* selectedNodePos = NULL;
+static AVLNode* selectedNode = NULL;
 static int insertKey = 0;
 static int removeKey = 0;
 static int nodePositionsSize = 0;
 static bool reIndexNodes = true;
 
-static AVLNode* selectedNode = NULL;
+static int size = 1000;
+static int deleteSize = 700;
 
+// Recreate the node positions
 static void resetNodeGUIData() {
-	// Reset the node positions
-	for (int i = 0; i < nodePositionsSize; i++) {
+	// Delete the old node positions
+	for (int i = 0; i < nodePositionsSize; i++)
 		delete nodePositions[i];
-	}
 	delete nodePositions;
+
+	// Create the new node positions which will be filled in the end of the drawTreeNode function
 	nodePositionsSize = 0;
-	// Allocate memory for the node positions
 	nodePositions = new AVLNodePos*[(tree.root == NULL) ? 0 : tree.size];
 	reIndexNodes = true;
 }
 
-static bool isAVLTreeBalanced(AVLTree* tree, AVLNode* node) {
-	if (node == NULL) return true;
-
-	if (abs(tree->getBalance(node)) > 1) {
-		std::cout << "AVLNode " << node->key << " is not balanced" << std::endl;
-		return false;
-	}
-	return (node->left == NULL || isAVLTreeBalanced(tree, node->left)) &&
-		   (node->right == NULL || isAVLTreeBalanced(tree, node->right));
-}
-
 void AVLTreeView::draw() {
 	// Add a node to the tree
-	IG::Begin("Add AVLNode");
-	IG::InputInt("Key", &insertKey);
+	IG::Begin("AVL Tree");
 
+	IG::Text("Size: %d", tree.size);
+	IG::Text("Height: %d", tree.root == NULL ? 0 : tree.root->height);
+
+	IG::Separator();
+
+	// Create a random tree
+	IG::Text("Random Tree");
+	IG::InputInt("Amount", &size);
+	if (IG::Button("Create")) {
+		delete tree.root;
+		tree.root = NULL;
+		for (int i = 0; i < size; i++)
+			tree.insertKey(rand() % size);
+		resetNodeGUIData();
+	}
+
+	// Delete a node from the tree
+	IG::InputInt("DeleteAmount", &deleteSize);
+	if (IG::Button("Delete")) {
+		for (int i = 0; i < deleteSize; i++)
+			tree.deleteKey(rand() % 10000);
+		resetNodeGUIData();
+	}
+
+	IG::Separator();
+
+	// Add a node to the tree
+	IG::Text("Add AVLNode");
+	IG::InputInt("Key", &insertKey);
 	if (IG::Button("Add AVLNode")) {
 		tree.insertKey(insertKey);
 		resetNodeGUIData();
 	}
-	if (IG::Button("Add AVLNode(Not balanced)")) {
+	// Add a node to the tree without balancing
+	if (IG::Button("Add AVLNode(Don't balance)")) {
 		tree.insertNode(new AVLNode(insertKey), false);
 		resetNodeGUIData();
 	}
-	IG::End();
+
+	IG::Separator();
 
 	// Remove a node from the tree
-	IG::Begin("Remove AVLNode");
+	IG::Text("Remove AVLNode");
 	IG::InputInt("Key", &removeKey);
 	if (IG::Button("Remove AVLNode")) {
 		tree.deleteKey(removeKey);
@@ -66,47 +89,30 @@ void AVLTreeView::draw() {
 		tree.root = NULL;
 		resetNodeGUIData();
 	}
-	IG::End();
-
-	// Verify balance
-	IG::Begin("Verify Balance");
-	if (IG::Button("Verify Balance")) {
-		std::cout << "Tree is balanced: " << isAVLTreeBalanced(&tree, tree.root) << std::endl;
+	IG::Separator();
+	// Balance the tree
+	if (IG::Button("Focus On Root")) {
+		// Focus the camera on the selected node
+		GUI::focusOn(IG::GetIO().DisplaySize.x / 2, 50, 2);
 	}
 	IG::End();
 
-	IG::Begin("Random Tree");
-	static int size = 1000;
-	IG::InputInt("Amount", &size);
-	if (IG::Button("Create")) {
-		delete tree.root;
-		tree.root = NULL;
-		for (int i = 0; i < size; i++)
-			tree.insertKey(rand() % size);
-		resetNodeGUIData();
-	}
-	static int deleteSize = 700;
-	IG::InputInt("DeleteAmount", &deleteSize);
-	if (IG::Button("Delete")) {
-		for (int i = 0; i < deleteSize; i++)
-			tree.deleteKey(rand() % 10000);
-		resetNodeGUIData();
-	}
-	IG::End();
+	IG::Separator();
 
-	IG::Begin("Selected AVLNode Info");
+	// Show the selected node info
 	if (selectedNode != NULL) {
+		IG::Begin("Selected AVLNode Info");
 		IG::Text("Key: %d", selectedNode->key);
 		IG::Text("Height: %d", selectedNode->height);
 		IG::Text("Balance: %d", tree.getBalance(selectedNode));
 		IG::Text("Count: %d", selectedNode->count);
 		// Right rotation
-		if (IG::Button("Right Rotate")) {
+		if (selectedNode->left != NULL && IG::Button("Right Rotate")) {
 			tree.rotate(selectedNode, RIGHT);
 			resetNodeGUIData();
 		}
 		// Left rotation
-		if (IG::Button("Left Rotate")) {
+		if (selectedNode->right != NULL && IG::Button("Left Rotate")) {
 			tree.rotate(selectedNode, LEFT);
 			resetNodeGUIData();
 		}
@@ -123,9 +129,14 @@ void AVLTreeView::draw() {
 			tree.balanceTree(selectedNode);
 			resetNodeGUIData();
 		}
-	}
 
-	IG::End();
+		// Focus on the selected node
+		if (IG::Button("Focus")) {
+			GUI::focusOn(selectedNodePos->x, selectedNodePos->y, 2);
+		}
+
+		IG::End();
+	}
 
 	// Check if a node was clicked
 	if (IG::IsMouseClicked(0)) {
@@ -137,11 +148,7 @@ void AVLTreeView::draw() {
 			AVLNodePos* pos = nodePositions[i];
 			// use sqrt to calculate the distance between the mouse and the node
 			if (sqrt(pow(pos->x - x, 2) + pow(pos->y - y, 2)) < 20) {
-				// The mouse was clicked on a node
-				// std::cout << "Clicked on node with key " << pos->node->key << std::endl;
-				// tree.deleteNode(pos->node);
-				// resetNodeGUIData();
-
+				selectedNodePos = pos;
 				selectedNode = pos->node;
 				break;
 			}

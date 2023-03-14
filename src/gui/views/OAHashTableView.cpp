@@ -10,12 +10,13 @@
 #define START_Y 200
 
 // static OAHashTable table;
-static OAHashTable* table;
+static OAHashTable* table = new OAHashTable(1);
 static std::string insertKey;
 static int insertValue = 0;
-static int highlightIndex = -1;
 static std::string selectedKey = "";
 static int selectedValue = 0;
+static int selectedIndex = -1;
+static int changeValue = 0;
 
 static int rows = 0;
 static int columns = 0;
@@ -26,60 +27,75 @@ static void updateTableDimensions() {
 	while (rows * columns < table->capacity) (rows > columns) ? columns++ : rows++;
 }
 
-// timer
-static int timer = 0;
 void OAHashTableView::draw() {
-	static char* insertKeyCharArray = new char[100]{"\0"};
-	IG::Begin("Add Entry");
-	IG::InputText("Key", insertKeyCharArray, 100);
-	IG::InputInt("Value", &insertValue);
-	if (IG::Button("Add Entry")) {
-		table->insertKey(insertKeyCharArray, insertValue);
-	}
-	IG::End();
+	IG::Begin("Open Addressing Hash Table");
 
-	IG::Begin("Create Random Table");
+	IG::Text("Table Size: %d", table->size);
+	IG::Text("Table Capacity: %d", table->capacity);
+	IG::Text("Tombstone Count: %d", table->tombstoneCount);
+	IG::Text("Load Factor: %f", (float)table->size / (float)table->capacity);
+	IG::Text("Tombstone Factor: %f", (float)table->tombstoneCount / (float)table->capacity);
+
+	IG::Separator();
+
+	IG::Text("Create Random Table");
 	static int amount = 10;
 	IG::InputInt("Amount", &amount);
 	if (IG::Button("Create Table")) {
+		// Delete the old table
+		delete table;
 		// Create a new table
-		table = new OAHashTable(amount * 2);
+		table = new OAHashTable(amount);
 		for (int i = 0; i < amount; i++)
 			table->insertKey(generateRandomString(5), rand() % 100);
 	}
-	IG::End();
 
-	IG::Begin("Search Entry");
+	IG::Separator();
+
+	static char* insertKeyCharArray = new char[100]{"\0"};
+	IG::Text("Add Entry");
+	IG::InputText("Add Key", insertKeyCharArray, 100);
+	IG::InputInt("Value", &insertValue);
+	if (IG::Button("Add Entry"))
+		table->insertKey(insertKeyCharArray, insertValue);
+
+	IG::Separator();
+
+	IG::Text("Search Entry");
 	static char* searchKey = new char[100]{"\0"};
-	IG::InputText("Key", searchKey, 100);
+	IG::InputText("Search Key", searchKey, 100);
 	if (IG::Button("Search Entry")) {
 		int newSelectedValue = table->searchKey(searchKey);
-		if (newSelectedValue == -1) {
-			selectedKey = "";
-			timer = 200;
-		} else {
+		if (newSelectedValue != -1) {
 			selectedKey = searchKey;
 			selectedValue = newSelectedValue;
 		}
 	}
-	// Draw text notifying the user that the key was not found
-	if (timer > 0 && highlightIndex == -1) {
-		IG::Text("Key not found");
-		timer--;
-	}
-	IG::End();
+
+	IG::Separator();
 
 	// Delete
-
-	IG::Begin("Delete Entry");
+	IG::Text("Delete Entry");
 	static char* deleteKey = new char[100]{"\0"};
-	IG::InputText("Key", deleteKey, 100);
+	IG::InputText("Delete Key", deleteKey, 100);
 	if (IG::Button("Delete Entry"))
 		table->deleteKey(deleteKey);
+	if (IG::Button("Clear Table")) {
+		delete table;
+		table = NULL;
+	}
+
+	IG::Separator();
+
+	IG::Text("Other Functions");
+	// Rehash
+	if (IG::Button("Rehash"))
+		table->rehash();
+
 	IG::End();
 
 	// Check if mouse clicked on a table entry
-	if (IG::IsMouseClicked(0)) {
+	if (IG::IsMouseClicked(0) && table != NULL) {
 		// Get mouse position
 		int mouseX = GUI::getMouseX();
 		int mouseY = GUI::getMouseY();
@@ -88,29 +104,47 @@ void OAHashTableView::draw() {
 			mouseY > START_Y && mouseY < START_Y + rows * (RECT_SIZE + SPACING)) {
 			int clickNode = (mouseX - START_X) / (RECT_SIZE) + (mouseY - START_Y) / (RECT_SIZE)*columns;
 
-			if (clickNode % 3 != 0 || table->table->keys[clickNode / 3] == NULL) return;
-			clickNode /= 3;
-			selectedKey = *(table->table->keys[clickNode]);
-			selectedValue = table->table->values[clickNode];
+			if (clickNode % 3 == 0 && table->table->keys[clickNode / 3] != NULL) {
+				clickNode /= 3;
+				selectedKey = *(table->table->keys[clickNode]);
+				selectedValue = table->table->values[clickNode];
+				selectedIndex = clickNode;
+				changeValue = selectedValue;
+			}
 		}
 	}
 
 	if (selectedKey != "") {
 		IG::Begin("Selected Entry");
+		IG::Text("Index: %d", selectedIndex);
 		IG::Text("Key: %s", selectedKey.c_str());
 		IG::Text("Value: %d", selectedValue);
 		if (IG::Button("Clear Selection")) {
 			selectedKey = "";
 			selectedValue = 0;
 		}
-		if (IG::Button("Clear Selection")) {
-			selectedKey = "";
-			selectedValue = 0;
-		}
+
+		IG::Separator();
+
+		// Change value
+		IG::Text("Change Value");
+		IG::InputInt("Change", &changeValue);
+		if (IG::Button("Change Value"))
+			table->insertKey(selectedKey, changeValue);
+
+		IG::Separator();
+
+		// Delete
 		if (IG::Button("Delete Entry")) {
 			table->deleteKey(selectedKey);
 			selectedKey = "";
 			selectedValue = 0;
+		}
+
+		// Focus on the node
+		if (IG::Button("Focus on Node")) {
+			GUI::focusOn(START_X + (selectedIndex % columns) * (RECT_SIZE + SPACING) + RECT_SIZE / 2,
+						 START_Y + (selectedIndex / columns) * (RECT_SIZE + SPACING) + RECT_SIZE / 2, 2);
 		}
 
 		IG::End();
@@ -125,6 +159,7 @@ static void drawTableWindow() {
 	IG::Text("Key");
 	IG::SameLine();
 	IG::Text("Value");
+	// Loop through the table and draw the keys and values
 	for (int i = 0; i < table->capacity; i++) {
 		if (table->table->keys[i] == NULL) continue;
 		IG::Text("%s", (table->table->keys[i])->c_str());
@@ -148,48 +183,50 @@ static void drawTable() {
 		size = table->capacity;
 	}
 
+	// subtract the spacing from the start position
 	int x = START_X - rectSize - spacing;
 	int y = START_Y - rectSize - spacing;
 	// push x to the left depending on the table size
 	GUI::beginMain();
 
-	// COlors
+	// Colors
 	int colorWhite[3] = {255, 255, 255};
 	int colorBlack[3] = {0, 0, 0};
 	int colorGray[3] = {100, 100, 100};
 	int colorRed[3] = {255, 0, 0};
 	for (int i = 0; i < rows; i++) {
 		y += rectSize + spacing;
-		if (GUI::isLowerThanScreen(y + rectSize))
-			continue;
-		if (GUI::isHigherThanScreen(y))
-			break;
+
+		if (GUI::isLowerThanScreen(y + rectSize)) continue;	 // If the rect is outside the screen, skip it
+		if (GUI::isHigherThanScreen(y)) break;				 // If the rect is above the screen, break the loop
 		x = START_X - spacing - rectSize;
 		for (int j = 0; j < columns; j++) {
 			x += rectSize + spacing;
-			if (GUI::isLeftOfScreen(x + rectSize + spacing))
-				continue;
-			if (GUI::isRightOfScreen(x))
-				break;
+			if (GUI::isLeftOfScreen(x + rectSize + spacing)) continue;	// If the rect is outside the screen, skip it
+			if (GUI::isRightOfScreen(x)) break;							// If the rect is right of the screen, break the loop
 			int index = i * columns + j;
 
-			// Draw the rect
+			// Draw the node
 			if (table->table->keys[index] == NULL) {
+				// If the key is null, draw a black rect
 				GUI::rect(x, y, rectSize, rectSize, colorBlack);
 				// Index
-				GUI::text(x, y, std::to_string(index), colorWhite);
+				if (GUI::getScale() > 0.3)
+					GUI::text(x, y, std::to_string(index), colorWhite);
 			} else if (*table->table->keys[index] == "") {
-				// The key is a tombstone
+				// The key is a tombstone so draw a gray rect with the RIP text
 				GUI::rect(x, y, rectSize, rectSize, colorGray);
-				// Tombstone
-				GUI::text(x, y, "RIP", colorWhite);
+				if (GUI::getScale() > 0.3)
+					GUI::text(x, y, "RIP", colorWhite);
 			} else {
+				// If the key exists, draw a white rect
 				GUI::rect(x, y, rectSize, rectSize, (selectedKey == *table->table->keys[index]) ? colorRed : colorWhite);
-
-				// Draw the index, key and value
-				GUI::text(x, y, std::to_string(index), colorBlack);
-				GUI::text(x, y + 10, *table->table->keys[index], colorBlack);
-				GUI::text(x, y + 20, std::to_string(table->table->values[index]), colorBlack);
+				if (GUI::getScale() > 0.3) {
+					// Draw the index, key and value
+					GUI::text(x, y, std::to_string(index), colorBlack);
+					GUI::text(x, y + 10, *table->table->keys[index], colorBlack);
+					GUI::text(x, y + 20, std::to_string(table->table->values[index]), colorBlack);
+				}
 			}
 
 			// Draw the line
@@ -200,7 +237,6 @@ static void drawTable() {
 				GUI::line(x + rectSize + spacing, y + rectSize / 2, x + rectSize + spacing - 10, y + rectSize / 2 - 10, colorWhite);
 				GUI::line(x + rectSize + spacing, y + rectSize / 2, x + rectSize + spacing - 10, y + rectSize / 2 + 10, colorWhite);
 			}
-			// Draw the highlight
 		}
 	}
 	IG::End();

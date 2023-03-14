@@ -15,7 +15,6 @@ private:
 	int hash1(std::string);
 	int hash2(std::string key, int iteration);
 	void resize(int);
-	void rehash();
 
 public:
 	int size;
@@ -33,6 +32,7 @@ public:
 	int getNextIndex(int index, int i, int hash2_val);
 	void deleteKey(std::string);
 	void clear();
+	void rehash();
 };
 
 #endif
