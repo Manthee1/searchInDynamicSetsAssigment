@@ -9,12 +9,16 @@
 #define TEST_DIR ""
 #define TEST_FILE_EXT ".dsdata"
 
+#define BENCHMARK_FINAL_TESTS_AMOUNT 10	 // how many times we should insert a the final key to get a good average
+
 #define TESTS_AMOUNT 5
 #define KEYS_PER_TEST 1000
 static int keysAmounts[TESTS_AMOUNT] = {100, 1000, 10000, 100000, 1000000};
 
 bool Test::Benchmark::verbose = false;
 int Test::Benchmark::verboseLevel = 0;
+
+DSStandardWrapper* dsClone = nullptr;
 
 std::chrono::nanoseconds insertTotalTime = std::chrono::nanoseconds(0);
 std::chrono::nanoseconds searchTotalTime = std::chrono::nanoseconds(0);
@@ -147,15 +151,15 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 }
 
 static bool run(DataStructureType dsType, TestType testType, int* keys, int keysAmount, int testNum) {
-	DSStandardWrapper* benchmarkData = WrappedDS::DSentries[dsType];
+	DSStandardWrapper* ds = WrappedDS::DSentries[dsType];
 
 	std::cout << MAGENTA "====TEST " << testNum << "====" RESET << std::endl;
 	// Initialize the benchmark
-	benchmarkData->init(keysAmount);
+	ds->init(keysAmount);
 	// Run the test
-	bool passed = testType == BASIC ? runTest(benchmarkData, testType, keys, keysAmount) : runTest(benchmarkData, testType, keys, keysAmount);
+	bool passed = testType == BASIC ? runTest(ds, testType, keys, keysAmount) : runTest(ds, testType, keys, keysAmount);
 	// Destroy the benchmark
-	benchmarkData->destroy();
+	ds->destroy();
 
 	std::string reslutString = passed ? GREEN "[Passed]" RESET : RED "[Failed]" RESET;
 	std::cout << "Overall: " << reslutString << std::endl;
@@ -164,11 +168,11 @@ static bool run(DataStructureType dsType, TestType testType, int* keys, int keys
 }
 
 bool Test::run(DataStructureType dsType, TestType testType, RandomizationType randType) {
-	DSStandardWrapper* benchmarkData = WrappedDS::DSentries[dsType];
+	DSStandardWrapper* ds = WrappedDS::DSentries[dsType];
 	bool ret = true;
 	// Running a testType test on a dsType data structure with keysAmount keys
 	std::string testTypeString = testType == BASIC ? GREEN "basic" RESET : RED "strict" RESET;
-	std::cout << "Running a radnomly generated " << testTypeString << " test on " << benchmarkData->name << std::endl;
+	std::cout << "Running a radnomly generated " << testTypeString << " test on " << ds->name << std::endl;
 	for (int i = 0; i < TESTS_AMOUNT; i++) {
 		std::cout << "Generating " YELLOW << keysAmounts[i] << RESET " keys" << std::endl;
 		int* keys = randType == NON_UNIQUE_RANDOM ? generateRandomArray(keysAmounts[i], 0, keysAmounts[i] * 10) : generateRandomUniqueArray(keysAmounts[i], 0);
@@ -180,11 +184,11 @@ bool Test::run(DataStructureType dsType, TestType testType, RandomizationType ra
 }
 
 bool Test::run(DataStructureType dsType, TestType testType, std::string testFile) {
-	DSStandardWrapper* benchmarkData = WrappedDS::DSentries[dsType];
+	DSStandardWrapper* ds = WrappedDS::DSentries[dsType];
 	bool ret = true;
 	// Running a testType test on a dsType data structure with keysAmount keys
 	std::string testTypeString = testType == BASIC ? GREEN "basic" RESET : RED "strict" RESET;
-	std::cout << "Running a test from file " << testFile << " on " << benchmarkData->name << std::endl;
+	std::cout << "Running a test from file " << testFile << " on " << ds->name << std::endl;
 	std::ifstream file;
 	testFile = TEST_DIR + testFile + TEST_FILE_EXT;
 	file.open(testFile);
@@ -249,105 +253,162 @@ void Test::generateTestFile(std::string testFile, RandomizationType randType, in
 
 // ==================== Benchmark ====================
 
-static std::chrono::nanoseconds runBenchmark(DSStandardWrapper* benchmark, void (DSStandardWrapper::*benchmarkFunction)(int), RandomizationType randType, int keysAmount) {
-	int* keys = randType == NON_UNIQUE_RANDOM ? generateRandomArray(keysAmount, 0, keysAmount * 10) : generateRandomUniqueArray(keysAmount, 0);
-
+static std::chrono::nanoseconds runBenchmark(DSStandardWrapper* ds, void (DSStandardWrapper::*dsFunction)(int), int* keys, int keysAmount) {
 	// Start the timer
 	auto start = std::chrono::high_resolution_clock::now();
 
 	// Run the benchmark
-	for (int i = 0; i < keysAmount; i++)
-		(benchmark->*benchmarkFunction)(keys[i]);
+	for (int i = 0; i < keysAmount; i++) {
+		int key = keys[i];
+		(ds->*dsFunction)(keys[i]);
+	}
 
 	// Stop the timer
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = stop - start;
 
-	delete[] keys;
 	return duration;
 }
 
-void Test::Benchmark::run(enum DataStructureType benchmarkType, RandomizationType randType, int insertKeys, int searchKeys, int removeKeys) {
-	DSStandardWrapper* benchmarkData = WrappedDS::DSentries[benchmarkType];
-	if (verboseLevel > 1) std::cout << "Running benchmark: " << benchmarkData->name << std::endl;
+void Test::Benchmark::run(enum DataStructureType dsType, int* keys, int keysAmount) {
+	DSStandardWrapper* ds = WrappedDS::DSentries[dsType];
+	if (Test::Benchmark::verboseLevel > 1) std::cout << "Running benchmark: " << ds->name << std::endl;
+
 	// Initialize the benchmark
-	benchmarkData->init(insertKeys);
+	ds->init(keysAmount);
 
 	// Run Insertion
-	auto duration = runBenchmark(benchmarkData, &DSStandardWrapper::insert, randType, insertKeys);
+	auto duration = runBenchmark(ds, &DSStandardWrapper::insert, keys, keysAmount);
 	insertTotalTime += duration;
 	// Print the results
-	if (verboseLevel > 1) std::cout << "Inserted " GREEN << insertKeys << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / insertKeys << " nanoseconds per key)" << std::endl;
+	if (Test::Benchmark::verboseLevel > 1) std::cout << "Inserted " GREEN << keysAmount << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / keysAmount << " nanoseconds per key)" << std::endl;
 
 	// Save space complexity
-	int spaceComplexity = benchmarkData->calculateSpaceComplexity();
+	int spaceComplexity = ds->calculateSpaceComplexity();
 	spaceComplexityTotal += spaceComplexity;
 
 	// Run Search
-	duration = runBenchmark(benchmarkData, &DSStandardWrapper::returnlessSearch, randType, searchKeys);
+	duration = runBenchmark(ds, &DSStandardWrapper::returnlessSearch, keys, keysAmount);
 	searchTotalTime += duration;
 	// Print the results
-	if (verboseLevel > 1) std::cout << "Searched " GREEN << searchKeys << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / searchKeys << " nanoseconds per key)" << std::endl;
+	if (Test::Benchmark::verboseLevel > 1) std::cout << "Searched " GREEN << keysAmount << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / keysAmount << " nanoseconds per key)" << std::endl;
 
 	// Run Removal
-	duration = runBenchmark(benchmarkData, &DSStandardWrapper::remove, randType, removeKeys);
+	duration = runBenchmark(ds, &DSStandardWrapper::remove, keys, keysAmount);
 	removeTotalTime += duration;
 
 	// Print the results
-	if (verboseLevel > 1) std::cout << "Removed " GREEN << removeKeys << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / removeKeys << " nanoseconds per key)" << std::endl;
+	if (Test::Benchmark::verboseLevel > 1) std::cout << "Removed " GREEN << keysAmount << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / keysAmount << " nanoseconds per key)" << std::endl;
 
 	// SpaceComplexity
-	if (verboseLevel > 1) std::cout << "Space complexity: " << spaceComplexity << std::endl;
+	if (Test::Benchmark::verboseLevel > 1) std::cout << "Space complexity: " MAGENTA << spaceComplexity << RESET " bytes (" << spaceComplexity / keysAmount << " bytes per key)" << std::endl;
 
 	// Destrucor
-	benchmarkData->destroy();
+	ds->destroy();
+}
+void printResluts(int keysAmount, int testAmount) {
+	// Summarize the results
+	std::cout << std::endl;
+	std::cout << "Total time for " << testAmount << " runs:" << std::endl;
+	std::cout << "Insertion: " BOLD YELLOW << insertTotalTime.count() << RESET " nanoseconds for " GREEN << keysAmount << RESET " keys" << std::endl;
+	std::cout << "Search: " BOLD YELLOW << searchTotalTime.count() << RESET " nanoseconds for " GREEN << keysAmount << RESET " keys" << std::endl;
+	std::cout << "Removal: " BOLD YELLOW << removeTotalTime.count() << RESET " nanoseconds for " GREEN << keysAmount << RESET " keys" << std::endl;
+
+	// Insertion average
+	std::cout << std::endl;
+	std::cout << "Insertion average: " BOLD YELLOW << insertTotalTime.count() / testAmount << RESET " nanoseconds per run" << std::endl;
+	std::cout << "Insertion average per key: " BOLD MAGENTA << insertTotalTime.count() / (testAmount * keysAmount) << RESET " nanoseconds per key" << std::endl;
+
+	// Search average
+	std::cout << std::endl;
+	std::cout << "Search average: " BOLD YELLOW << searchTotalTime.count() / testAmount << RESET " nanoseconds per run" << std::endl;
+	std::cout << "Search average per key: " BOLD MAGENTA << searchTotalTime.count() / (testAmount * keysAmount) << RESET " nanoseconds per key" << std::endl;
+
+	// Removal average
+	std::cout << std::endl;
+	std::cout << "Removal average: " BOLD YELLOW << removeTotalTime.count() / testAmount << RESET " nanoseconds per run or " << removeTotalTime.count() / 1000 / testAmount << " microseconds per run" << std::endl;
+	std::cout << "Removal average per key: " BOLD MAGENTA << removeTotalTime.count() / (testAmount * keysAmount) << RESET " nanoseconds per key" << std::endl;
+
+	// Space complexity
+	std::cout << std::endl;
+	std::cout << "Space complexity average: " BOLD YELLOW << spaceComplexityTotal / testAmount << RESET " bytes" << std::endl;
+	std::cout << "Space complexity average per key: " BOLD MAGENTA << spaceComplexityTotal / (testAmount * keysAmount) << RESET " bytes per key" << std::endl;
 }
 
-void Test::Benchmark::run(enum DataStructureType benchmarkType, RandomizationType randType, int insertKeys, int searchKeys, int removeKeys, int amount) {
-	if (insertKeys <= 0 || searchKeys <= 0 || removeKeys <= 0 || amount <= 0) {
+void Test::Benchmark::run(enum DataStructureType dsType, RandomizationType randType, int keysAmount, int testAmount) {
+	if (keysAmount <= 0 || testAmount <= 0) {
 		std::cout << "Error: Invalid argument" << std::endl;
 		return;
 	}
+	std::cout << "Starting a radnomized " << (randType ? "non-unique" : "unique") << " benchmark of " << keysAmount << " elements for " << WrappedDS::DSentries[dsType]->name << std::endl;
 
-	std::cout << "Starting a radnomized " << (randType ? "non-unique" : "unique") << " benchmark of " << insertKeys << " elements for " << WrappedDS::DSentries[benchmarkType]->name << std::endl;
-	// std::cout << "Only
-	std::cout << "Running " << amount << " times" << std::endl;
+	std::cout << "Running " << testAmount << " times" << std::endl;
 
 	// Run the benchmark amount times
-	for (int i = 0; i < amount; i++) {
-		if (verboseLevel > 1) {
+	for (int i = 0; i < testAmount; i++) {
+		if (Test::Benchmark::verboseLevel > 1) {
 			std::cout << std::endl;
-			std::cout << "Run " << i + 1 << " of " << amount << std::endl;
+			std::cout << "Run " << i + 1 << " of " << testAmount << std::endl;
 		}
-		run(benchmarkType, randType, insertKeys, searchKeys, removeKeys);
+		int* keys = randType == NON_UNIQUE_RANDOM ? generateRandomArray(keysAmount, 0, keysAmount * 10) : generateRandomUniqueArray(keysAmount, 0);
+		run(dsType, keys, keysAmount);
+		delete[] keys;
 	}
-	if (verboseLevel > 0) {
-		// Summarize the results
-		std::cout << std::endl;
-		std::cout << "Total time for " << amount << " runs:" << std::endl;
-		std::cout << "Insertion: " BOLD YELLOW << insertTotalTime.count() << RESET " nanoseconds for " GREEN << insertKeys << RESET " keys" << std::endl;
-		std::cout << "Search: " BOLD YELLOW << searchTotalTime.count() << RESET " nanoseconds for " GREEN << searchKeys << RESET " keys" << std::endl;
-		std::cout << "Removal: " BOLD YELLOW << removeTotalTime.count() << RESET " nanoseconds for " GREEN << removeKeys << RESET " keys" << std::endl;
+	if (Test::Benchmark::verboseLevel > 0) {
+		printResluts(keysAmount, testAmount);
+	}
 
-		// Insertion average
-		std::cout << std::endl;
-		std::cout << "Insertion average: " BOLD YELLOW << insertTotalTime.count() / amount << RESET " nanoseconds per run" << std::endl;
-		std::cout << "Insertion average per key: " BOLD MAGENTA << insertTotalTime.count() / (amount * insertKeys) << RESET " nanoseconds per key" << std::endl;
+	// Reset the totals
+	insertTotalTime = std::chrono::nanoseconds(0);
+	searchTotalTime = std::chrono::nanoseconds(0);
+	removeTotalTime = std::chrono::nanoseconds(0);
+	spaceComplexityTotal = 0;
+}
 
-		// Search average
-		std::cout << std::endl;
-		std::cout << "Search average: " BOLD YELLOW << searchTotalTime.count() / amount << RESET " nanoseconds per run" << std::endl;
-		std::cout << "Search average per key: " BOLD MAGENTA << searchTotalTime.count() / (amount * searchKeys) << RESET " nanoseconds per key" << std::endl;
+void Test::Benchmark::run(enum DataStructureType dsType, std::string testFile) {
+	DSStandardWrapper* ds = WrappedDS::DSentries[dsType];
+	bool ret = true;
+	// Running a testType test on a dsType data structure with keysAmount keys
 
-		// Removal average
-		std::cout << std::endl;
-		std::cout << "Removal average: " BOLD YELLOW << removeTotalTime.count() / amount << RESET " nanoseconds per run or " << removeTotalTime.count() / 1000 / amount << " microseconds per run" << std::endl;
-		std::cout << "Removal average per key: " BOLD MAGENTA << removeTotalTime.count() / (amount * removeKeys) << RESET " nanoseconds per key" << std::endl;
+	std::ifstream file;
+	testFile = TEST_DIR + testFile + TEST_FILE_EXT;
+	file.open(testFile);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file " << testFile << std::endl;
+		return;
+	}
 
-		// Space complexity
-		std::cout << std::endl;
-		std::cout << "Space complexity average: " BOLD YELLOW << spaceComplexityTotal / amount << RESET " bytes" << std::endl;
-		std::cout << "Space complexity average per key: " BOLD MAGENTA << spaceComplexityTotal / (amount * insertKeys) << RESET " bytes per key" << std::endl;
+	// Get the number of lines
+	int lines = 0;
+	std::string line;
+	while (std::getline(file, line)) lines++;
+
+	// Go back to the beginning of the file
+	file.clear();
+
+	std::cout << "Starting a fixed (" << testFile << ") benchmark for " << WrappedDS::DSentries[dsType]->name << std::endl;
+
+	std::cout << "Running " << lines << " times" << std::endl;
+
+	int totalKeysAmount = 0;
+	for (int i = 0; i < lines; i++) {
+		if (Test::Benchmark::verboseLevel > 1) {
+			std::cout << std::endl;
+			std::cout << "Run " << i + 1 << " of " << lines << std::endl;
+		}
+		// Get the keys amount
+		int testKeysAmount = 0;
+		// Get the keys
+		int* keys = getTestKeysFromFile(file, i + 1, testKeysAmount);
+
+		totalKeysAmount += testKeysAmount;
+		// Run the test
+		run(dsType, keys, testKeysAmount);
+		delete[] keys;
+	}
+
+	if (Test::Benchmark::verboseLevel > 0) {
+		printResluts(totalKeysAmount, lines);
 	}
 
 	// Reset the totals

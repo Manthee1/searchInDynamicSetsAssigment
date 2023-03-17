@@ -12,11 +12,6 @@ struct TestEntry {
 	DSStandardWrapper* test;
 };
 
-enum TestType {
-	BASIC,
-	STRICT
-};
-
 namespace Test {
 	bool testFileExists(std::string filename);
 	bool run(DataStructureType dsType, TestType testType, RandomizationType randType);
@@ -25,8 +20,9 @@ namespace Test {
 	namespace Benchmark {
 		extern bool verbose;
 		extern int verboseLevel;
-		void run(enum DataStructureType benchmarkType, RandomizationType randType, int insertKeys, int searchKeys, int removeKeys);
-		void run(enum DataStructureType benchmarkType, RandomizationType randType, int insertKeys, int searchKeys, int removeKeys, int amount);
+		void run(enum DataStructureType dsType, int* keys, int keysAmount);
+		void run(enum DataStructureType dsType, RandomizationType randType, int keysAmount, int testAmount);
+		void run(enum DataStructureType dsType, std::string testFile);
 	};
 }
 #endif
