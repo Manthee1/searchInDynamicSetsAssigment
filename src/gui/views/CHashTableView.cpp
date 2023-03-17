@@ -4,25 +4,27 @@
 #include <cstdlib>
 #define IG GUI::imgui
 
-// CHashTable table = CHashTable(10, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-static CHashTable* table;
+static CHashTable* table = new CHashTable(10);
 static int insertValue = 0;
 static int highlightIndex = -1;
 static int highlightKeyIndex = -1;
+static char* insertKey = new char[100]{"\0"};
+static int amount = 10;
+static int tableSize = 10;
 // timer
 static int timer = 0;
 void CHashTableView::draw() {
-	IG::Begin("Add Entry");
-	static char* insertKey = new char[100]{"\0"};
-	IG::InputText("Key", insertKey, 100);
-	IG::InputInt("Value", &insertValue);
-	if (IG::Button("Add Entry"))
-		table->insertKey(insertKey, insertValue);
-	IG::End();
+	IG::Begin("Chainning Hash Table");
 
-	IG::Begin("Create Random Table");
-	static int amount = 10;
-	static int tableSize = 10;
+	IG::Text("Table Buckets: %d", table->buckets);
+	IG::Text("Size: %d", table->size);
+	IG::Text("Load Factor: %.2f", table->loadFactor);
+	IG::Text("Load: %.2f", (float)table->size / (float)table->buckets);
+
+	IG::Separator();
+
+	// Create a random table
+	IG::Text("Create Random Table");
 	IG::InputInt("Amount", &amount);
 	IG::InputInt("Size", &tableSize);
 	if (IG::Button("Create Table")) {
@@ -35,33 +37,37 @@ void CHashTableView::draw() {
 			table->insertKey(randomString, rand() % 100);
 		}
 	}
-	IG::End();
 
-	IG::Begin("Search Entry");
+	IG::Separator();
+
+	IG::Text("Add Entry");
+	IG::InputText("Add Key", insertKey, 100);
+	IG::InputInt("Value", &insertValue);
+	if (IG::Button("Add Entry"))
+		table->insertKey(insertKey, insertValue);
+
+	IG::Separator();
+
+	IG::Text("Search Entry");
 	static char* searchKey = new char[100]{"\0"};
-	IG::InputText("Key", searchKey, 100);
+	IG::InputText("Search Key", searchKey, 100);
 	if (IG::Button("Search Entry")) {
 		highlightIndex = table->hash(searchKey);
 		highlightKeyIndex = table->getKeyIndex(searchKey, highlightIndex);
 		if (highlightKeyIndex == -1) {
 			highlightIndex = -1;
-			timer = 200;
 		}
 	}
-	// Draw text notifying the user that the key was not found
-	if (timer > 0 && highlightIndex == -1) {
-		IG::Text("Key not found");
-		timer--;
-	}
-	IG::End();
+
+	IG::Separator();
 
 	// Delete
 
-	IG::Begin("Delete Entry");
-	static int deleteKey = 0;
-	IG::InputInt("Key", &deleteKey);
+	IG::Text("Delete Entry");
+	static char* deleteKey = new char[100]{"\0"};
+	IG::InputText("Delete Key", deleteKey, 100);
 	if (IG::Button("Delete Entry"))
-		table->deleteKey(std::to_string(deleteKey));
+		table->deleteKey(deleteKey);
 	if (IG::Button("Clear Hash Table"))
 		table->clear();
 	IG::End();

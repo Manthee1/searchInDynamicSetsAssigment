@@ -12,10 +12,12 @@ struct HashTableChain {
 class CHashTable {
 private:
 	void initTable(int, std::string*, int*);
+	void resize(int);
 
 public:
 	int size;
 	int buckets;
+	float loadFactor = 0.75;
 	HashTableChain* table = nullptr;
 	CHashTable();
 	CHashTable(int);

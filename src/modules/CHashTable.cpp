@@ -18,6 +18,30 @@ void CHashTable::initTable(int buckets, std::string* keys, int* values) {
 		for (int i = 0; i < buckets; i++) insertKey(keys[i], values[i]);
 }
 
+void CHashTable::resize(int newBuckets) {
+	// Create a new table
+	HashTableChain* newTable = new HashTableChain[newBuckets];
+	int oldBuckets = buckets;
+	buckets = newBuckets;
+	// Nullify all entries
+	for (int i = 0; i < buckets; i++) newTable[i] = {{}, {}, 0};
+	// Insert all keys
+	for (int i = 0; i < oldBuckets; i++) {
+		for (int j = 0; j < table[i].size; j++) {
+			std::string key = table[i].keys[j];
+			int value = table[i].values[j];
+			unsigned int index = hash(key);
+			newTable[index].keys.push_back(key);
+			newTable[index].values.push_back(value);
+			newTable[index].size++;
+		}
+	}
+	// Delete the old table
+	delete[] table;
+	// Set the new table
+	table = newTable;
+}
+
 CHashTable::CHashTable() {
 	initTable(DEFAULT_CAPACITY, {}, {});
 }
@@ -47,12 +71,12 @@ CHashTable::~CHashTable() {
 }
 
 unsigned int CHashTable::hash(const std::string& key) {
-	const unsigned int factor = 31;	 // a prime number
-	unsigned long hash = 0;
-	for (size_t i = 0; i < key.length(); i++)
-		hash = (hash * factor) + key[i];
-
-	return hash % buckets;
+	unsigned long long hash1 = 0, hash2 = 0;
+	for (size_t i = 0; i < key.length(); i++) {
+		hash1 = (hash1 << 4) + key[i];
+		hash2 = (hash2 << 5) + key[i];
+	}
+	return (hash1 % buckets + hash2 % (buckets - 1) + 1) % buckets;
 }
 
 void CHashTable::insertKey(std::string key, int value) {
@@ -63,10 +87,13 @@ void CHashTable::insertKey(std::string key, int value) {
 		table[index].values[keyIndex] = value;
 		return;
 	}
+
 	table[index].keys.push_back(key);
 	table[index].values.push_back(value);
 	table[index].size++;
 	size++;
+
+	if (size >= buckets * loadFactor) resize(buckets * 2);
 }
 
 int CHashTable::searchKey(std::string key) {
@@ -93,6 +120,7 @@ void CHashTable::deleteKey(std::string key) {
 		table[index].values.clear();
 		table[index].size = 0;
 		size--;
+		if (size <= buckets * loadFactor / 2) resize(buckets / 2);
 		return;
 	}
 
@@ -101,6 +129,8 @@ void CHashTable::deleteKey(std::string key) {
 	table[index].values.erase(table[index].values.begin() + keyIndex);
 	table[index].size--;
 	size--;
+	// Resize the table if the load factor is too low
+	if (size <= buckets * loadFactor / 2) resize(buckets / 2);
 }
 
 void CHashTable::clear() {
