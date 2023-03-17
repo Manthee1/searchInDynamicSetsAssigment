@@ -44,6 +44,7 @@ enum RandomizationType getRandType(string randTypeString) {
 		randomizationType = NON_UNIQUE_RANDOM;
 	else if (randTypeString != "unique" && randTypeString != "u")
 		cout << YELLOW "INFO: Invalid randomization type, using unique" RESET << endl;
+	return randomizationType;
 }
 
 enum TestType getBenchmarkType(string testTypeString) {
@@ -52,6 +53,7 @@ enum TestType getBenchmarkType(string testTypeString) {
 		testType = STRICT;
 	else if (testTypeString != "basic")
 		cout << YELLOW "INFO: Invalid test type, using basic" RESET << endl;
+	return testType;
 }
 
 void printTestHelp() {
@@ -60,8 +62,8 @@ void printTestHelp() {
 	cout << " \ttest fixed {filename} [a|r|o|c] [strict|basic]" << endl;
 	cout << " \ttest gen {filename} {keysAmount1,keysAmount2,...} [unique|random] (keysAmount is the amount of keys for each test)" << endl;
 	cout << " \ttest [benchmark|bench|b] - Run a benchmark on a data structure" << endl;
-	cout << " \t\tbenchmark rand [a|r|o|c] [final|all] [unique|random] - Runs a benchmark with random keys" << endl;
-	cout << " \t\tbenchmark fixed {filename} [a|r|o|c] [final|all] - Runs a benchmark with keys from a file" << endl;
+	cout << " \t\tbenchmark rand [a|r|o|c] [unique|random] {keysAmount} - Runs a benchmark with random keys" << endl;
+	cout << " \t\tbenchmark fixed {filename} [a|r|o|c] - Runs a benchmark with keys from a file" << endl;
 }
 
 void test(int argc, char** argv) {
@@ -177,37 +179,72 @@ void test(int argc, char** argv) {
 		Test::generateTestFile(fileName, randomizationType, keysAmount, keysAmountSize);
 		return;
 	} else if (testTypeString == "benchmark" || testTypeString == "bench" || testTypeString == "b") {
-		// Make sure there is a benchmark type
 		if (argc < 4) {
-			cout << "Please specify a benchmark type [a|r|o|c]" << endl;
+			cout << "Please specify a benchmark type (rand, fixed)" << endl;
 			printTestHelp();
 			return;
 		}
 
-		// Get the benchmark type
 		string benchmarkTypeString = string(argv[3]);
-		enum DataStructureType benchmarkType = getDataType(benchmarkTypeString);
 
-		// If there is a fourth argument, use it as the test type
-		enum TestType testType = BASIC;
-		if (argc > 4)
-			testType = getBenchmarkType(string(argv[4]));
-		else
-			cout << YELLOW "INFO: Test type not provided. Using basic test" RESET << endl;
+		if (benchmarkTypeString == "rand" || benchmarkTypeString == "r") {
+			// Make sure there is a benchmark type
+			if (argc < 5) {
+				cout << "Please specify a data structure type [a|r|o|c]" << endl;
+				printTestHelp();
+				return;
+			}
 
-		enum RandomizationType randomizationType = UNIQUE_RANDOM;
-		if (argc > 5) {
-			string randTypeString = string(argv[5]);
-			randomizationType = getRandType(randTypeString);
-		} else
-			cout << YELLOW "INFO: Randomization type not provided. Using unique randomization" RESET << endl;
+			// Get the benchmark type
+			string dsTypeString = string(argv[4]);
+			enum DataStructureType dsType = getDataType(dsTypeString);
 
-		// Get the amount of elements
-		int elementsAmount = (argc > 6) ? atoi(argv[6]) : 1000;
-		if (argc <= 6) cout << YELLOW "INFO: Amount of elements not provided. Using " << elementsAmount << RESET << endl;
-		// Print all the information
-		Test::Benchmark::verboseLevel = 2;
-		Test::Benchmark::run(benchmarkType, randomizationType, elementsAmount, elementsAmount, elementsAmount, 10);
+			// Get the randomization type
+			enum RandomizationType randomizationType = UNIQUE_RANDOM;
+			if (argc > 5) {
+				string randTypeString = string(argv[5]);
+				randomizationType = getRandType(randTypeString);
+			} else
+				cout << YELLOW "INFO: Randomization type not provided. Using unique randomization" RESET << endl;
+
+			// Get the element count
+			int elementsAmount = (argc > 6) ? atoi(argv[6]) : 1000;
+			if (argc <= 6) cout << YELLOW "INFO: Amount of elements not provided. Using " << elementsAmount << RESET << endl;
+
+			Test::Benchmark::verboseLevel = 2;
+			Test::Benchmark::run(dsType, randomizationType, elementsAmount, 10);
+
+		} else if (benchmarkTypeString == "fixed" || benchmarkTypeString == "f") {
+			// Test File
+			if (argc < 5) {
+				cout << "Please specify a test file" << endl;
+				printTestHelp();
+				return;
+			}
+			// make sure the file exists
+			string fileName = string(argv[4]);
+			if (!Test::testFileExists(fileName)) {
+				cout << "Test file " << fileName << " does not exist" << endl;
+				cout << "Please specify a valid test file or generate a new one" << endl;
+				return;
+			}
+
+			// Data structure
+			if (argc < 6) {
+				cout << "Please specify a data structure type [a|r|o|c]" << endl;
+				printTestHelp();
+				return;
+			}
+
+			// Get the ds type
+			string dsTypeString = string(argv[5]);
+			enum DataStructureType dsType = getDataType(dsTypeString);
+
+			Test::Benchmark::verboseLevel = 2;
+			Test::Benchmark::run(dsType, fileName);
+		} else {
+			cout << "Please specify a valid benchmark type (rand, fixed)" << endl;
+		}
 		return;
 	}
 	cout << "Invalid test type provided" << endl;
