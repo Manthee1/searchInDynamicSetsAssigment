@@ -49,6 +49,7 @@ void OAHashTable::resize(int newCapacity) {
 			delete table->keys[i];
 			table->keys[i] = NULL;
 			table->values[i] = 0;
+			this->tombstoneCount--;
 			continue;
 		}
 		keys[index] = *table->keys[i];
