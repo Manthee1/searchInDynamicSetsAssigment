@@ -9,8 +9,6 @@ int min(int, int);
 
 void printTree(AVLNode*, int);
 
-bool isPrime(int);
-
 int* generateRandomArray(int, int, int);
 
 int* generateRandomUniqueArray(int, int);
