@@ -11,6 +11,7 @@ static std::vector<RBnodePos*> nodePositions;
 static int nodePositionsSize = 0;
 static bool reIndexNodes = true;
 static int insertKey = 0;
+static int insertValue = 0;
 static int removeKey = 0;
 static int treeHeight = 0;
 static RedBlackNode* selectedNode = NULL;
@@ -36,9 +37,10 @@ static void resetNodeGUIData() {
 void RedBlackTreeView::draw() {
 	IG::Begin("Add RedBlackNode");
 	IG::InputInt("Key", &insertKey);
+	IG::InputInt("Key", &insertValue);
 
 	if (IG::Button("Add RedBlackNode")) {
-		tree.insertKey(insertKey);
+		tree.insert(insertKey, insertValue);
 		resetNodeGUIData();
 	}
 	IG::End();
@@ -51,7 +53,7 @@ void RedBlackTreeView::draw() {
 		tree.root = NULL;
 		tree = RedBlackTree();
 		for (int i = 0; i < size; i++)
-			tree.insertKey(rand() % size);
+			tree.insert(rand() % size, rand() % size);
 		resetNodeGUIData();
 	}
 	IG::End();

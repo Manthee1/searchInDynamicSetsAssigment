@@ -14,14 +14,14 @@ private:
 
 public:
 	// Root of the tree
-	AVLNode *root;
+	AVLNode *root = NULL;
 
 	// Constructor
 	AVLTree();
 	// Variadic constructor with std::initializer_list
-	AVLTree(std::initializer_list<int>);
+	AVLTree(std::initializer_list<int>, std::initializer_list<int>);
 	// Constructor with array
-	AVLTree(int *, int);
+	AVLTree(int *, int *, int);
 	// Destructor
 	~AVLTree();
 
@@ -59,7 +59,7 @@ public:
 	 *
 	 * @param key - Key to be inserted
 	 */
-	void insertKey(int);
+	void insert(int, int);
 
 	/**
 	 * @brief Insert a node into the tree

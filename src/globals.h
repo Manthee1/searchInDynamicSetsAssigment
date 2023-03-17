@@ -31,9 +31,20 @@ enum RandomizationType {
 	NON_UNIQUE_RANDOM,
 };
 
+enum TestType {
+	BASIC,
+	STRICT
+};
+
+enum BenchmarkType {
+	ALL,
+	FINAL,
+};
+
 // AVLNode structure
 struct AVLNode {
 	int key;
+	int value;
 	AVLNode *parent;
 	AVLNode *left;
 	AVLNode *right;
@@ -41,6 +52,7 @@ struct AVLNode {
 	int height;
 	AVLNode();
 	AVLNode(int key);
+	AVLNode(int key, int value);
 };
 
 // RedBlackNode colors
@@ -52,14 +64,15 @@ enum RedBlackNodeColor {
 // RedBlackNode structure
 struct RedBlackNode {
 	int key;
+	int value;
 	RedBlackNode *parent;
 	RedBlackNode *left;
 	RedBlackNode *right;
 	int count;
 	RedBlackNodeColor color;
 	RedBlackNode();
-	RedBlackNode(int key);
-	RedBlackNode(int key, RedBlackNodeColor color);
+	RedBlackNode(int key, int value);
+	RedBlackNode(int key, int value, RedBlackNodeColor color);
 };
 
 // Used for test entries

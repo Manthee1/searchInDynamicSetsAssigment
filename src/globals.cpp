@@ -1,17 +1,37 @@
 #include "globals.h"
 
 // AVLNode constructors with key
-AVLNode::AVLNode(int key) {
-	this->key = key;
+AVLNode::AVLNode() {
+	this->key = 0;
+	this->value = 0;
 	this->left = NULL;
 	this->right = NULL;
 	this->parent = NULL;
 	this->height = 1;
 }
 
-// RedBlackNode constructors with key
-RedBlackNode::RedBlackNode(int key) {
+AVLNode::AVLNode(int key, int value) {
 	this->key = key;
+	this->value = value;
+	this->left = NULL;
+	this->right = NULL;
+	this->parent = NULL;
+	this->height = 1;
+}
+
+RedBlackNode::RedBlackNode() {
+	this->key = 0;
+	this->value = 0;
+	this->left = NULL;
+	this->right = NULL;
+	this->parent = NULL;
+	this->color = red;
+}
+
+// RedBlackNode constructors with key
+RedBlackNode::RedBlackNode(int key, int value) {
+	this->key = key;
+	this->value = value;
 	this->left = NULL;
 	this->right = NULL;
 	this->parent = NULL;
@@ -19,8 +39,9 @@ RedBlackNode::RedBlackNode(int key) {
 }
 
 // RedBlackNode constructor with key and color
-RedBlackNode::RedBlackNode(int key, RedBlackNodeColor color) {
+RedBlackNode::RedBlackNode(int key, int value, RedBlackNodeColor color) {
 	this->key = key;
+	this->value = value;
 	this->left = NULL;
 	this->right = NULL;
 	this->parent = NULL;

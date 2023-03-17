@@ -119,18 +119,16 @@ AVLTree::AVLTree() {
 	root = NULL;
 }
 // Variadic constructor with std::initializer_list
-AVLTree::AVLTree(std::initializer_list<int> list) {
+AVLTree::AVLTree(std::initializer_list<int> keys, std::initializer_list<int> values) {
 	size = 0;
 	root = NULL;
-	for (int key : list)
-		insertKey(key);
 }
 // Constructor with array
-AVLTree::AVLTree(int *list, int size) {
+AVLTree::AVLTree(int *keys, int *values, int size) {
 	this->size = 0;
 	root = NULL;
 	for (int i = 0; i < size; i++)
-		insertKey(list[i]);
+		insert(keys[i], values[i]);
 }
 
 AVLTree::~AVLTree() {
@@ -145,7 +143,7 @@ void AVLTree::deleteTree(AVLNode *node) {
 	delete node;
 }
 
-void AVLTree::insertKey(int key) { insertNode(new AVLNode(key), true); }
+void AVLTree::insert(int key, int value) { insertNode(new AVLNode(key, value), true); }
 
 void AVLTree::insertNode(AVLNode *node, bool balance) {
 	if (node == NULL) return;
@@ -245,6 +243,7 @@ void AVLTree::deleteNode(AVLNode *node) {
 
 		// Copy the largest subtree's node's key to the node to be deleted
 		node->key = removeNode->key;
+		node->value = removeNode->value;
 
 		// Make a pointer to the node to be deleted's parent
 		AVLNode *tempLeafNode;

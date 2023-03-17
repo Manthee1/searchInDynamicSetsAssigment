@@ -11,7 +11,7 @@ void AVLTreeWrapper::init(int) {
 	tree = new AVLTree();
 };
 void AVLTreeWrapper::insert(int key) {
-	tree->insertKey(key);
+	tree->insert(key, key);
 }
 int AVLTreeWrapper::search(int key) {
 	AVLNode* node = tree->searchKey(key);

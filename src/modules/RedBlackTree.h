@@ -16,9 +16,9 @@ public:
 	RedBlackNode *root;
 	RedBlackTree();
 	// Variadic constructor with std::initializer_list
-	RedBlackTree(std::initializer_list<int>);
+	RedBlackTree(std::initializer_list<int>, std::initializer_list<int>);
 	// Constructor with array
-	RedBlackTree(int *, int);
+	RedBlackTree(int *, int *, int);
 	~RedBlackTree();
 
 	// The amount of nodes in the tree
@@ -69,7 +69,7 @@ public:
 	 *
 	 * @param key - Key to be inserted
 	 */
-	void insertKey(int);
+	void insert(int, int);
 
 	/**
 	 * @brief Insert a node into the tree

@@ -9,7 +9,7 @@ void RedBlackTreeWrapper::init(int) {
 	tree = new RedBlackTree();
 }
 void RedBlackTreeWrapper::insert(int key) {
-	tree->insertKey(key);
+	tree->insert(key, key);
 }
 int RedBlackTreeWrapper::search(int key) {
 	RedBlackNode* node = tree->searchKey(key);

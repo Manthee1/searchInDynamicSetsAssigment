@@ -10,6 +10,7 @@ static AVLNodePos** nodePositions = NULL;
 static AVLNodePos* selectedNodePos = NULL;
 static AVLNode* selectedNode = NULL;
 static int insertKey = 0;
+static int insertValue = 0;
 static int removeKey = 0;
 static int nodePositionsSize = 0;
 static bool reIndexNodes = true;
@@ -46,7 +47,7 @@ void AVLTreeView::draw() {
 		delete tree.root;
 		tree.root = NULL;
 		for (int i = 0; i < size; i++)
-			tree.insertKey(rand() % size);
+			tree.insert(rand() % size, rand() % size);
 		resetNodeGUIData();
 	}
 
@@ -63,13 +64,14 @@ void AVLTreeView::draw() {
 	// Add a node to the tree
 	IG::Text("Add AVLNode");
 	IG::InputInt("Key", &insertKey);
+	IG::InputInt("Key", &insertValue);
 	if (IG::Button("Add AVLNode")) {
-		tree.insertKey(insertKey);
+		tree.insert(insertKey, insertValue);
 		resetNodeGUIData();
 	}
 	// Add a node to the tree without balancing
 	if (IG::Button("Add AVLNode(Don't balance)")) {
-		tree.insertNode(new AVLNode(insertKey), false);
+		tree.insertNode(new AVLNode(insertKey, insertValue), false);
 		resetNodeGUIData();
 	}
 

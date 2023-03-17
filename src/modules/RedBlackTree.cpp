@@ -5,22 +5,22 @@ RedBlackTree::RedBlackTree() {
 	this->height = 0;
 	root = NULL;
 }
-RedBlackTree::RedBlackTree(std::initializer_list<int> list) {
+RedBlackTree::RedBlackTree(std::initializer_list<int> keys, std::initializer_list<int> values) {
 	size = 0;
 	this->height = 0;
 	root = NULL;
 	// Insert all keys
-	for (int key : list)
-		insertKey(key);
+	// for (int key : keys)
+	// 	insertKey(key);
 }
 
-RedBlackTree::RedBlackTree(int *list, int size) {
+RedBlackTree::RedBlackTree(int *keys, int *values, int size) {
 	this->size = 0;
 	this->height = 0;
 	root = NULL;
 	// Insert all keys
 	for (int i = 0; i < size; i++)
-		insertKey(list[i]);
+		insert(keys[i], values[i]);
 }
 
 RedBlackTree::~RedBlackTree() {
@@ -31,6 +31,7 @@ void RedBlackTree::deleteTree(RedBlackNode *node) {
 	if (node == NULL) return;
 	deleteTree(node->left);
 	deleteTree(node->right);
+	size = 0;
 	delete node;
 }
 
@@ -115,8 +116,8 @@ void RedBlackTree::fixInsertFrom(RedBlackNode *node) {
 	root->color = black;
 }
 
-void RedBlackTree::insertKey(int key) {
-	insertNode(new RedBlackNode(key));
+void RedBlackTree::insert(int key, int value) {
+	insertNode(new RedBlackNode(key, value));
 }
 
 void RedBlackTree::insertNode(RedBlackNode *node) {
@@ -155,6 +156,8 @@ void RedBlackTree::insertNode(RedBlackNode *node) {
 
 	// If the parent is black, or the grandparent is NULL, the tree is balanced
 	if (node->parent->color == black || node->parent->parent == NULL) return;
+
+	size++;
 
 	// Balance the tree
 	fixInsertFrom(node);
@@ -218,6 +221,9 @@ void RedBlackTree::deleteNode(RedBlackNode *node) {
 	if (originalColor == black && x != NULL) {
 		fixDeleteFrom(x);
 	}
+
+	size--;
+
 	// Delete the node
 	delete node;
 }
