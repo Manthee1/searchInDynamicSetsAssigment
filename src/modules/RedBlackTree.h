@@ -42,6 +42,14 @@ public:
 	void transplant(RedBlackNode *, RedBlackNode *);
 
 	/**
+	 * @brief Get the successor of the given node
+	 *
+	 * @param node - Node to get the successor of
+	 * @return RedBlackNode* - Successor of the given node
+	 */
+	RedBlackNode *successor(RedBlackNode *);
+
+	/**
 	 * @brief Balance the tree starting from the given node (used after insertion)
 	 *
 	 * @param node - Starting node
@@ -86,6 +94,11 @@ public:
 	 */
 	RedBlackNode *searchKey(int);
 
+	/**
+	 *@brief Search for a node with the given key
+	 *
+	 * @param key - Key to be searched for
+	 */
 	void deleteKey(int);
 
 	/**

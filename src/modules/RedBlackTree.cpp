@@ -81,6 +81,23 @@ void RedBlackTree::transplant(RedBlackNode *node1, RedBlackNode *node2) {
 	// Otherwise, set the right child of the parent to node2
 	(node1 == node1->parent->left) ? node1->parent->left = node2 : node1->parent->right = node2;
 }
+
+RedBlackNode *RedBlackTree::successor(RedBlackNode *node) {
+	if (node->right != nullptr) {
+		node = node->right;
+		while (node->left != nullptr)
+			node = node->left;
+
+		return node;
+	}
+	RedBlackNode *parent = node->parent;
+	while (parent != nullptr && node == parent->right) {
+		node = parent;
+		parent = parent->parent;
+	}
+	return parent;
+}
+
 void RedBlackTree::fixInsertFrom(RedBlackNode *node) {
 	RedBlackNode *parent;
 	// Continue looping until parent node is black
@@ -179,56 +196,55 @@ void RedBlackTree::deleteKey(int key) {
 }
 
 void RedBlackTree::deleteNode(RedBlackNode *node) {
-	if (node == NULL) {
-		// The key is not in the tree, so there's nothing to delete
-		return;
-	}
-	// Save the original color of the node to be deleted
-	bool originalColor = node->color;
-	// Declare two pointers to nodes
-	RedBlackNode *x, *y;
-	if (node->left == NULL) {
-		// If the node has no left child, replace it with its right child
-		x = node->right;
-		transplant(node, node->right);
-	} else if (node->right == NULL) {
-		// If the node has no right child, replace it with its left child
-		x = node->left;
-		transplant(node, node->left);
-	} else {
-		// If the node has both left and right children, replace it with its successor
-		y = node->right;
-		while (y->left != NULL) {
-			y = y->left;
-		}
-		originalColor = y->color;
-		// Replace the successor with its right child
-		x = y->right;
-		// If the successor is the right child of the node to be deleted, replace the successor with its right child
-		if (y->parent != node) {
-			transplant(y, y->right);
-			y->right = node->right;
-			y->right->parent = y;
-		}
-		// Replace the node to be deleted with the successor
-		transplant(node, y);
-		y->left = node->left;
-		y->left->parent = y;
-		y->color = node->color;
-	}
-	// If the original color of the deleted node was black, and the replacement node x is not null,
-	// rebalance the tree starting from x
-	if (originalColor == black && x != NULL) {
-		fixDeleteFrom(x);
+	if (node == nullptr) return;
+
+	// Determine the node to delete (y) and its replacement (x)
+	RedBlackNode *y = (node->left == nullptr || node->right == nullptr) ? node : successor(node);
+	RedBlackNode *x = (y->left != nullptr) ? y->left : y->right;
+
+	// If x is null, create a dummy NIL node
+	if (x == nullptr) x = new RedBlackNode(-1, -1, black);
+
+	// Set the parent of x to the parent of y
+	x->parent = y->parent;
+
+	// Replace y with x in the tree
+	if (y->parent == nullptr)
+		root = x;
+	else if (y == y->parent->left)
+		y->parent->left = x;
+	else
+		y->parent->right = x;
+
+	// If y and node are different nodes, copy the values from y to node
+	if (y != node) {
+		node->key = y->key;
+		node->value = y->value;
+		node->count = y->count;
 	}
 
-	size--;
+	// If y was black, fix the tree starting from x
+	if (y->color == black) fixDeleteFrom(x);
 
-	// Delete the node
-	delete node;
+	// If x is a dummy NIL node, delete it
+	if (x->key == -1 && x->value == -1) {
+		if (x->parent == nullptr)  // If x is the root, set the root to null
+			root = nullptr;
+		else if (x == x->parent->left)	// If x is a left child, set the left child to null
+			x->parent->left = nullptr;
+		else  // If x is a right child, set the right child to null
+			x->parent->right = nullptr;
+
+		delete x;
+	}
+
+	// Delete y
+	delete y;
 }
 
 void RedBlackTree::fixDeleteFrom(RedBlackNode *node) {
+	if (node == NULL) return;
+
 	// Initialize variables
 	RedBlackNode *sibling;
 	RedBlackNodeColor siblingLeftChildColor;
