@@ -69,7 +69,7 @@ void DSStandardWrapper::remove(int) {
 bool DSStandardWrapper::isValid() {
 	return true;
 }
-int DSStandardWrapper::calculateSpaceComplexity() {
+long long DSStandardWrapper::calculateSpaceComplexity() {
 	return 0;
 }
 void DSStandardWrapper::destroy() {

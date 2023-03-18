@@ -111,7 +111,7 @@ public:
 	virtual void remove(int);
 	virtual bool isValid();
 	virtual int *getAllKeys(int &);
-	virtual int calculateSpaceComplexity();
+	virtual long long calculateSpaceComplexity();
 	virtual void destroy();
 };
 
