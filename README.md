@@ -15,8 +15,8 @@ The binary tree is also self-balancing, using the **AVL** algorithm and **Red-Bl
 
 ---
 
-## Usage
-
+## Compiling
+### Compiling With GUI
 First make sure you have glfw3 installed on your system. If you don't, then install it using your package manager. For example, on Ubuntu:
 
     sudo apt-get install libglfw3-dev
@@ -30,24 +30,67 @@ But everything from there on is for you to figure out.
 After you have `glfw3` installed, clone the repository and run the following commands in the root directory of the project:
 
     make
-That's it! The program will be compiled and the executable will be placed in the `bin` directory.
 
-    ./bin/searchInDSA
 
-## Controls
+### Compiling Without GUI
+If you don't want to use the GUI, you can compile the program without it. Just run the following commands in the root directory of the project:
+
+    make gui=0
+
+Whenever chaning the `gui` flag, you need to run `make clean` first so that the old binaries are deleted.
+```bash
+make clean
+make gui=0
+```
+This is also true for compiling with the GUI.
+
+### Running
+After you have compiled the program, you can run it by executing the following command in the root directory of the project:
+
+```
+./bin/searchInDSA
+```
+
+## Usage
+
+You can see the usage of the program by running it with the `--help` flag:
+
+``` 
+./bin/searchInDSA --help 
+```
+
+### GUI Controls
+
+To run the GUI, just run the program wit the `run` flag
+
+```
+./bin/searchInDSA run
+```
 
 `MouseWheel` - Zoom in/out  
 `MouseDrag` - Pan around
 
 You can also use the wigets to do stuff I guess.
 
+### Generating test data
+
+It's a good idead to first generated fixed test data, so that the benchmarks are consistent. To do that, run the program with the `test gen` flag:
+```bash
+./bin/searchInDSA test gen {testFileName} 1000,10000,100000,1000000 unique #example
+# More info about the test command can be found by running ./searchInDSA --help
+```
+### Running benchmarks
+
+```bash
+./bin/searchInDSA test bench fixed {testFileName} a #example
+```
 ## Libraries
 
 This project uses the following libraries:
 
 * [GLFW](http://www.glfw.org/) - For window creation and input handling
 
-* [ImGui]((https://www.github.com/ocornut/imgui)) - For the GUI
+* [Dear ImGui]((https://www.github.com/ocornut/imgui)) - For the GUI
 
 ## Acknowledgments
 
