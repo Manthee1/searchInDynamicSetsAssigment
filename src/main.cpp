@@ -62,7 +62,7 @@ void printTestHelp() {
 	cout << " \ttest fixed {filename} [a|r|o|c] [strict|basic]" << endl;
 	cout << " \ttest gen {filename} {keysAmount1,keysAmount2,...} [unique|random] (keysAmount is the amount of keys for each test)" << endl;
 	cout << " \ttest [benchmark|bench|b] - Run a benchmark on a data structure" << endl;
-	cout << " \t\tbenchmark rand [a|r|o|c] [unique|random] {keysAmount} - Runs a benchmark with random keys" << endl;
+	cout << " \t\tbenchmark rand [a|r|o|c] [unique|random] {keysAmount} {testAmount} - Runs a benchmark with random keys" << endl;
 	cout << " \t\tbenchmark fixed {filename} [a|r|o|c] - Runs a benchmark with keys from a file" << endl;
 }
 
@@ -211,8 +211,12 @@ void test(int argc, char** argv) {
 			int elementsAmount = (argc > 6) ? atoi(argv[6]) : 1000;
 			if (argc <= 6) cout << YELLOW "INFO: Amount of elements not provided. Using " << elementsAmount << RESET << endl;
 
+			// Get the test count
+			int testCount = (argc > 7) ? atoi(argv[7]) : 10;
+			if (argc <= 7) cout << YELLOW "INFO: Amount of tests not provided. Using " << testCount << RESET << endl;
+
 			Test::Benchmark::verboseLevel = 2;
-			Test::Benchmark::run(dsType, randomizationType, elementsAmount, 10);
+			Test::Benchmark::run(dsType, randomizationType, elementsAmount, testCount);
 
 		} else if (benchmarkTypeString == "fixed" || benchmarkTypeString == "f") {
 			// Test File
