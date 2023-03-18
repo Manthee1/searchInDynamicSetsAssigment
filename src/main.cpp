@@ -1,10 +1,13 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+
+#ifndef NO_GUI
 #include "gui.h"
+#include "gui/ViewController.h"
+#endif
 #include "utilities/WrappedDS.h"
 #include "utilities/Test.h"
-#include "gui/ViewController.h"
 
 using namespace std;
 
@@ -128,7 +131,7 @@ void test(int argc, char** argv) {
 		enum DataStructureType dsType = getDataType(dsTypeString);
 		Test::run(dsType, testType, fileName);
 		return;
-	} else if (testTypeString == "gen") {
+	} else if (testTypeString == "g" || testTypeString == "gen" || testTypeString == "generate") {
 		// Make sure that the file name is provided
 		if (argc < 4) {
 			cout << "Please specify a file name" << endl;
@@ -258,8 +261,10 @@ void test(int argc, char** argv) {
 void printHelp(string command) {
 	cout << "Usage: " << command << " [run|test|benchmark]" << endl;
 	cout << "Options:" << endl;
+#ifndef NO_GUI
 	cout << "  run [a|r|o|c]: run the GUI with the specified data structure type" << endl;
 	cout << endl;
+#endif
 	printTestHelp();
 }
 
@@ -273,6 +278,10 @@ int main(int argc, char** argv) {
 
 		// If arg is run, run the GUI
 		else if (arg == "run") {
+#ifdef NO_GUI
+			cout << "GUI is not aviailable in this build" << endl;
+			return 0;
+#else
 			// If there is a second argument, use it as the data structure type
 			int viewType = AVL;
 			if (argc < 3) {
@@ -282,6 +291,7 @@ int main(int argc, char** argv) {
 				viewType = getDataType(string(argv[2]));
 
 			ViewController::run((ViewType)viewType);
+#endif
 		} else if (arg == "test" || arg == "t")
 			test(argc, argv);
 		else {
