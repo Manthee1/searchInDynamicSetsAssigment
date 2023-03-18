@@ -57,12 +57,8 @@ CHashTable::CHashTable(int buckets, std::string* keys, int* values) {
 CHashTable::~CHashTable() {
 	// Check if the table is initialized
 	if (table == nullptr) return;
+	// Delete the table
 	for (int i = 0; i < buckets; i++) {
-		// std::cout << "Deleting bucket " << i << " :";
-		// for (int j = 0; j < table[i].size; j++) {
-		// 	std::cout << table[i].keys[j];
-		// }
-		// std::cout << std::endl;
 		table[i].keys.clear();
 		table[i].values.clear();
 		table[i].size = 0;
@@ -104,6 +100,7 @@ int CHashTable::searchKey(std::string key) {
 }
 
 int CHashTable::getKeyIndex(std::string key, unsigned int index) {
+	// Find if key already exists
 	for (int i = 0; i < table[index].size; i++)
 		if (table[index].keys[i] == key) return i;
 	return -1;

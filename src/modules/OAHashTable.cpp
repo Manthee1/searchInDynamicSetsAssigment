@@ -206,6 +206,7 @@ void OAHashTable::deleteKey(std::string key) {
 	if ((double)size / capacity <= 0.25)
 		resize(capacity / 2);
 
+	// If the table has more than 50% tombstones, rehash it
 	if ((double)tombstoneCount / capacity >= 0.5) {
 		rehash();
 		tombstoneCount = 0;
