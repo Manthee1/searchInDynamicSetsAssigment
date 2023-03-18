@@ -23,7 +23,7 @@ DSStandardWrapper* dsClone = nullptr;
 std::chrono::nanoseconds insertTotalTime = std::chrono::nanoseconds(0);
 std::chrono::nanoseconds searchTotalTime = std::chrono::nanoseconds(0);
 std::chrono::nanoseconds removeTotalTime = std::chrono::nanoseconds(0);
-int spaceComplexityTotal = 0;
+long long spaceComplexityTotal = 0;
 
 bool Test::testFileExists(std::string filename) {
 	filename = TEST_DIR + filename + TEST_FILE_EXT;
@@ -109,7 +109,10 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	std::cout.flush();
 	for (int i = 0; i < keysAmount; i++) {
 		ds->insert(keys[i]);
-		if (testType == STRICT && !verifyInsert(ds, &keys[i], 1)) return false;
+		if (testType == STRICT && !verifyInsert(ds, &keys[i], 1)) {
+			std::cout << "Failed on key " << keys[i] << std::endl;
+			return false;
+		}
 	}
 
 	if (!verifyInsert(ds, keys, keysAmount)) return false;
@@ -123,7 +126,10 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	std::cout.flush();
 	for (int i = 0; i < keysAmount / 2; i++) {
 		ds->remove(keys[i]);
-		if (testType == STRICT && !verifyDelete(ds, &keys[i], 1)) return false;
+		if (testType == STRICT && !verifyDelete(ds, &keys[i], 1)) {
+			std::cout << "Failed on key " << keys[i] << std::endl;
+			return false;
+		}
 	}
 
 	// Verify deletion
@@ -139,7 +145,10 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	std::cout.flush();
 	for (int i = 0; i < keysAmount / 2; i++) {
 		ds->insert(keys[i]);
-		if (testType == STRICT && !verifyInsert(ds, &keys[i], 1)) return false;
+		if (testType == STRICT && !verifyInsert(ds, &keys[i], 1)) {
+			std::cout << "Failed on key " << keys[i] << std::endl;
+			return false;
+		}
 	}
 
 	// Verify insertion
@@ -284,7 +293,7 @@ void Test::Benchmark::run(enum DataStructureType dsType, int* keys, int keysAmou
 	if (Test::Benchmark::verboseLevel > 1) std::cout << "Inserted " GREEN << keysAmount << RESET " keys in " YELLOW << duration.count() << RESET " nanoseconds (" << duration.count() / keysAmount << " nanoseconds per key)" << std::endl;
 
 	// Save space complexity
-	int spaceComplexity = ds->calculateSpaceComplexity();
+	long long spaceComplexity = ds->calculateSpaceComplexity();
 	spaceComplexityTotal += spaceComplexity;
 
 	// Run Search

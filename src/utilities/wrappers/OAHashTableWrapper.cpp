@@ -37,8 +37,8 @@ int* OAHashTableWrapper::getAllKeys(int& length) {
 	return getAllOAHashTableKeys(table, length);
 }
 
-int OAHashTableWrapper::calculateSpaceComplexity() {
-	int spaceUsed = 0;
+long long OAHashTableWrapper::calculateSpaceComplexity() {
+	long long spaceUsed = 0;
 
 	// Get the size of the vectors
 	spaceUsed += SIZE_VECTOR;

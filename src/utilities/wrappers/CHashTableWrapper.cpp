@@ -39,8 +39,8 @@ int* CHashTableWrapper::getAllKeys(int& length) {
 	return getAllCHashTableKeys(table, length);
 }
 
-int CHashTableWrapper::calculateSpaceComplexity() {
-	int spaceUsed = 0;
+long long CHashTableWrapper::calculateSpaceComplexity() {
+	long long spaceUsed = 0;
 
 	// Get te size of each key in the vector and the size of the vector
 	for (int i = 0; i < table->buckets; i++) {

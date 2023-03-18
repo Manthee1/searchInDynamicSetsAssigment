@@ -27,7 +27,7 @@ bool RedBlackTreeWrapper::isValid() {
 int* RedBlackTreeWrapper::getAllKeys(int& length) {
 	return getAllRedBlackTreeKeys(tree, tree->root, length);
 }
-int RedBlackTreeWrapper::calculateSpaceComplexity() {
+long long RedBlackTreeWrapper::calculateSpaceComplexity() {
 	return sizeof(RedBlackNode) * tree->size;
 }
 void RedBlackTreeWrapper::destroy() {
