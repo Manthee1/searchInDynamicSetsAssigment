@@ -29,47 +29,80 @@ static void resetNodeGUIData() {
 	updateTreeHeight(tree.root);
 	for (int i = 0; i < nodePositionsSize; i++)
 		delete nodePositions[i];
+
 	nodePositionsSize = 0;
 	nodePositions.clear();
 	reIndexNodes = true;
 }
 
 void RedBlackTreeView::draw() {
-	IG::Begin("Add RedBlackNode");
-	IG::InputInt("Key", &insertKey);
-	IG::InputInt("Key", &insertValue);
+	IG::Begin("RedBlackTree");
 
-	if (IG::Button("Add RedBlackNode")) {
-		tree.insert(insertKey, insertValue);
-		resetNodeGUIData();
-	}
-	IG::End();
+	IG::Text("Size: %d", tree.size);
+	IG::Text("Tree Height: %d", treeHeight);
+	IG::Separator();
 
-	IG::Begin("Random Tree");
 	static int size = 1000;
 	IG::InputInt("Amount", &size);
 	if (IG::Button("Create")) {
 		delete tree.root;
 		tree.root = NULL;
 		tree = RedBlackTree();
-		for (int i = 0; i < size; i++)
-			tree.insert(rand() % size, rand() % size);
+		int* keys = generateRandomUniqueArray(size, 0);
+		for (int i = 0; i < size; i++) {
+			tree.insert(keys[i], rand() % size);
+		}
 		resetNodeGUIData();
 	}
+	IG::Separator();
+
+	IG::InputInt("Add Key", &insertKey);
+	IG::InputInt("Add Value", &insertValue);
+
+	if (IG::Button("Add RedBlackNode")) {
+		tree.insert(insertKey, insertValue);
+		resetNodeGUIData();
+	}
+
+	IG::Separator();
+
+	// Seach
+	static int searchKey = 0;
+	IG::InputInt("Search Key", &searchKey);
+	if (IG::Button("Search RedBlackNode"))
+		selectedNode = tree.searchKey(searchKey);
+
+	IG::Separator();
+
+	IG::InputInt("Remove Key", &removeKey);
+	if (IG::Button("Remove RedBlackNode")) {
+		tree.deleteKey(removeKey);
+		resetNodeGUIData();
+	}
+	if (IG::Button("Clear Tree")) {
+		delete tree.root;
+		tree.root = NULL;
+		selectedNode = NULL;
+		resetNodeGUIData();
+	}
+
+	IG::Separator();
+
 	IG::End();
 
-	IG::Begin("Selected RedBlackNode");
 	if (selectedNode != NULL) {
+		IG::Begin("Selected RedBlackNode");
 		IG::Text("Key: %d", selectedNode->key);
+		IG::Text("Value: %d", selectedNode->value);
 		IG::Text("Count: %d", selectedNode->count);
 		IG::Text("Color: %s", selectedNode->color == red ? "RED" : "BLACK");
 		// Right rotation
-		if (IG::Button("Right Rotate")) {
+		if (selectedNode->left != NULL && IG::Button("Right Rotate")) {
 			tree.rotate(selectedNode, RIGHT);
 			resetNodeGUIData();
 		}
 		// Left rotation
-		if (IG::Button("Left Rotate")) {
+		if (selectedNode->right != NULL && IG::Button("Left Rotate")) {
 			tree.rotate(selectedNode, LEFT);
 			resetNodeGUIData();
 		}
@@ -86,9 +119,8 @@ void RedBlackTreeView::draw() {
 			tree.fixInsertFrom(selectedNode);
 			resetNodeGUIData();
 		}
+		IG::End();
 	}
-
-	IG::End();
 
 	// Check if a node was clicked
 	if (IG::IsMouseClicked(0)) {
