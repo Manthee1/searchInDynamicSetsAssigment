@@ -1,9 +1,9 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include <GLFW/glfw3.h>
+#include "./backend/glfw3.h"
 #include <sstream>
-#include <imgui.h>
+#include "imgui.h"
 namespace GUI {
 	namespace imgui = ImGui;
 	int getHeight();

@@ -3,7 +3,7 @@
 
 #include "imgui.h"
 #include "backend/imgui_impl_glfw.h"
-#include "backend/imgui_impl_opengl3.h"
+#include "./backend/imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
@@ -11,7 +11,11 @@
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
-#include <GLFW/glfw3.h>	 // Will drag system OpenGL headers
+#include "./backend/glfw3.h"
+
+#ifndef GLFW_TRANSPARENT_FRAMEBUFFER
+#define GLFW_TRANSPARENT_FRAMEBUFFER 0x00033002
+#endif 
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -47,7 +51,7 @@ namespace GUI {
 		if (!glfwInit())
 			return 1;
 
-			// Decide GL+GLSL versions
+		// Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 		// GL ES 2.0 + GLSL 100
 		const char* glsl_version = "#version 100";
@@ -80,7 +84,7 @@ namespace GUI {
 		// Add close button
 		glfwSetWindowCloseCallback(window, [](GLFWwindow* window) {
 			glfwSetWindowShouldClose(window, true);
-		});
+			});
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
