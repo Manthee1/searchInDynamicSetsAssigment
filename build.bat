@@ -8,7 +8,7 @@ set SRC_DIR=src
 set BUILD_DIR=bin
 set BUILD_SRC_DIR=bin\win_src
 set CURRENT_DIR=%cd%
-set CXX=g++
+set CXX=g++ -O4
 
 set LIBS=
 set CXXFLAGS=-g -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-missing-field-initializers
@@ -62,7 +62,7 @@ goto :end
 
 :continue-gui
 @REM Set the architecture specific variables. Essentailly just append 32 or 64 to the end of the library folder
-set LIBFOLDER=%SRC_DIR%\gui\lib\GLFW\lib-mingw-w%2
+set LIBFOLDER=.\lib\GLFW\lib-mingw-w%2
 if not exist %LIBFOLDER% (
     echo The library folder %LIBFOLDER% does not exist
     goto :end
