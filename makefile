@@ -1,17 +1,18 @@
-CXX = g++
+CXX := g++
 
 TARGET_EXEC := searchInDSA
 
-SRC_DIR := ./src
-BUILD_DIR := ./bin
+SRC_DIR := src
+BUILD_DIR := bin
 
-# Check if the gui=0. Run this with: make gui=1
-ifeq ($(gui),0)
-$(info Building without GUI)
-SRCS := $(shell find $(SRC_DIR) -name '*.cpp' -or -name '*.c' -or -name '*.s' -or -name '*.S' | grep -v "gui")
-else
+# Check if the gui=1. If so, build with GUI. Otherwise, build without GUI
+ifeq ($(gui),1)
 $(info Building with GUI)
 SRCS := $(shell find $(SRC_DIR) -name '*.cpp' -or -name '*.c' -or -name '*.s' -or -name '*.S')
+else
+$(info Building without GUI)
+SRCS := $(shell find $(SRC_DIR) -name '*.cpp' -or -name '*.c' -or -name '*.s' -or -name '*.S' | grep -v "gui")
+CXX += -DNO_GUI
 endif
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -19,16 +20,19 @@ DEPS := $(OBJS:.o=.d)
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
 
-INC_DIRS := $(shell find $(SRC_DIR) -type d | sed 's/ /\\ /g')
+INC_DIRS := $(shell find $(SRC_DIR) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-LIBS:=
+CXXFLAGS := -std=c++11 $(INC_FLAGS) 
+CXXFLAGS += -g -Wall -Wformat -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-missing-field-initializers -MMD -MP 
 
-ifneq ($(gui),0)
+LIBS;=
+
+ifeq ($(gui),1)
 ifeq ($(UNAME_S), Linux) #LINUX
-	ECHO_MESSAGE = "Linux"
 	LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3`
 
 	CXXFLAGS += `pkg-config --cflags glfw3`
+	CFLAGS = $(CXXFLAGS)
 endif
 
 ifeq ($(UNAME_S), Darwin) #APPLE
@@ -40,13 +44,6 @@ ifeq ($(UNAME_S), Darwin) #APPLE
 
 	CXXFLAGS += -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include
 endif
-
-
-CXXFLAGS = -std=c++11 $(INC_FLAGS) 
-CXXFLAGS += -g -Wall -Wformat -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-missing-field-initializers -MMD -MP 
-
-else
-CXX += -DNO_GUI
 endif
 
 ##---------------------------------------------------------------------
@@ -71,7 +68,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 
 .PHONY: clean
 clean:
-	rm -r $(BUILD_DIR)
+	rm -fr $(BUILD_DIR)/$(TARGET_EXEC) $(BUILD_DIR)/$(SRC_DIR)
 
 
 valgrind:
