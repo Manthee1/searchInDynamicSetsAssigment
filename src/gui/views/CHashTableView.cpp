@@ -8,7 +8,7 @@ static CHashTable* table = new CHashTable(10);
 static int insertValue = 0;
 static int highlightIndex = -1;
 static int highlightKeyIndex = -1;
-static char* insertKey = new char[100]{"\0"};
+static char* insertKey = new char(100);
 static int amount = 10;
 static int tableSize = 10;
 // timer
@@ -49,7 +49,7 @@ void CHashTableView::draw() {
 	IG::Separator();
 
 	IG::Text("Search Entry");
-	static char* searchKey = new char[100]{"\0"};
+	static char* searchKey = new char(100);
 	IG::InputText("Search Key", searchKey, 100);
 	if (IG::Button("Search Entry")) {
 		highlightIndex = table->hash(searchKey);
@@ -64,7 +64,7 @@ void CHashTableView::draw() {
 	// Delete
 
 	IG::Text("Delete Entry");
-	static char* deleteKey = new char[100]{"\0"};
+	static char* deleteKey = new char(100);
 	IG::InputText("Delete Key", deleteKey, 100);
 	if (IG::Button("Delete Entry"))
 		table->deleteKey(deleteKey);
@@ -102,9 +102,9 @@ static void drawTable() {
 	int x = 300;
 	GUI::beginMain();
 
-	int colorWhite[3] = {255, 255, 255};
-	int colorBlack[3] = {0, 0, 0};
-	int colorRed[3] = {255, 0, 0};
+	int colorWhite[3] = { 255, 255, 255 };
+	int colorBlack[3] = { 0, 0, 0 };
+	int colorRed[3] = { 255, 0, 0 };
 
 	for (int i = 0; i < table->buckets; i++) {
 		HashTableChain* entry = &table->table[i];
@@ -122,7 +122,7 @@ static void drawTable() {
 			// Draw the rect
 			int entry_x = x + 50 * (j + 1);
 			int entry_y = y;
-			int selectColor[3] = {100, 255, 0};
+			int selectColor[3] = { 100, 255, 0 };
 
 			GUI::line(x + 12, 50 * i + 22, entry_x + 12, entry_y + 12, colorRed);
 			GUI::rect(entry_x, entry_y, 25, 25, (highlightKeyIndex == j && highlightIndex == i) ? selectColor : colorWhite);

@@ -52,7 +52,7 @@ void OAHashTableView::draw() {
 
 	IG::Separator();
 
-	static char* insertKeyCharArray = new char[100]{"\0"};
+	static char* insertKeyCharArray = new char(100);
 	IG::Text("Add Entry");
 	IG::InputText("Add Key", insertKeyCharArray, 100);
 	IG::InputInt("Value", &insertValue);
@@ -62,7 +62,7 @@ void OAHashTableView::draw() {
 	IG::Separator();
 
 	IG::Text("Search Entry");
-	static char* searchKey = new char[100]{"\0"};
+	static char* searchKey = new char(100);
 	IG::InputText("Search Key", searchKey, 100);
 	if (IG::Button("Search Entry")) {
 		int newSelectedValue = table->searchKey(searchKey);
@@ -76,7 +76,7 @@ void OAHashTableView::draw() {
 
 	// Delete
 	IG::Text("Delete Entry");
-	static char* deleteKey = new char[100]{"\0"};
+	static char* deleteKey = new char(100);
 	IG::InputText("Delete Key", deleteKey, 100);
 	if (IG::Button("Delete Entry"))
 		table->deleteKey(deleteKey);
@@ -102,7 +102,7 @@ void OAHashTableView::draw() {
 		// Check if mouse is inside the table
 		if (mouseX > START_X && mouseX < START_X + columns * (RECT_SIZE + SPACING) &&
 			mouseY > START_Y && mouseY < START_Y + rows * (RECT_SIZE + SPACING)) {
-			int clickNode = (mouseX - START_X) / (RECT_SIZE) + (mouseY - START_Y) / (RECT_SIZE)*columns;
+			int clickNode = (mouseX - START_X) / (RECT_SIZE)+(mouseY - START_Y) / (RECT_SIZE)*columns;
 
 			if (clickNode % 3 == 0 && table->table->keys[clickNode / 3] != NULL) {
 				clickNode /= 3;
@@ -144,7 +144,7 @@ void OAHashTableView::draw() {
 		// Focus on the node
 		if (IG::Button("Focus on Node")) {
 			GUI::focusOn(START_X + (selectedIndex % columns) * (RECT_SIZE + SPACING) + RECT_SIZE / 2,
-						 START_Y + (selectedIndex / columns) * (RECT_SIZE + SPACING) + RECT_SIZE / 2, 2);
+				START_Y + (selectedIndex / columns) * (RECT_SIZE + SPACING) + RECT_SIZE / 2, 2);
 		}
 
 		IG::End();
@@ -190,10 +190,10 @@ static void drawTable() {
 	GUI::beginMain();
 
 	// Colors
-	int colorWhite[3] = {255, 255, 255};
-	int colorBlack[3] = {0, 0, 0};
-	int colorGray[3] = {100, 100, 100};
-	int colorRed[3] = {255, 0, 0};
+	int colorWhite[3] = { 255, 255, 255 };
+	int colorBlack[3] = { 0, 0, 0 };
+	int colorGray[3] = { 100, 100, 100 };
+	int colorRed[3] = { 255, 0, 0 };
 	for (int i = 0; i < rows; i++) {
 		y += rectSize + spacing;
 
@@ -213,12 +213,14 @@ static void drawTable() {
 				// Index
 				if (GUI::getScale() > 0.3)
 					GUI::text(x, y, std::to_string(index), colorWhite);
-			} else if (*table->table->keys[index] == "") {
+			}
+			else if (*table->table->keys[index] == "") {
 				// The key is a tombstone so draw a gray rect with the RIP text
 				GUI::rect(x, y, rectSize, rectSize, colorGray);
 				if (GUI::getScale() > 0.3)
 					GUI::text(x, y, "RIP", colorWhite);
-			} else {
+			}
+			else {
 				// If the key exists, draw a white rect
 				GUI::rect(x, y, rectSize, rectSize, (selectedKey == *table->table->keys[index]) ? colorRed : colorWhite);
 				if (GUI::getScale() > 0.3) {
