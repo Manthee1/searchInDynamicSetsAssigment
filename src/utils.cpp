@@ -10,9 +10,14 @@ int min(int a, int b) { return (a < b) ? a : b; }
 
 void printTree(AVLNode* root, int level) {
 	if (root == NULL) return;
+
 	printTree(root->right, level + 1);
-	for (int i = 0; i < level; i++) std::cout << "   ";
-	std::cout << root->key << std::endl;
+	if (level != 0) {
+		for (int i = 0; i < level - 1; i++) std::cout << "|\t";
+		std::cout << "|-------" << root->value << std::endl;
+	} else
+		std::cout << root->value << std::endl;
+
 	printTree(root->left, level + 1);
 }
 
