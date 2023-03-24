@@ -178,8 +178,16 @@ void test(int argc, char** argv) {
 		} else
 			cout << YELLOW "INFO: Randomization type not provided. Using unique randomization" RESET << endl;
 
+		// If the seed is provided use it
+		unsigned int seed = 69;
+		if (argc > 6) {
+			string seedString = string(argv[6]);
+			seed = atoi(seedString.c_str());
+		} else
+			cout << YELLOW "INFO: Seed not provided. Using " << seed << RESET << endl;
+
 		// Generate the test file
-		Test::generateTestFile(fileName, randomizationType, keysAmount, keysAmountSize);
+		Test::generateTestFile(fileName, randomizationType, keysAmount, keysAmountSize, seed);
 		return;
 	} else if (testTypeString == "benchmark" || testTypeString == "bench" || testTypeString == "b") {
 		if (argc < 4) {

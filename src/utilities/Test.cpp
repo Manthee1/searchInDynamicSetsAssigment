@@ -131,7 +131,7 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	// Delete half of the keys
 	std::cout << "Running deletion test ";
 	std::cout.flush();
-	for (int i = 0; i < keysAmount / 2; i++) {
+	for (int i = 0; i < keysAmount; i++) {
 		ds->remove(keys[i]);
 		if (testType == STRICT && !verifyDelete(ds, &keys[i], 1)) {
 			std::cout << "Failed on key " << keys[i] << std::endl;
@@ -140,7 +140,7 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	}
 
 	// Verify deletion
-	if (!verifyDelete(ds, keys, keysAmount / 2)) return false;
+	if (!verifyDelete(ds, keys, keysAmount)) return false;
 
 	std::cout << GREEN "[PASSED]" RESET << std::endl;
 
@@ -150,7 +150,7 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	// Rerun insertion
 	std::cout << "Re-running insertion test ";
 	std::cout.flush();
-	for (int i = 0; i < keysAmount / 2; i++) {
+	for (int i = 0; i < keysAmount; i++) {
 		ds->insert(keys[i]);
 		if (testType == STRICT && !verifyInsert(ds, &keys[i], 1)) {
 			std::cout << "Failed on key " << keys[i] << std::endl;
@@ -159,7 +159,7 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	}
 
 	// Verify insertion
-	if (!verifyInsert(ds, keys, keysAmount / 2)) return false;
+	if (!verifyInsert(ds, keys, keysAmount)) return false;
 
 	std::cout << GREEN "[PASSED]" RESET << std::endl;
 
@@ -177,8 +177,8 @@ static bool run(DataStructureType dsType, TestType testType, int* keys, int keys
 	// Destroy the benchmark
 	ds->destroy();
 
-	std::string reslutString = passed ? GREEN "[Passed]" RESET : RED "[Failed]" RESET;
-	std::cout << "Overall: " << reslutString << std::endl;
+	std::string resultString = passed ? GREEN "[Passed]" RESET : RED "[Failed]" RESET;
+	std::cout << "Overall: " << resultString << std::endl;
 	std::cout << std::endl;
 	return passed;
 }
@@ -196,6 +196,7 @@ bool Test::run(DataStructureType dsType, TestType testType, RandomizationType ra
 		ret = run(dsType, testType, keys, keysAmounts[i], i) ? ret : false;
 		delete[] keys;
 	}
+
 	return ret;
 }
 
@@ -233,12 +234,11 @@ bool Test::run(DataStructureType dsType, TestType testType, std::string testFile
 	return ret;
 }
 
-void Test::generateTestFile(std::string testFile, RandomizationType randType, int* keysAmount, int keysAmountSize) {
+void Test::generateTestFile(std::string testFile, RandomizationType randType, int* keysAmount, int keysAmountSize, unsigned int seed) {
 	// Running a testType test on a dsType data structure with keysAmount keys
-	std::cout << "Generating a test file with " << keysAmountSize << " tests with the following keys amounts: " << std::endl;
-	for (int i = 0; i < keysAmountSize; i++) {
-		std::cout << keysAmount[i] << " ";
-	}
+	std::cout << "Generating a test file with " << keysAmountSize << " tests with the following keys amounts: ";
+	for (int i = 0; i < keysAmountSize; i++) std::cout << keysAmount[i] << ", ";
+
 	std::cout << std::endl;
 	srand(time(NULL));
 
@@ -319,10 +319,10 @@ void Test::Benchmark::run(enum DataStructureType dsType, int* keys, int keysAmou
 	// SpaceComplexity
 	if (Test::Benchmark::verboseLevel > 1) std::cout << "Space complexity: " MAGENTA << spaceComplexity << RESET " bytes (" << spaceComplexity / keysAmount << " bytes per key)" << std::endl;
 
-	// Destrucor
+	// Destructor
 	ds->destroy();
 }
-void printResluts(int keysAmount, int testAmount) {
+void printResults(int keysAmount, int testAmount) {
 	// Summarize the results
 	std::cout << std::endl;
 	std::cout << "Total time for " << testAmount << " runs:" << std::endl;
@@ -349,6 +349,8 @@ void printResluts(int keysAmount, int testAmount) {
 	std::cout << std::endl;
 	std::cout << "Space complexity average: " BOLD YELLOW << spaceComplexityTotal / testAmount << RESET " bytes" << std::endl;
 	std::cout << "Space complexity average per key: " BOLD MAGENTA << spaceComplexityTotal / (testAmount * keysAmount) << RESET " bytes per key" << std::endl;
+
+	std::cout << "One line summary: " << insertTotalTime.count() / (testAmount * keysAmount) << "\t" << searchTotalTime.count() / (testAmount * keysAmount) << "\t" << removeTotalTime.count() / (testAmount * keysAmount) << "\t" << spaceComplexityTotal / (testAmount) << std::endl;
 }
 
 void Test::Benchmark::run(enum DataStructureType dsType, RandomizationType randType, int keysAmount, int testAmount) {
@@ -370,9 +372,7 @@ void Test::Benchmark::run(enum DataStructureType dsType, RandomizationType randT
 		run(dsType, keys, keysAmount);
 		delete[] keys;
 	}
-	if (Test::Benchmark::verboseLevel > 0) {
-		printResluts(keysAmount, testAmount);
-	}
+	if (Test::Benchmark::verboseLevel > 0) printResults(keysAmount, testAmount);
 
 	// Reset the totals
 	insertTotalTime = std::chrono::nanoseconds(0);
@@ -423,9 +423,7 @@ void Test::Benchmark::run(enum DataStructureType dsType, std::string testFile) {
 		delete[] keys;
 	}
 
-	if (Test::Benchmark::verboseLevel > 0) {
-		printResluts(totalKeysAmount, lines);
-	}
+	if (Test::Benchmark::verboseLevel > 0) printResults(totalKeysAmount, lines);
 
 	// Reset the totals
 	insertTotalTime = std::chrono::nanoseconds(0);
