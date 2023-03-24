@@ -68,21 +68,23 @@ RedBlackNode *RedBlackTree::rotate(RedBlackNode *x, RotateDirection direction) {
 	return y;
 }
 
-void RedBlackTree::transplant(RedBlackNode *node1, RedBlackNode *node2) {
-	if (node2 != NULL)
-		node2->parent = node1->parent;
+void RedBlackTree::transplant(RedBlackNode *u, RedBlackNode *v) {
+	// If v is not null, set its parent to u's parent
+	if (v != NULL)
+		v->parent = u->parent;
 
-	// If the parent of node1 is null, set the root to node2
-	if (node1->parent == NULL) {
-		root = node2;
+	// If the parent of u is null, set the root to v
+	if (u->parent == NULL) {
+		root = v;
 		return;
 	}
-	// If node1 is the left child of its parent, set the left child of the parent to node2
-	// Otherwise, set the right child of the parent to node2
-	(node1 == node1->parent->left) ? node1->parent->left = node2 : node1->parent->right = node2;
+	// If u is the left child of its parent, set the left child of the parent to v
+	// Otherwise, set the right child of the parent to v
+	(u == u->parent->left) ? u->parent->left = v : u->parent->right = v;
 }
 
 RedBlackNode *RedBlackTree::successor(RedBlackNode *node) {
+	// If the right child of the node is not null, return the leftmost child of the right child
 	if (node->right != nullptr) {
 		node = node->right;
 		while (node->left != nullptr)
@@ -90,6 +92,7 @@ RedBlackNode *RedBlackTree::successor(RedBlackNode *node) {
 
 		return node;
 	}
+	// Otherwise, return the first ancestor of the node that is a left child of its parent
 	RedBlackNode *parent = node->parent;
 	while (parent != nullptr && node == parent->right) {
 		node = parent;
@@ -140,6 +143,7 @@ void RedBlackTree::insert(int key, int value) {
 void RedBlackTree::insertNode(RedBlackNode *node) {
 	if (root == NULL) {
 		root = node;
+		size++;
 		root->color = black;
 		return;
 	}
@@ -165,6 +169,8 @@ void RedBlackTree::insertNode(RedBlackNode *node) {
 	(node->key < parent->key) ? parent->left = node
 							  : parent->right = node;
 
+	size++;
+
 	// If the parent is the root, the tree is balanced
 	if (node->parent == NULL) {
 		node->color = black;
@@ -173,8 +179,6 @@ void RedBlackTree::insertNode(RedBlackNode *node) {
 
 	// If the parent is black, or the grandparent is NULL, the tree is balanced
 	if (node->parent->color == black || node->parent->parent == NULL) return;
-
-	size++;
 
 	// Balance the tree
 	fixInsertFrom(node);
@@ -237,7 +241,7 @@ void RedBlackTree::deleteNode(RedBlackNode *node) {
 
 		delete x;
 	}
-
+	size--;
 	// Delete y
 	delete y;
 }
