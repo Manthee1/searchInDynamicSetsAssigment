@@ -17,7 +17,7 @@ public:
 	void returnlessSearch(int) override;
 	void remove(int) override;
 	bool isValid() override;
-	int* getAllKeys(int& length) override;
+	int getSize() override;
 	long long calculateSpaceComplexity() override;
 	void destroy() override;
 };

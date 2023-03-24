@@ -110,7 +110,7 @@ public:
 	virtual void returnlessSearch(int);
 	virtual void remove(int);
 	virtual bool isValid();
-	virtual int *getAllKeys(int &);
+	virtual int getSize();
 	virtual long long calculateSpaceComplexity();
 	virtual void destroy();
 };

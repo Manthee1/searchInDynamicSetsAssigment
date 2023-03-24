@@ -82,6 +82,13 @@ static bool verifyInsert(DSStandardWrapper* ds, int* keys, int keysAmount) {
 			return false;
 		}
 	}
+	// Check if too much keys were inserted
+	if (ds->getSize() > keysAmount) {
+		std::cout << RED "[FAILED]" RESET << std::endl;
+		std::cout << "Test failed: " << ds->name << " has more keys inserted than there should be (" << ds->getSize() << "/" << keysAmount << ")" << std::endl;
+		return false;
+	}
+
 	return true;
 }
 

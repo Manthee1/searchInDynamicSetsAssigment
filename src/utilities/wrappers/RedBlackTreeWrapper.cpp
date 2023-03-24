@@ -24,10 +24,11 @@ void RedBlackTreeWrapper::remove(int key) {
 bool RedBlackTreeWrapper::isValid() {
 	return isRedBlackTreeValid(tree);
 }
-int* RedBlackTreeWrapper::getAllKeys(int& length) {
-	return getAllRedBlackTreeKeys(tree, tree->root, length);
+int RedBlackTreeWrapper::getSize() {
+	return tree->size;
 }
 long long RedBlackTreeWrapper::calculateSpaceComplexity() {
+	std::cout << "Size: " << tree->size << std::endl;
 	return sizeof(RedBlackNode) * tree->size;
 }
 void RedBlackTreeWrapper::destroy() {

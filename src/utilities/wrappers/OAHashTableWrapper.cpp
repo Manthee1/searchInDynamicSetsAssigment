@@ -33,8 +33,8 @@ bool OAHashTableWrapper::isValid() {
 	return true;
 }
 
-int* OAHashTableWrapper::getAllKeys(int& length) {
-	return getAllOAHashTableKeys(table, length);
+int OAHashTableWrapper::getSize() {
+	return table->size;
 }
 
 long long OAHashTableWrapper::calculateSpaceComplexity() {

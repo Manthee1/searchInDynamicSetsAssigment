@@ -26,8 +26,8 @@ void AVLTreeWrapper::remove(int key) {
 bool AVLTreeWrapper::isValid() {
 	return isAVLTreeBalanced(tree, tree->root);
 }
-int* AVLTreeWrapper::getAllKeys(int& length) {
-	return getAllAVLTreeKeys(tree, tree->root, length);
+int AVLTreeWrapper::getSize() {
+	return tree->size;
 }
 long long AVLTreeWrapper::calculateSpaceComplexity() {
 	// Simple

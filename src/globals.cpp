@@ -55,8 +55,8 @@ void DSStandardWrapper::init(int) {
 }
 void DSStandardWrapper::insert(int) {
 }
-int* DSStandardWrapper::getAllKeys(int& length) {
-	return NULL;
+int DSStandardWrapper::getSize() {
+	return 0;
 }
 int DSStandardWrapper::search(int) {
 	return 0;

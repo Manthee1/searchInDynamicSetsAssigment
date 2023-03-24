@@ -35,8 +35,8 @@ bool CHashTableWrapper::isValid() {
 	return true;
 }
 
-int* CHashTableWrapper::getAllKeys(int& length) {
-	return getAllCHashTableKeys(table, length);
+int CHashTableWrapper::getSize() {
+	return table->size;
 }
 
 long long CHashTableWrapper::calculateSpaceComplexity() {
