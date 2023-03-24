@@ -35,6 +35,9 @@ void OAHashTable::initTable(int capacity, std::string* keys, int* values, int si
 }
 
 void OAHashTable::resize(int newCapacity) {
+	// Cap the min capacity to 5
+	newCapacity = max(newCapacity, 5);
+
 	// Clone the keys and values
 	std::string* keys = new std::string[size];
 	int* values = new int[size];
@@ -180,7 +183,9 @@ int OAHashTable::getKeyIndex(std::string key) {
 	int index = hash1(key);
 	int hash2_val = hash2(key, 0);
 	int i = 0;
-	while (table->keys[index] != NULL && i < capacity) {
+	// Make sure we try linear search that activates after 10 failed double hash attempts
+	int maxLoops = max(13, capacity);
+	while (table->keys[index] != NULL && i < maxLoops) {
 		// If the key is found, return the index
 		if (*table->keys[index] == key) return index;
 		index = getNextIndex(index, i, hash2_val);
@@ -203,8 +208,7 @@ void OAHashTable::deleteKey(std::string key) {
 	tombstoneCount++;
 
 	// If the table is less than 25% full, resize it
-	if ((double)size / capacity <= 0.25)
-		resize(capacity / 2);
+	if ((double)size / capacity <= 0.25) resize(capacity / 2);
 
 	// If the table has more than 50% tombstones, rehash it
 	if ((double)tombstoneCount / capacity >= 0.5) {

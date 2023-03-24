@@ -19,6 +19,9 @@ void CHashTable::initTable(int buckets, std::string* keys, int* values) {
 }
 
 void CHashTable::resize(int newBuckets) {
+	// Cap the min buckets to 5
+	newBuckets = max(newBuckets, 5);
+
 	// Create a new table
 	HashTableChain* newTable = new HashTableChain[newBuckets];
 	int oldBuckets = buckets;
@@ -111,15 +114,15 @@ void CHashTable::deleteKey(std::string key) {
 	int keyIndex = getKeyIndex(key, index);
 	if (keyIndex == -1) return;
 
-	// If the entry has only one key, delete the entry
-	if (table[index].size == 1) {
-		table[index].keys.clear();
-		table[index].values.clear();
-		table[index].size = 0;
-		size--;
-		if (size <= buckets * loadFactor / 2) resize(buckets / 2);
-		return;
-	}
+	// // If the entry has only one key, delete the entry
+	// if (table[index].size == 1) {
+	// 	table[index].keys.clear();
+	// 	table[index].values.clear();
+	// 	table[index].size = 0;
+	// 	size--;
+	// 	if (size <= buckets * loadFactor / 2) resize(buckets / 2);
+	// 	return;
+	// }
 
 	// If the entry has more than one key, resize the arrays
 	table[index].keys.erase(table[index].keys.begin() + keyIndex);
