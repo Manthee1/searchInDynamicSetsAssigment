@@ -116,7 +116,7 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	std::cout.flush();
 	for (int i = 0; i < keysAmount; i++) {
 		ds->insert(keys[i]);
-		if (testType == STRICT && !verifyInsert(ds, &keys[i], 1)) {
+		if (testType == STRICT && !verifyInsert(ds, keys, i + 1)) {
 			std::cout << "Failed on key " << keys[i] << std::endl;
 			return false;
 		}
@@ -133,7 +133,7 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	std::cout.flush();
 	for (int i = 0; i < keysAmount; i++) {
 		ds->remove(keys[i]);
-		if (testType == STRICT && !verifyDelete(ds, &keys[i], 1)) {
+		if (testType == STRICT && !verifyDelete(ds, keys, i + 1)) {
 			std::cout << "Failed on key " << keys[i] << std::endl;
 			return false;
 		}
@@ -152,7 +152,7 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	std::cout.flush();
 	for (int i = 0; i < keysAmount; i++) {
 		ds->insert(keys[i]);
-		if (testType == STRICT && !verifyInsert(ds, &keys[i], 1)) {
+		if (testType == STRICT && !verifyInsert(ds, keys, i + 1)) {
 			std::cout << "Failed on key " << keys[i] << std::endl;
 			return false;
 		}
