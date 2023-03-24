@@ -211,13 +211,6 @@ void test(int argc, char** argv) {
 			enum DataStructureType dsType = getDataType(dsTypeString);
 
 			// Get the randomization type
-			enum RandomizationType randomizationType = UNIQUE_RANDOM;
-			if (argc > 5) {
-				string randTypeString = string(argv[5]);
-				randomizationType = getRandType(randTypeString);
-			} else
-				cout << YELLOW "INFO: Randomization type not provided. Using unique randomization" RESET << endl;
-
 			string randTypeString = string(argv[5]);
 			enum RandomizationType randomizationType = getRandType(randTypeString);
 			// Get the element count
@@ -308,17 +301,14 @@ int main(int argc, char** argv) {
 			cout << "Invalid argument provided" << endl;
 			printHelp(string(argv[0]));
 		}
-	}
-	else {
+	} else {
 #ifdef NO_GUI
 		cout << "No argument provided" << endl;
 		printHelp(string(argv[0]));
-		cin.get();
 #else
 		cout << "Starting GUI" << endl;
 		ViewController::run();
 #endif
-
 	}
 
 	// Delete WrappedDS::DSentries
