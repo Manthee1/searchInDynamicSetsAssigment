@@ -63,8 +63,8 @@ void AVLTreeView::draw() {
 
 	// Add a node to the tree
 	IG::Text("Add AVLNode");
-	IG::InputInt("Key", &insertKey);
-	IG::InputInt("Key", &insertValue);
+	IG::InputInt("Add Key", &insertKey);
+	IG::InputInt("Add Value", &insertValue);
 	if (IG::Button("Add AVLNode")) {
 		tree.insert(insertKey, insertValue);
 		resetNodeGUIData();
@@ -79,7 +79,7 @@ void AVLTreeView::draw() {
 
 	// Remove a node from the tree
 	IG::Text("Remove AVLNode");
-	IG::InputInt("Key", &removeKey);
+	IG::InputInt("Remove Key", &removeKey);
 	if (IG::Button("Remove AVLNode")) {
 		tree.deleteKey(removeKey);
 		selectedNode = NULL;
