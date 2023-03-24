@@ -168,6 +168,7 @@ void AVLTree::insertNode(AVLNode *node, bool balance) {
 		// If the key already exists, increment the count and return
 		if (node->key == current->key) {
 			current->count++;
+			current->value = node->value;
 			delete node;
 			return;
 		}
@@ -190,7 +191,7 @@ void AVLTree::insertNode(AVLNode *node, bool balance) {
 
 	// Balance the tree
 	if (balance)
-		balanceTree(node->parent, node->key);
+		balanceTree(node->parent);
 }
 
 AVLNode *AVLTree::searchKey(int key) {
@@ -234,7 +235,7 @@ void AVLTree::deleteNode(AVLNode *node) {
 
 	// If the node has both children
 	// Here we don't delete the node, but we find the largest node in the left subtree and copy its key to the node to be "deleted"
-	// After that, we delete the very node we copied the key from, because it has at most one child (easy to delete)
+	// After that, we delete the very node we copied the key from, because it has at most one child
 	if (node->right != NULL && node->left != NULL) {
 		// Find the largest node in the left subtree
 		AVLNode *removeNode = node->left;
@@ -259,11 +260,11 @@ void AVLTree::deleteNode(AVLNode *node) {
 	}
 
 	// === If the node is a leaf ===
+	size--;
 
-	// if the node is the root just remove it
+	// if the node is the root just re2move it
 	if (node->parent == NULL) {
 		root = NULL;
-		size--;
 		delete node;
 		return;
 	}
@@ -274,7 +275,6 @@ void AVLTree::deleteNode(AVLNode *node) {
 	else
 		node->parent->right = NULL;
 
-	size--;
 	balanceTree(node->parent);
 	delete node;
 }
