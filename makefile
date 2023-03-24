@@ -23,7 +23,11 @@ LINUX_GL_LIBS = -lGL
 INC_DIRS := $(shell find $(SRC_DIR) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CXXFLAGS := -std=c++11 $(INC_FLAGS) 
+ifeq ($(o),1)
+CXX += -O4
+else
 CXXFLAGS += -g -Wall -Wformat -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-missing-field-initializers -MMD -MP 
+endif
 
 LIBS;=
 
@@ -50,9 +54,7 @@ endif
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-ifeq ($(o),1)
-CXX += -O4
-endif
+
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
