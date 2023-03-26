@@ -34,7 +34,7 @@ After you have `glfw3` installed, you can compile the program with `make gui=1` 
 
 #### Windows
 
-If you're on Windows the neccessary libraries are already included in the repository. You can just compile the program with `.\build.bat gui [32|64]` or `.\build.bat` if you don't want to use the GUI.
+If you're on Windows the necessary libraries are already included in the repository. You can just compile the program with `.\build.bat gui [32|64]` or `.\build.bat` if you don't want to use the GUI.
 
 Make sure you have MingGW(9.2.0) installed and added to your PATH. You can download at graphical MinGW installer [here](https://osdn.net/projects/mingw/downloads/68260/mingw-get-setup.exe/). Once you have it installed, just select the base and g++ packages and install them (Installation > Apply Changes).
 
