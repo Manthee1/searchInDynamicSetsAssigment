@@ -63,7 +63,7 @@ void printTestHelp() {
 	cout << "  test [rand|fixed|gen|benchmark] - Run a test on a data structure" << endl;
 	cout << " \ttest rand [a|r|o|c] [strict|basic] [unique|random]" << endl;
 	cout << " \ttest fixed {filename} [a|r|o|c] [strict|basic]" << endl;
-	cout << " \ttest gen {filename} {keysAmount1,keysAmount2,...} [unique|random] (keysAmount is the amount of keys for each test)" << endl;
+	cout << " \ttest gen {filename} {keysAmount1,keysAmount2,...} [unique|random] {seed} (keysAmount is the amount of keys for each test)" << endl;
 	cout << " \ttest [benchmark|bench|b] - Run a benchmark on a data structure" << endl;
 	cout << " \t\tbenchmark rand [a|r|o|c] [unique|random] {keysAmount} {testAmount} - Runs a benchmark with random keys" << endl;
 	cout << " \t\tbenchmark fixed {filename} [a|r|o|c] - Runs a benchmark with keys from a file" << endl;
