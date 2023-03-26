@@ -2,6 +2,9 @@ CXX := g++
 
 TARGET_EXEC := searchInDSA
 
+# Just specify the folders containing the (libglfw3.a) and (libglfw.3.dylib) files and pray that it works
+MAC_OS_LIBRARIES_PATH =
+
 SRC_DIR := src
 BUILD_DIR := bin
 
@@ -23,11 +26,7 @@ LINUX_GL_LIBS = -lGL
 INC_DIRS := $(shell find $(SRC_DIR) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CXXFLAGS := -std=c++11 $(INC_FLAGS) 
-ifeq ($(o),1)
-CXX += -O4
-else
 CXXFLAGS += -g -Wall -Wformat -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-missing-field-initializers -MMD -MP 
-endif
 
 LIBS;=
 
@@ -42,7 +41,12 @@ endif
 ifeq ($(UNAME_S), Darwin) #APPLE
 	ECHO_MESSAGE = "Mac OS X"
 	LIBS += -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
-	LIBS += -L/usr/local/lib -L/opt/local/lib -L/opt/homebrew/lib
+	LIBS += -L/usr/local/lib -L/opt/local/lib -L/opt/homebrew/lib 
+	
+	# If MAC_OS_LIBRARIES_PATH is not empty, then use the libraries from that path
+	ifneq ($(MAC_OS_LIBRARIES_PATH),)
+		LIBS += -L$(MAC_OS_LIBRARIES_PATH)
+	endif
 	#LIBS += -lglfw3
 	LIBS += -lglfw
 
@@ -54,7 +58,9 @@ endif
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-
+ifeq ($(o),1)
+CXX += -O4
+endif
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)

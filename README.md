@@ -36,13 +36,13 @@ After you have `glfw3` installed, you can compile the program with `make gui=1` 
 
 If you're on Windows the necessary libraries are already included in the repository. You can just compile the program with `.\build.bat gui [32|64]` or `.\build.bat` if you don't want to use the GUI.
 
-Make sure you have MingGW(9.2.0) installed and added to your PATH. You can download at graphical MinGW installer [here](https://osdn.net/projects/mingw/downloads/68260/mingw-get-setup.exe/). Once you have it installed, just select the base and g++ packages and install them (Installation > Apply Changes).
+Make sure you have MingGW(9.2.0) installed and added to your PATH. You can download a graphical MinGW installer [here](https://osdn.net/projects/mingw/downloads/68260/mingw-get-setup.exe/). Once you have it installed, just select the base and g++ packages and install them (Installation > Apply Changes).
 
 Once you installed it or already have MingGW installed. Run `.\build.bat gui [32|64]`. If you run the build gui without specifying the architecture, It will not build, but it will tell you what architecture you need to specify. (quirk of the build script)
 
 #### MacOS
 
-MacOS... Well, good luck. Just kidding, you can either install glfw3 with `brew install glfw pkg-config` or download the precompiled binaries from [here](http://www.glfw.org/download.html). If you install it with `brew`, you could probably just run `make gui=1` and it will work.
+MacOS... Well, good luck. Just kidding, you can either install glfw3 with `brew install glfw pkg-config` or download the precompiled binaries from [here](http://www.glfw.org/download.html). If you install it with `brew`, you could probably just run `make gui=1` and it will work. With the precompiled binaries, you need to specify the path to the libraries in the `Makefile` and then run `make gui=1`.
 
 ### Compiling Without GUI
 
@@ -90,11 +90,11 @@ or with the `run` flag:
 `MouseWheel` - Zoom in/out  
 `MouseDrag` - Pan around
 
-You can also use the wigets to do stuff I guess.
+You can also use the widgets to do stuff I guess.
 
 ### Generating test data
 
-It's a good idead to first generated fixed test data, so that the benchmarks are consistent. To do that, run the program with the `test gen` flag:
+It's a good idea to first generated fixed test data, so that the benchmarks are consistent. To do that, run the program with the `test gen` flag:
 
 ```bash
 ./bin/searchInDSA test gen {testFileName} 1000,10000,100000,1000000 unique #example
