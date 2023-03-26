@@ -41,7 +41,7 @@ Let's start with the data structures themselves.
 ## Data Structures
 ### A. AVL Tree
 
-Now we already know how the AVL tree works, so let's explore how it is implemented in the code. The implementation of the AVL tree is done in the [AVLTree.h](/src/modules/AVLTree.h) and [AVLTree.cpp](/src/modules/AVLTree.cpp) files. I recommend checking out the header file first, because it contains a quick documentation of the methods. The implementation of the methods is in the cpp file.
+Now we already know how the AVL tree works, so let's explore how it is implemented in the code. The implementation of the AVL tree is done in the [AVLTree.h](./src/modules/AVLTree.h) and [AVLTree.cpp](./src/modules/AVLTree.cpp) files. I recommend checking out the header file first, because it contains a quick documentation of the methods. The implementation of the methods is in the cpp file.
 
 #### **AVL Node**
 ```cpp
@@ -328,7 +328,7 @@ void AVLTree::deleteNode(AVLNode *node) {
 ```
 
 ### B. Red-Black Tree
-Same as in the AVL Tree section, the Red-Black Tree is implemented in [RedBlackTree](/src/modules/RedBlackTree.cpp) and [RedBlackTree.h](/src/modules/RedBlackTree.h).
+Same as in the AVL Tree section, the Red-Black Tree is implemented in [RedBlackTree](./src/modules/RedBlackTree.cpp) and [RedBlackTree.h](./src/modules/RedBlackTree.h).
 The main difference between the theoretical implementation of the Red-Black Tree and my implementation is that I didn't use NIL nodes to represent the leaves of the tree. The reason is less memory usage. although it does somewhat backfire when implementing some methods. So yeah, Fun.
 #### **Red Black Node**
 The node structure is identical to the AVL Tree node structure, except that it has a color field instead of a height field. 
@@ -1069,7 +1069,7 @@ void OAHashTable::deleteKey(std::string key) {
 ## Testing/Benchmarking framework
 I made my own testing framework for this project. It's somewhat robust and can be used for testing other data structures as well. It's not perfect, but it works.
 A kind of interface or Wrapper is used to make a standard in interfacing with each data structure. This helps in making the testing framework more robust and easy to use instead of having to write tests for each data structure separately (which is unnecessary when the data structures are similar in nature).
-The interface is defined in [global.h](/src/globals.h) and is used in [Test.cpp](/src/utilities/Test.cpp) to test the data structures.
+The interface is defined in [global.h](./src/globals.h) and is used in [Test.cpp](./src/utilities/Test.cpp) to test the data structures.
 ```cpp
 class DSStandardWrapper {
 public:
@@ -1087,18 +1087,18 @@ public:
 	virtual void destroy(); // Destroy the data structure
 };
 ```
-This interface is implemented by each data structure in their respective wrapper files. For example, the interface for the AVL Tree is implemented in [AVLTreeWrapper.cpp](/src/utilities/wrappers/AVLTreeWrapper.cpp).
+This interface is implemented by each data structure in their respective wrapper files. For example, the interface for the AVL Tree is implemented in [AVLTreeWrapper.cpp](./src/utilities/wrappers/AVLTreeWrapper.cpp).
 it simply overrides the methods in the main interface and calls the corresponding methods in the data structure.
 Every method is trivial and self-explanatory except for `isValid`(in trees) and `calculateSpaceComplexity`(in hash tables).
 Both calculations are explained further down in this section.
 Note that even though each data structure has a key and a value input, the wrapper classes only use the key as both the key and the value. This is because it makes it easier to test the data structures if a key and value were maybe misplaced.
 These are the wrapper classes for each data structure:
-- [AVLTreeWrapper.cpp](/src/utilities/wrappers/AVLTreeWrapper.cpp)
-- [RedBlackTreeWrapper.cpp](/src/utilities/wrappers/RedBlackTreeWrapper.cpp)
-- [CHashTableWrapper.cpp](/src/utilities/wrappers/CHashTableWrapper.cpp)
-- [OAHashTableWrapper.cpp](/src/utilities/wrappers/OAHashTableWrapper.cpp)
+- [AVLTreeWrapper.cpp](./src/utilities/wrappers/AVLTreeWrapper.cpp)
+- [RedBlackTreeWrapper.cpp](./src/utilities/wrappers/RedBlackTreeWrapper.cpp)
+- [CHashTableWrapper.cpp](./src/utilities/wrappers/CHashTableWrapper.cpp)
+- [OAHashTableWrapper.cpp](./src/utilities/wrappers/OAHashTableWrapper.cpp)
 
-There is also a main Wrapper namespace which holds a reference to each data structure wrapper class. ([WrappedDS.cpp](/src/utilities/wrappers/WrappedDS.cpp))
+There is also a main Wrapper namespace which holds a reference to each data structure wrapper class. ([WrappedDS.cpp](./src/utilities/wrappers/WrappedDS.cpp))
 ```cpp
 // Array of pointers to the wrapper class
 DSStandardWrapper *WrappedDS::DSentries[] = {
@@ -1109,7 +1109,7 @@ DSStandardWrapper *WrappedDS::DSentries[] = {
 };
 
 ```
-Instead of remembering the index of each data structure in the array, I made a `DataStructureType` enum which holds the index of each data structure in the array.([globals.h](/src/globals.h))
+Instead of remembering the index of each data structure in the array, I made a `DataStructureType` enum which holds the index of each data structure in the array.([globals.h](./src/globals.h))
 ```cpp
 enum DataStructureType {
 	AVL,
@@ -1118,7 +1118,7 @@ enum DataStructureType {
 	HashTableOpenAddressing
 };
 ```
-Another general enum is the `RandomizationType` enum which is used to determine how the keys are generated for the tests and benchmarks.([globals.h](/src/globals.h))
+Another general enum is the `RandomizationType` enum which is used to determine how the keys are generated for the tests and benchmarks.([globals.h](./src/globals.h))
 ```cpp
 enum RandomizationType {
 	UNIQUE_RANDOM, // Unique random keys
@@ -1126,7 +1126,7 @@ enum RandomizationType {
 };
 ```
 ### Testing
-The testing framework is implemented in [Test.cpp](/src/utilities/Test.cpp) (as the Test namespace). It includes 4 public methods:
+The testing framework is implemented in [Test.cpp](./src/utilities/Test.cpp) (as the Test namespace). It includes 4 public methods:
 ```cpp
 namespace Test {
 	bool testFileExists(std::string filename); // Check if a test file exists
@@ -1135,10 +1135,10 @@ namespace Test {
 	void generateTestFile(std::string testFile, RandomizationType randType, int* keysAmount, int keysAmountSize, unsigned int); // Generate a test file
 }
 ```
-I will just outline what the important methods do and how they work, and will refrain from cluttering this section with code. If you want to see the code, you can check the [Test.cpp](/src/utilities/Test.cpp) file.
+I will just outline what the important methods do and how they work, and will refrain from cluttering this section with code. If you want to see the code, you can check the [Test.cpp](./src/utilities/Test.cpp) file.
 
 
-First let me mention the TestType enum. It is used to determine whether the test should be strict or basic. A strict test will check if the data structure is valid after every operation, while a basic test will only check if the data structure is valid after all the keys were inserted/removed. This is done to save time and to make the tests run faster. The TestType enum is defined in [globals.h](/src/globals.h)
+First let me mention the TestType enum. It is used to determine whether the test should be strict or basic. A strict test will check if the data structure is valid after every operation, while a basic test will only check if the data structure is valid after all the keys were inserted/removed. This is done to save time and to make the tests run faster. The TestType enum is defined in [globals.h](./src/globals.h)
 ```cpp
 enum TestType {
 	BASIC,
@@ -1431,38 +1431,38 @@ On my system this file has 129,050,267 bytes.
 ## Benchmarking Results
 
 Before looking at the speed of each data structure, lets take a peek at their space complexity.  
-[![space complexity](/img/space-complexity.png)](/img/space-complexity.png)  
+[![space complexity](./img/space-complexity.png)](./img/space-complexity.png)  
 Picture 1. Space complexity of each data structure  
 As we can see, the chaining hash table uses the most space, followed by the open addressing hash table, the AVL tree, and the red-black tree. This is expected since the chaining hash table uses a vector for each bucket, while the open addressing hash table uses a vector for the keys and values. The AVL tree and the red-black tree use a single static size struct for the keys and values.
 
 Now lets take a look at the speed of each data structure.  
-[![Avl tree](/img/AVLTree-benchmark.png)](/img/AVLTree-benchmark.png)  
+[![Avl tree](./img/AVLTree-benchmark.png)](./img/AVLTree-benchmark.png)  
 Picture 2. AVL tree benchmark  
 Avl performance is quite good. As expected, it comes out logarithmic. The insertion and deletion are the slowest, while search is the fastest. The insertion and deletion are slow because the tree needs to be balanced after each insertion and deletion. Search is fast because the tree is balanced and the search function is very efficient.
 
-[![Red-black tree](/img/RedBlack-benchmark.png)](/img/RedBlack-benchmark.png)  
+[![Red-black tree](./img/RedBlack-benchmark.png)](./img/RedBlack-benchmark.png)  
 Picture 3. Red-black tree benchmark  
 Red-black tree performance is also quite good. As expected, it comes out logarithmic. The insertion and deletion are also the slowest, while search is the fastest. Since it also has to be balanced after each insertion and deletion.
 
-[![Chaining hash table](/img/CHT-benchmark.png)](/img/CHT-benchmark.png)  
+[![Chaining hash table](./img/CHT-benchmark.png)](./img/CHT-benchmark.png)  
 Picture 4. Chaining hash table benchmark
 Chaining hash table performance is super fast and near-constant. Insertion is the slowest bv`because it has to check if a key already exists in the bucket. The search, as expected, is the fastest because it uses a vector and the vector is very fast. The deletion is almost as fast as search, the only difference is that deletion, after finding the key, has to remove it from the vector. Which is not very expensive.
 Note that if we would to omit from checking if a key already exists in the bucket, the insertion would be as fast as search and deletion, but we we also get duplicate keys (which we don't want).
 
-[![Open addressing hash table](/img/OAHT-benchmark.png)](/img/OAHT-benchmark.png)  
+[![Open addressing hash table](./img/OAHT-benchmark.png)](./img/OAHT-benchmark.png)  
 Picture 5. Open addressing hash table benchmark  
 Open addressing hash table performance is also super fast and near-constant. However, here the Delete operation is the slowest because it has to check rehash when there are too many tombstones and also resize the table if it is too empty. The search, as expected, is the fastest because it uses a vector and the vector is very fast. The insertion right in the middle of the two, Even tho it does virtually the same operations as search, it needs to resize the table if it is too full which can be expensive.
 
 ### Comparison
 Let's compare the speed of each data structure.
 Starting with insertion.  
-[![Insertion](/img/insert-speed-comparison.png)](/img/insert-speed-comparison.png)  
+[![Insertion](./img/insert-speed-comparison.png)](./img/insert-speed-comparison.png)  
 Picture 6. Insertion speed comparison  
 Here we can see that the chaining hash table is the fastest, followed by the open addressing hash table, the red-black tree, and the AVL tree.
 The chaining hash table comes out twice as fast as AVL for 10 million keys. We can also see that the hash tables are slightly slower for a small amount of keys, but they are much faster for a large amount of keys. Which is expected if you graph a logarithmic function `log(x)` and linear `y=1`.
 
 Now let's compare the search speed.  
-[![Search](/img/search-speed-comparison.png)](/img/search-speed-comparison.png)  
+[![Search](./img/search-speed-comparison.png)](./img/search-speed-comparison.png)  
 Picture 7. Search speed comparison  
 Here we can see that the chaining hash table is the fastest, followed by the open addressing hash table, and for a fun change, the red-black tree is the slowest with the AVL tree being the second slowest.
 
@@ -1470,7 +1470,7 @@ Not much here to compare, since the results are pretty much the same as the inse
 It seems that my implementation of the red-black tree search is not as efficient as the AVL tree search. I will blame it on dark magic and move on.
 
 Finally, let's compare the deletion speed.  
-[![Deletion](/img/delete-speed-comparison.png)](/img/delete-speed-comparison.png)  
+[![Deletion](./img/delete-speed-comparison.png)](./img/delete-speed-comparison.png)  
 Picture 8. Deletion speed comparison  
 No this one is fun. Chaining does what it does best, it is the fastest. But the Open addressing hash table seriously slowed down. It is slower than the red-black tree in this data set. of course if we used a larger data set, it would  come out faster than the trees. The AVL tree is the slowest, but it is not that far behind the red-black tree, or the open addressing hash table for that matter.
 
