@@ -4,8 +4,6 @@
 #include "../utils.h"
 #include "../../modules/OAHashTable.h"
 
-static int* getAllOAHashTableKeys(OAHashTable* table, int& length);
-
 class OAHashTableWrapper : public DSStandardWrapper {
 public:
 	OAHashTableWrapper();

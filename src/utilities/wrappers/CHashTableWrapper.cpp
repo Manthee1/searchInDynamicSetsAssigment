@@ -61,17 +61,3 @@ void CHashTableWrapper::destroy() {
 CHashTableWrapper::~CHashTableWrapper() {
 	delete table;
 }
-
-static int* getAllCHashTableKeys(CHashTable* table, int& length) {
-	int* keys = new int[length];
-	int index = 0;
-	// Go through each bucket and vector
-	for (int i = 0; i < table->buckets; i++) {
-		for (int j = 0; j < table->table[i].size; j++) {
-			// Convert string to int
-			keys[index] = std::stoi(table->table[i].keys[j]);
-			index++;
-		}
-	}
-	return keys;
-}

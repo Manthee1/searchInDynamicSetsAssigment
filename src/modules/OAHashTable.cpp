@@ -47,7 +47,7 @@ void OAHashTable::resize(int newCapacity) {
 	for (int i = 0; i < capacity; i++) {
 		if (table->keys[i] == NULL)
 			continue;
-		// If the key is a thousand years old, it's dead, Jim. Kidding. But really if the key is a thombstone, delete it and continue
+		// If the key is a thousand years old, it's dead, Jim. Kidding. But really if the key is a tombstone, delete it and continue
 		if (*table->keys[i] == "") {
 			delete table->keys[i];
 			table->keys[i] = NULL;
@@ -64,7 +64,7 @@ void OAHashTable::resize(int newCapacity) {
 	clear();
 	capacity = newCapacity;
 
-	// Clear the keys and values beacuse clear() just sets them to null
+	// Clear the keys and values because clear() just sets them to null
 	table->keys.clear();
 	table->values.clear();
 
@@ -84,7 +84,7 @@ void OAHashTable::resize(int newCapacity) {
 }
 
 void OAHashTable::rehash() {
-	// Just run resize with the same capacity. becauze I'm lazy
+	// Just run resize with the same capacity. because I'm lazy
 	resize(capacity);
 }
 
@@ -119,22 +119,16 @@ OAHashTable::~OAHashTable() {
 int OAHashTable::hash1(std::string key) {
 	// djb2-like hash function
 	unsigned long hash = 5381;
-	int c;
-	for (size_t i = 0; i < key.length(); i++) {
-		c = key[i];
-		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-	}
+	for (size_t i = 0; i < key.length(); i++)
+		hash = ((hash << 5) + hash) + key[i];
 	return hash % capacity;
 }
 
 int OAHashTable::hash2(std::string key, int iteration) {
 	// sdbm-like hash function
 	unsigned int hash = 0;
-	int c;
-	for (size_t i = 0; i < key.length(); i++) {
-		c = key[i];
-		hash = c + (hash << 6) + (hash << 16) - hash;
-	}
+	for (size_t i = 0; i < key.length(); i++)
+		hash = key[i] + (hash << 6) + (hash << 16) - hash;
 	return (hash + iteration) % (capacity - 1) + 1;
 }
 
@@ -184,8 +178,7 @@ int OAHashTable::getKeyIndex(std::string key) {
 	int hash2_val = hash2(key, 0);
 	int i = 0;
 	// Make sure we try linear search that activates after 10 failed double hash attempts
-	int maxLoops = max(13, capacity);
-	while (table->keys[index] != NULL && i < maxLoops) {
+	while (table->keys[index] != NULL && i < 11 + capacity) {
 		// If the key is found, return the index
 		if (*table->keys[index] == key) return index;
 		index = getNextIndex(index, i, hash2_val);

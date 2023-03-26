@@ -38,23 +38,6 @@ RedBlackTreeWrapper::~RedBlackTreeWrapper() {
 	delete tree;
 }
 
-static int* getAllRedBlackTreeKeys(RedBlackTree* tree, RedBlackNode* node, int& length) {
-	if (node == NULL) return NULL;
-	int* leftKeys = getAllRedBlackTreeKeys(tree, node->left, length);
-	int* rightKeys = getAllRedBlackTreeKeys(tree, node->right, length);
-	int* keys = new int[length + 1];
-	for (int i = 0; i < length; i++) {
-		keys[i] = leftKeys[i];
-	}
-	keys[length] = node->key;
-	length++;
-	for (int i = 0; i < length; i++) {
-		keys[length + i] = rightKeys[i];
-	}
-	length += length;
-	return keys;
-}
-
 /**
  *@brief Checks if a red-black tree is valid.
  *

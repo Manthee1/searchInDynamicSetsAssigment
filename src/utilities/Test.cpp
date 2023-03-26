@@ -12,7 +12,6 @@
 #define BENCHMARK_FINAL_TESTS_AMOUNT 10	 // how many times we should insert a the final key to get a good average
 
 #define TESTS_AMOUNT 5
-#define KEYS_PER_TEST 1000
 static int keysAmounts[TESTS_AMOUNT] = {100, 1000, 10000, 100000, 1000000};
 
 bool Test::Benchmark::verbose = false;
@@ -92,7 +91,7 @@ static bool verifyInsert(DSStandardWrapper* ds, int* keys, int keysAmount) {
 	return true;
 }
 
-static bool verifyDelete(DSStandardWrapper* ds, int* keys, int keysAmount) {
+static bool verifyDelete(DSStandardWrapper* ds, int* keys, int keysAmount, int expectedSize) {
 	if (!ds->isValid()) {
 		std::cout << RED "[FAILED]" RESET << std::endl;
 		std::cout << "Test failed: " << ds->name << " Data structure is not valid after deletion" << std::endl;
@@ -106,6 +105,13 @@ static bool verifyDelete(DSStandardWrapper* ds, int* keys, int keysAmount) {
 			std::cout << "Test failed: " << ds->name << " Key " << keys[i] << " is still in the data structure" << std::endl;
 			return false;
 		}
+	}
+
+	// Check if too much keys were deleted
+	if (ds->getSize() != expectedSize) {
+		std::cout << RED "[FAILED]" RESET << std::endl;
+		std::cout << "Test failed: " << ds->name << " has more keys deleted than there should be (" << ds->getSize() << "/" << expectedSize << ")" << std::endl;
+		return false;
 	}
 	return true;
 }
@@ -125,22 +131,28 @@ static bool runTest(DSStandardWrapper* ds, TestType testType, int* keys, int key
 	if (!verifyInsert(ds, keys, keysAmount)) return false;
 	std::cout << GREEN "[PASSED]" RESET << std::endl;
 
-	// Shuffle the keys and take half
+	int sizeAfterInsert = ds->getSize();
+	// Shuffle the keys
 	shuffleInts(keys, keysAmount);
 
-	// Delete half of the keys
+	// Delete the keys
 	std::cout << "Running deletion test ";
 	std::cout.flush();
 	for (int i = 0; i < keysAmount; i++) {
+		// if the test is strict, don't decrement if the key was already deleted
+		if (testType == STRICT && ds->search(keys[i]) == -1)
+			sizeAfterInsert++;
+
 		ds->remove(keys[i]);
-		if (testType == STRICT && !verifyDelete(ds, keys, i + 1)) {
+
+		if (testType == STRICT && !verifyDelete(ds, keys, i + 1, sizeAfterInsert - i - 1)) {
 			std::cout << "Failed on key " << keys[i] << std::endl;
 			return false;
 		}
 	}
 
 	// Verify deletion
-	if (!verifyDelete(ds, keys, keysAmount)) return false;
+	if (!verifyDelete(ds, keys, keysAmount, 0)) return false;
 
 	std::cout << GREEN "[PASSED]" RESET << std::endl;
 
@@ -173,7 +185,7 @@ static bool run(DataStructureType dsType, TestType testType, int* keys, int keys
 	// Initialize the benchmark
 	ds->init(keysAmount);
 	// Run the test
-	bool passed = testType == BASIC ? runTest(ds, testType, keys, keysAmount) : runTest(ds, testType, keys, keysAmount);
+	bool passed = runTest(ds, testType, keys, keysAmount);
 	// Destroy the benchmark
 	ds->destroy();
 

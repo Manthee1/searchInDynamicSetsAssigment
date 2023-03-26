@@ -284,30 +284,24 @@ void RedBlackTree::fixDeleteFrom(RedBlackNode *node) {
 			// Rotate the sibling and make the sibling's inner child black
 			if ((isLeftChild && siblingRightChildColor == black) || (!isLeftChild && siblingLeftChildColor == black)) {
 				if (sibling) sibling->color = red;
-				if (isLeftChild) {
-					if (sibling->right) sibling->right->color = black;
-					rotate(sibling, RIGHT);
-					sibling = node->parent->right;
-				} else {
-					if (sibling->left) sibling->left->color = black;
-					rotate(sibling, LEFT);
-					sibling = node->parent->left;
-				}
+
+				RedBlackNode *nephew = (isLeftChild) ? sibling->right : sibling->left;
+				if (nephew) nephew->color = black;
+				rotate(sibling, (isLeftChild) ? RIGHT : LEFT);
+				sibling = (isLeftChild) ? node->parent->right : node->parent->left;
 				siblingLeftChildColor = (sibling && sibling->left) ? sibling->left->color : black;
 				siblingRightChildColor = (sibling && sibling->right) ? sibling->right->color : black;
 			}
 
 			// Case 4: Sibling's outer child is red
 			// Rotate the parent of node and make the sibling's outer child black
-			if (sibling) sibling->color = node->parent->color;
-			node->parent->color = black;
-			if (isLeftChild) {
-				if (sibling && sibling->right) sibling->right->color = black;
-				rotate(node->parent, LEFT);
-			} else {
-				if (sibling && sibling->left) sibling->left->color = black;
-				rotate(node->parent, RIGHT);
+			if (sibling) {
+				sibling->color = node->parent->color;
+				RedBlackNode *nephew = (isLeftChild) ? sibling->right : sibling->left;
+				if (nephew) nephew->color = black;
 			}
+			node->parent->color = black;
+			rotate(node->parent, isLeftChild ? LEFT : RIGHT);
 			node = root;
 		}
 	}

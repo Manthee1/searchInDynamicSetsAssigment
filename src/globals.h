@@ -41,6 +41,13 @@ enum BenchmarkType {
 	FINAL,
 };
 
+enum DataStructureType {
+	AVL,
+	RedBlack,
+	HashTableChaining,
+	HashTableOpenAddressing
+};
+
 // AVLNode structure
 struct AVLNode {
 	int key;
@@ -73,29 +80,6 @@ struct RedBlackNode {
 	RedBlackNode();
 	RedBlackNode(int key, int value);
 	RedBlackNode(int key, int value, RedBlackNodeColor color);
-};
-
-// Used for test entries
-struct InsertionTestEntry {
-	int *keys;
-	int length;
-	std::string name;
-};
-
-// Also used for test entries
-struct DeletionTestEntry {
-	int *keys;
-	int length;
-	int *deleteKeys;
-	int deleteLength;
-	std::string name;
-};
-
-enum DataStructureType {
-	AVL,
-	RedBlack,
-	HashTableChaining,
-	HashTableOpenAddressing
 };
 
 // Standard wrapper class for data structures

@@ -40,23 +40,6 @@ AVLTreeWrapper::~AVLTreeWrapper() {
 	delete tree;
 }
 
-static int* getAllAVLTreeKeys(AVLTree* tree, AVLNode* node, int& length) {
-	if (node == NULL) return NULL;
-	int* leftKeys = getAllAVLTreeKeys(tree, node->left, length);
-	int* rightKeys = getAllAVLTreeKeys(tree, node->right, length);
-	int* keys = new int[length + 1];
-	for (int i = 0; i < length; i++) {
-		keys[i] = leftKeys[i];
-	}
-	keys[length] = node->key;
-	length++;
-	for (int i = 0; i < length; i++) {
-		keys[length + i] = rightKeys[i];
-	}
-	length += length;
-	return keys;
-}
-
 // Go through each node and check if the balance is correct
 static bool isAVLTreeBalanced(AVLTree* tree, AVLNode* node) {
 	if (node == NULL) return true;

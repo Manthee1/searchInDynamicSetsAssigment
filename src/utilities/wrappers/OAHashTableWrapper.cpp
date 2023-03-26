@@ -59,17 +59,3 @@ void OAHashTableWrapper::destroy() {
 OAHashTableWrapper::~OAHashTableWrapper() {
 	delete table;
 }
-
-static int* getAllOAHashTableKeys(OAHashTable* table, int& length) {
-	int* keys = new int[length];
-	int index = 0;
-	// Go through each bucket and vector
-	for (int i = 0; i < table->capacity; i++) {
-		if (table->table->keys[i] != nullptr) {
-			// Convert string to int
-			keys[index] = std::stoi(*table->table->keys[i]);
-			index++;
-		}
-	}
-	return keys;
-}

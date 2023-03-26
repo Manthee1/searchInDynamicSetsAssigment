@@ -5,13 +5,6 @@
 #include <string>
 #include <list>
 
-// Structure for storing test data
-struct TestEntry {
-	std::string name;
-	// Pointer to the class that will be tested
-	DSStandardWrapper* test;
-};
-
 namespace Test {
 	bool testFileExists(std::string filename);
 	bool run(DataStructureType dsType, TestType testType, RandomizationType randType);

@@ -4,8 +4,6 @@
 #include "../utils.h"
 #include "../modules/CHashTable.h"
 
-static int* getAllCHashTableKeys(CHashTable* table, int& length);
-
 class CHashTableWrapper : public DSStandardWrapper {
 public:
 	CHashTableWrapper();

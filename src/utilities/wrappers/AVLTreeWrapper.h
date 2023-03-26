@@ -4,7 +4,6 @@
 #include "../utils.h"
 #include "../modules/AVLTree.h"
 
-static int* getAllAVLTreeKeys(AVLTree* tree, AVLNode* node, int& length);
 static bool isAVLTreeBalanced(AVLTree* tree, AVLNode* node);
 
 class AVLTreeWrapper : public DSStandardWrapper {

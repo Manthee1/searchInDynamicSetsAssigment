@@ -196,8 +196,10 @@ void AVLTree::insertNode(AVLNode *node, bool balance) {
 
 AVLNode *AVLTree::searchKey(int key) {
 	AVLNode *current = root;
+	// Search for the node with the given key
 	while (current != NULL) {
 		if (current->key == key) return current;
+		// If the key is less than the current node's key, search the left subtree
 		current = (key < current->key) ? current->left : current->right;
 	}
 	return NULL;

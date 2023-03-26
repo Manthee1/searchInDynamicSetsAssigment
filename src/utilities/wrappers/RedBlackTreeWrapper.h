@@ -4,7 +4,6 @@
 #include "../utils.h"
 #include "../../modules/RedBlackTree.h"
 
-static int* getAllRedBlackTreeKeys(RedBlackTree* tree, RedBlackNode* node, int& length);
 static bool isRedBlackTreeValid(RedBlackTree* tree);
 
 class RedBlackTreeWrapper : public DSStandardWrapper {
